@@ -11,7 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
+   intro
+   design_choices
+   technical_details
 
 Indices and tables
 ==================
