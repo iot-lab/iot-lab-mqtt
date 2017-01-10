@@ -14,6 +14,7 @@ Contents:
    intro
    design_choices
    technical_details
+   agents
 
 Indices and tables
 ==================
