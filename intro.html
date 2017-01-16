@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &#8212; IoT-LAB MQTT 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Agent Design choices" href="design_choices.html" />
+    <link rel="prev" title="Welcome to IoT-LAB MQTT’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>IoT-LAB MQTT provides access to an IoT-LAB experiment through an MQTT interface.</p>
+<p>A main manager script will run agents to provide these services through MQTT:</p>
+<ul class="simple">
+<li>Nodes serial ports</li>
+<li>Nodes update/reset/power on-off</li>
+<li>Radio Sniffer</li>
+<li>IPv6 over serial agent (tunslip6/ethos)</li>
+</ul>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>MQTT is a bus protocol organized around a central server (broker) where all
+clients connect, publish messages, and the broker takes care of forwarding
+messages to subscribed clients.</p>
+<div class="section" id="topics">
+<h3>Topics<a class="headerlink" href="#topics" title="Permalink to this headline">¶</a></h3>
+<p>Clients publish and subscribe messages to <code class="docutils literal"><span class="pre">topics</span></code>, which are defined by
+there name: <code class="docutils literal"><span class="pre">an/example/of/topic</span></code>. Published message are transmitted to all
+subscribed clients.</p>
+<p>It is possible to subscribe to topics with wildcards:</p>
+<ul class="simple">
+<li>single-level: <code class="docutils literal"><span class="pre">an/example/+/topic</span></code></li>
+<li>multi-level: <code class="docutils literal"><span class="pre">an/example/#</span></code></li>
+</ul>
+<p>This allows subscribing to many similar topics in a single request.</p>
+</div>
+<div class="section" id="client-side">
+<h3>Client side<a class="headerlink" href="#client-side" title="Permalink to this headline">¶</a></h3>
+<p>With this architecture, applications that want to access IoT-LAB resources
+will interact through MQTT topics with the testbed agents to configure the
+resources, control and command them.
+The configuration application can even be different from the application using
+the resources.</p>
+<p>Because of the centralized broker, they can be run on any computer that has
+access to the MQTT broker.</p>
+<blockquote>
+<div>TODO: add schema</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#architecture">Architecture</a><ul>
+<li><a class="reference internal" href="#topics">Topics</a></li>
+<li><a class="reference internal" href="#client-side">Client side</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to IoT-LAB MQTT&#8217;s documentation!</a></li>
+      <li>Next: <a href="design_choices.html" title="next chapter">Agent Design choices</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/intro.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Gaëtan Harter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/intro.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
