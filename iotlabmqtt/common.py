@@ -8,7 +8,11 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 
+import sys
+import signal
 import string
+import argparse
+import asyncore
 
 
 def topic_lazyformat(topic, **kwargs):
@@ -107,3 +111,58 @@ def clientid(name=None):
     import uuid
     name = name or os.uname()[1]
     return '%s-%s' % (name, uuid.uuid4())
+
+
+class MQTTAgentArgumentParser(argparse.ArgumentParser):
+    """ArgumentParser with common agents arguments."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._add_common_arguments()
+
+    def _add_common_arguments(self):
+        """Add common agents arguments to parser."""
+        self.add_argument('--prefix', help='Topics prefix', default='')
+        self.add_argument('--broker-port', help='Broker port')
+        self.add_argument('broker', help='Broker address')
+
+
+def keep_alive_dispatcher():
+    """Stup tcp dispatcher to keep asyncore looping."""
+    import socket
+    dispatcher = asyncore.dispatcher()
+    dispatcher.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+    dispatcher.set_reuse_addr()
+    dispatcher.bind(('', 0))
+    dispatcher.listen(0)
+    return dispatcher
+
+
+def traceback_error():
+    """Get error from traceback to return as answer."""
+    return '%s' % (sys.exc_info()[1],)
+
+
+def synchronized(lockname):
+    """Method decorator to synchronize method calls.
+
+    Class should define a lock object at attribute named ``SYNCHRONIZEDATTR``
+
+    http://caffeinatedideas.com/2014/12/12/java-synchronized-in-python.html
+    """
+    import functools
+
+    def _wrapper(method):
+        @functools.wraps(method)
+        def _synchronized_method(self, *args, **kwargs):
+            with getattr(self, lockname):
+                return method(self, *args, **kwargs)
+        return _synchronized_method
+    return _wrapper
+
+
+def wait_sigint():
+    """Pause until Ctrl+C."""
+    try:
+        signal.pause()
+    except KeyboardInterrupt:
+        pass
