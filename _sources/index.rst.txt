@@ -8,6 +8,8 @@ Welcome to IoT-LAB MQTT's documentation!
 
 Contents:
 
+:Repository URL: `<https://github.com/iot-lab/iot-lab-mqtt>`_
+
 .. toctree::
    :maxdepth: 2
 

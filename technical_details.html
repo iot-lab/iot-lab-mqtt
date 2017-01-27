@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Technical details &#8212; IoT-LAB MQTT 0.1.0 documentation</title>
+    <title>Technical details &#8212; IoT-LAB MQTT 0.2.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -45,42 +45,101 @@
             
   <div class="section" id="technical-details">
 <h1>Technical details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="usage-of-topics">
-<h2>Usage of topics<a class="headerlink" href="#usage-of-topics" title="Permalink to this headline">¶</a></h2>
-<p>Topics are a one way packet transport system. This will imply some design
-constraints.</p>
-<div class="section" id="error-topic">
-<h3>Error topic<a class="headerlink" href="#error-topic" title="Permalink to this headline">¶</a></h3>
-<p>As not all the following communication mechanisms have a response, communicating
-errors or failures should happen on a dedicated error topic.</p>
+<div class="section" id="topics-format">
+<h2>Topics format<a class="headerlink" href="#topics-format" title="Permalink to this headline">¶</a></h2>
+<p>MQTT topics are a one way packet transport system.
+More advanced communication scheme need using multiple topics with some
+specific interfaces.</p>
+<p>This section describes the different communication mechanisms used,
+topic naming conventions and message format.</p>
+<div class="section" id="channels">
+<span id="channeltopic"></span><h3>Channels<a class="headerlink" href="#channels" title="Permalink to this headline">¶</a></h3>
+<p>Two way stream require having one topic for one communication side and
+one for the other.
+This includes serial port forwarding where one topic is used to
+read from the serial port and one to write to it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">input topic:</th><td class="field-body"><code class="docutils literal"><span class="pre">{resourcetopic}/data/in</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">output topic:</th><td class="field-body"><code class="docutils literal"><span class="pre">{resourcetopic}/data/out</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="example">
+<h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
+<p>For a resource at <code class="docutils literal"><span class="pre">{prefix}/resource/1</span></code>, the channels topics will be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Topic for writing to the resource</span>
+<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">resource</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="ow">in</span>
+<span class="c1"># Topic where the resource writes its output</span>
+<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">resource</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">out</span>
+</pre></div>
 </div>
-<div class="section" id="two-way-streams">
-<h3>Two way streams<a class="headerlink" href="#two-way-streams" title="Permalink to this headline">¶</a></h3>
-<p>Two way stream require having one topic for one side and one for the other.
-This includes serial port forwarding where one topic is used to read and one to
-write.</p>
+</div>
 </div>
 <div class="section" id="request-model">
-<h3>Request model<a class="headerlink" href="#request-model" title="Permalink to this headline">¶</a></h3>
-<p>Requests is a form of two way stream, however, a response must correspond to the
-right request. For this, per request topic should be used.
-The chosen format is the following:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Request topic</span>
-<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="k">for</span><span class="o">/</span><span class="n">request</span><span class="o">/</span><span class="p">{</span><span class="n">client_id</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">request_id</span><span class="p">}</span>
-<span class="c1"># Response topic</span>
-<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="k">for</span><span class="o">/</span><span class="n">request</span><span class="o">/</span><span class="p">{</span><span class="n">client_id</span><span class="p">}</span><span class="o">/</span><span class="p">{</span><span class="n">request_id</span><span class="p">}</span><span class="o">/</span><span class="n">ret</span>
-</pre></div>
-</div>
+<span id="requesttopic"></span><h3>Request model<a class="headerlink" href="#request-model" title="Permalink to this headline">¶</a></h3>
+<p>Requests allow executing commands on a resource is a form of two way stream,
+one to do the request and one to give the result.
+As a response must correspond to the right request and the right client,
+a per request/client topic should be specified.</p>
+<p>The chosen format is the following:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">request topic:</th><td class="field-body"><code class="docutils literal"><span class="pre">{resourcetopic}/ctl/{command}/request/{clientid}/{requestid}</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">reply topic:</th><td class="field-body"><code class="docutils literal"><span class="pre">{resourcetopic}/ctl/{command}/reply/{clientid}/{requestid}</span></code></td>
+</tr>
+</tbody>
+</table>
 <p>In practice, using topic wildcard topic subscribe, only one subscribe is
-necessary per agent/client/request:</p>
+necessary per agent/client/request/command:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Agent subscribe</span>
-<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="k">for</span><span class="o">/</span><span class="n">request</span><span class="o">/+/+</span>
+<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">resource</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="n">ctl</span><span class="o">/</span><span class="p">{</span><span class="n">command</span><span class="p">}</span><span class="o">/</span><span class="n">request</span><span class="o">/+/+</span>
 <span class="c1"># Client subscribe</span>
-<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="k">for</span><span class="o">/</span><span class="n">request</span><span class="o">/</span><span class="p">{</span><span class="n">client_id</span><span class="p">}</span><span class="o">/+/</span><span class="n">ret</span>
+<span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">resource</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="n">ctl</span><span class="o">/</span><span class="p">{</span><span class="n">command</span><span class="p">}</span><span class="o">/</span><span class="n">reply</span><span class="o">/</span><span class="p">{</span><span class="n">clientid</span><span class="p">}</span><span class="o">/+</span>
 </pre></div>
 </div>
-<p>For <code class="docutils literal"><span class="pre">client_id</span></code> I recommend using a readable identifier concatenated to an
-UUID to ensure both readability and uniqueness.</p>
+<p>For <code class="docutils literal"><span class="pre">clientid</span></code> I recommend using a readable identifier concatenated to an
+UUID to ensure both readability and unicity.</p>
+</div>
+<div class="section" id="error-topic">
+<span id="errortopic"></span><h3>Error topic<a class="headerlink" href="#error-topic" title="Permalink to this headline">¶</a></h3>
+<p>As not all the following communication mechanisms have a response,
+asynchronous errors or failures happen on an error topic.</p>
+<p>The errors are sent to a subtopic from the agent error topic.
+They are published to the concatenation of the agent error topic
+and the topic where error happend relative to the agent topic:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">agenttopic</span><span class="p">}</span><span class="o">/</span><span class="n">error</span><span class="o">/</span><span class="n">relative</span><span class="o">/</span><span class="n">topic</span><span class="o">/</span><span class="n">where</span><span class="o">/</span><span class="n">problem</span><span class="o">/</span><span class="n">occured</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">payload:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span> <span class="pre">encoded</span> <span class="pre">strings</span></code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Clients subscribe to errors for this agent with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">agenttopic</span><span class="p">}</span><span class="o">/</span><span class="n">error</span><span class="o">/</span><span class="c1">#</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h4>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>An error in resource <code class="docutils literal"><span class="pre">{agenttopic}/resource/1</span></code> will be published to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">agenttopic</span><span class="p">}</span><span class="o">/</span><span class="n">error</span><span class="o">/</span><span class="n">resource</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>An error in the general agent to the will be published to:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">agenttopic</span><span class="p">}</span><span class="o">/</span><span class="n">error</span><span class="o">/</span>    <span class="c1"># With the trailing `/`</span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="sending-both-utf-8-and-binary-in-a-message">
@@ -106,10 +165,16 @@ requiring to try decoding the string.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Technical details</a><ul>
-<li><a class="reference internal" href="#usage-of-topics">Usage of topics</a><ul>
-<li><a class="reference internal" href="#error-topic">Error topic</a></li>
-<li><a class="reference internal" href="#two-way-streams">Two way streams</a></li>
+<li><a class="reference internal" href="#topics-format">Topics format</a><ul>
+<li><a class="reference internal" href="#channels">Channels</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#request-model">Request model</a></li>
+<li><a class="reference internal" href="#error-topic">Error topic</a><ul>
+<li><a class="reference internal" href="#id1">Example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#sending-both-utf-8-and-binary-in-a-message">Sending both UTF-8 and binary in a message</a></li>
@@ -150,7 +215,7 @@ requiring to try decoding the string.</p>
       &copy;2017, Gaëtan Harter.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |

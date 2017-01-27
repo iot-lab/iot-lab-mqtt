@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Radio Sniffer Agent &#8212; IoT-LAB MQTT 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Serial Redirection Agent" href="serial.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-iotlabmqtt.radiosniffer">
+<span id="radio-sniffer-agent"></span><h1>Radio Sniffer Agent<a class="headerlink" href="#module-iotlabmqtt.radiosniffer" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="iot-lab-mqtt-radio-sniffer-agent">
+<h2>IoT-LAB MQTT Radio Sniffer agent<a class="headerlink" href="#iot-lab-mqtt-radio-sniffer-agent" title="Permalink to this headline">¶</a></h2>
+<p>Radio Sniffer Agent provide access to the IoT-LAB nodes radio sniffer.
+Packets are encapsulated as <code class="docutils literal"><span class="pre">pcap</span></code> (<a class="reference external" href="https://wiki.wireshark.org/Development/LibpcapFileFormat">wireshark:pcap</a>).</p>
+<p>Radio Sniffer agent base topic:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">lab</span><span class="o">/</span><span class="n">radiosniffer</span><span class="o">/</span><span class="p">{</span><span class="n">site</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Every topics from radio sniffer agent topics start by this topic prefix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param prefix:</th><td class="field-body">configured prefix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param site:</th><td class="field-body">site where the agent is run</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="topics-summary">
+<h2>Topics Summary<a class="headerlink" href="#topics-summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="1%" />
+<col width="84%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">Topic</th>
+<th class="head">Type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="3"><strong>Radio sniffer agent</strong></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><code class="docutils literal"><span class="pre">{prefix}/iot-lab/radiosniffer/{site}</span></code></td>
+</tr>
+<tr class="row-even"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/error/</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error</span></a></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/ctl/stopall</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Node</strong></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/stop</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Raw packet sniffer</strong></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/raw/ctl/header</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
+<td><div class="first last line-block">
+<div class="line">Output</div>
+<div class="line"><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="radio-sniffer-agent-global-topics">
+<h2>Radio sniffer Agent global topics<a class="headerlink" href="#radio-sniffer-agent-global-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="error-topic">
+<h3>Error Topic<a class="headerlink" href="#error-topic" title="Permalink to this headline">¶</a></h3>
+<p>Asynchronous error messages are posted to error topic.
+Failure on requests are not duplicated here.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">{snifferagenttopic}/error/</span></code></li>
+</ul>
+<p>For format see: <a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error topic</span></a></p>
+</div>
+<div class="section" id="stop-all-redirections">
+<h3>Stop all redirections<a class="headerlink" href="#stop-all-redirections" title="Permalink to this headline">¶</a></h3>
+<p>Stop all started sniffer.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">stopall</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{snifferagenttopic}/ctl/stopall</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="node-topics">
+<h2>Node topics<a class="headerlink" href="#node-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stop-sniffer">
+<span id="id1"></span><h3>Stop sniffer<a class="headerlink" href="#stop-sniffer" title="Permalink to this headline">¶</a></h3>
+<p>Stop given node sniffer.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">stop</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/stop</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="raw-packet-sniffer">
+<h2>Raw packet sniffer<a class="headerlink" href="#raw-packet-sniffer" title="Permalink to this headline">¶</a></h2>
+<p>Topics to access to the node sniffer in <cite>raw</cite> packet mode.
+Sniffer listen to all radio packets on a given <code class="docutils literal"><span class="pre">channel</span></code>.</p>
+<p>It must first be started in <code class="docutils literal"><span class="pre">raw</span></code> mode to have the raw packet output.</p>
+<p>Global pcap header must be queried independently first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param channel:</th><td class="field-body">802.15.4 channel between 11 and 26</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="start-sniffer-in-raw-mode">
+<h3>Start sniffer in <em>raw</em> mode<a class="headerlink" href="#start-sniffer-in-raw-mode" title="Permalink to this headline">¶</a></h3>
+<p>Start one node sniffer in <em>raw</em> mode on given <code class="docutils literal"><span class="pre">channel</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/start</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><code class="docutils literal"><span class="pre">Channel</span> <span class="pre">string</span></code></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="stop-raw-sniffer">
+<h3>Stop raw sniffer<a class="headerlink" href="#stop-raw-sniffer" title="Permalink to this headline">¶</a></h3>
+<p>Equivalent to <a class="reference internal" href="#stop-sniffer"><span class="std std-ref">Stop sniffer</span></a> adde here for completeness</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/stop</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="raw-packet-sniffer-pcap-global-header">
+<h3>RAW packet sniffer PCAP global header<a class="headerlink" href="#raw-packet-sniffer-pcap-global-header" title="Permalink to this headline">¶</a></h3>
+<p>PCAP format consists of two main parts, a global header, then messages with a
+per message header: <a class="reference external" href="https://wiki.wireshark.org/Development/LibpcapFileFormat">wireshark:pcap</a></p>
+<p>This request returns the global header for <code class="docutils literal"><span class="pre">raw</span></code> mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/header</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{snifferagenttopic}/raw/ctl/header</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><cite>Global pcap header</cite></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id2">
+<h3>Raw packet sniffer<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Sniffer sends 802.15.4 raw radio frames encapsulated as <code class="docutils literal"><span class="pre">pcap</span></code>.</p>
+<p>One sniffed packet is sent by message. PCAP payload format is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Packet</span> <span class="n">PCAP</span> <span class="n">Header</span> <span class="o">|</span> <span class="n">Packet</span> <span class="n">data</span>
+</pre></div>
+</div>
+<p>PCAP Header contains:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">:</span><span class="mi">4</span> <span class="nb">bytes</span><span class="p">:</span> <span class="n">Timestamp</span> <span class="n">seconds</span>
+<span class="p">:</span><span class="mi">4</span> <span class="nb">bytes</span><span class="p">:</span> <span class="n">Timestamp</span> <span class="n">microseconds</span>
+<span class="p">:</span><span class="mi">4</span> <span class="nb">bytes</span><span class="p">:</span> <span class="n">Number</span> <span class="n">of</span> <span class="n">octet</span> <span class="n">saved</span>
+<span class="p">:</span><span class="mi">4</span> <span class="nb">bytes</span><span class="p">:</span> <span class="n">Actual</span> <span class="n">lengt</span> <span class="n">of</span> <span class="n">packet</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><strong>802.15.4 RAW sniffer channel</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Output</td>
+<td><em>{topic}</em>/<strong>out</strong></td>
+<td>PCAP packet</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Radio Sniffer Agent</a><ul>
+<li><a class="reference internal" href="#iot-lab-mqtt-radio-sniffer-agent">IoT-LAB MQTT Radio Sniffer agent</a></li>
+<li><a class="reference internal" href="#topics-summary">Topics Summary</a></li>
+<li><a class="reference internal" href="#radio-sniffer-agent-global-topics">Radio sniffer Agent global topics</a><ul>
+<li><a class="reference internal" href="#error-topic">Error Topic</a></li>
+<li><a class="reference internal" href="#stop-all-redirections">Stop all redirections</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-topics">Node topics</a><ul>
+<li><a class="reference internal" href="#stop-sniffer">Stop sniffer</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#raw-packet-sniffer">Raw packet sniffer</a><ul>
+<li><a class="reference internal" href="#start-sniffer-in-raw-mode">Start sniffer in <em>raw</em> mode</a></li>
+<li><a class="reference internal" href="#stop-raw-sniffer">Stop raw sniffer</a></li>
+<li><a class="reference internal" href="#raw-packet-sniffer-pcap-global-header">RAW packet sniffer PCAP global header</a></li>
+<li><a class="reference internal" href="#id2">Raw packet sniffer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../agents.html">Agents</a><ul>
+      <li>Previous: <a href="serial.html" title="previous chapter">Serial Redirection Agent</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/agents/radiosniffer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Gaëtan Harter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/agents/radiosniffer.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

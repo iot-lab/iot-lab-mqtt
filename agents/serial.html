@@ -1,0 +1,512 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Serial Redirection Agent &#8212; IoT-LAB MQTT 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Agents" href="../agents.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-iotlabmqtt.serial">
+<span id="serial-redirection-agent"></span><h1>Serial Redirection Agent<a class="headerlink" href="#module-iotlabmqtt.serial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="iot-lab-mqtt-serial-agent">
+<h2>IoT-LAB MQTT Serial agent<a class="headerlink" href="#iot-lab-mqtt-serial-agent" title="Permalink to this headline">¶</a></h2>
+<p>Serial agent provide access to the nodes serial link.
+The serial redirection should first be started for each node in a mode.</p>
+<p>Serial agent base topic:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">lab</span><span class="o">/</span><span class="n">serial</span><span class="o">/</span><span class="p">{</span><span class="n">site</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Every topics from serial agent topics start by this topic prefix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param prefix:</th><td class="field-body">configured prefix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param site:</th><td class="field-body">site where the agent is run</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="topics-summary">
+<h2>Topics Summary<a class="headerlink" href="#topics-summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="1%" />
+<col width="85%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">Topic</th>
+<th class="head">Type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="3"><strong>Serial agent</strong></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><code class="docutils literal"><span class="pre">{prefix}/iot-lab/serial/{site}</span></code></td>
+</tr>
+<tr class="row-even"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/error/</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error</span></a></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/ctl/stopall</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Node</strong></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/stop</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Line redirection</strong></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/ctl/start</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/ctl/stop</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/data</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Raw redirection</strong></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&nbsp;</td>
+<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="serial-agent-global-topics">
+<h2>Serial Agent global topics<a class="headerlink" href="#serial-agent-global-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="error-topic">
+<h3>Error Topic<a class="headerlink" href="#error-topic" title="Permalink to this headline">¶</a></h3>
+<p>Asynchronous error messages are posted to error topic.
+Failure on requests are not duplicated here.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">{serialagenttopic}/error/</span></code></li>
+</ul>
+<p>For format see: <a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error topic</span></a></p>
+</div>
+<div class="section" id="stop-all-redirections">
+<h3>Stop all redirections<a class="headerlink" href="#stop-all-redirections" title="Permalink to this headline">¶</a></h3>
+<p>Stop all started serial redirections.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">stopall</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/ctl/stopall</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="node-topics">
+<h2>Node topics<a class="headerlink" href="#node-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stop-redirection">
+<span id="id1"></span><h3>Stop redirection<a class="headerlink" href="#stop-redirection" title="Permalink to this headline">¶</a></h3>
+<p>Stop given node serial redirection whatever the mode was.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">stop</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/stop</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="line-redirection-topics">
+<h2>Line redirection topics<a class="headerlink" href="#line-redirection-topics" title="Permalink to this headline">¶</a></h2>
+<p>Topics to access to the node serial port redirection in &#8216;line&#8217; mode.
+The redirection must first be started in <code class="docutils literal"><span class="pre">line</span></code> mode to have the line output.</p>
+<p>Data received from the node is split on newlines characters with newlines
+stripped.</p>
+<p>As newlines characters are not used in multibytes <code class="docutils literal"><span class="pre">utf-8</span></code> characters,
+each line remains, if it was, a valid <code class="docutils literal"><span class="pre">utf-8</span></code> string.
+On invalid <code class="docutils literal"><span class="pre">utf-8</span></code> strings sent by the node,
+the data will also be invalid in the topic.</p>
+<div class="section" id="start-redirection-in-line-mode">
+<h3>Start redirection in <em>line</em> mode<a class="headerlink" href="#start-redirection-in-line-mode" title="Permalink to this headline">¶</a></h3>
+<p>Start one node serial redirection in <em>line</em> mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">line/start</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/ctl/start</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="stop-line-redirection">
+<h3>Stop line redirection<a class="headerlink" href="#stop-line-redirection" title="Permalink to this headline">¶</a></h3>
+<p>Equivalent to <a class="reference internal" href="#stop-redirection"><span class="std std-ref">Stop redirection</span></a> added here for completeness.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">line/stop</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/ctl/stop</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="line-redirection">
+<h3>Line redirection<a class="headerlink" href="#line-redirection" title="Permalink to this headline">¶</a></h3>
+<p>Serial redirection sends text lines with newline characters removed (<code class="docutils literal"><span class="pre">\n</span></code>).</p>
+<p>One message is received per line, and when sending a message, the newline
+character is automatically added.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><strong>Text line serial redirection</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/data</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Output</td>
+<td><em>{topic}</em>/<strong>out</strong></td>
+<td>UTF-8 text line</td>
+</tr>
+<tr class="row-odd"><td>Input</td>
+<td><em>{topic}</em>/<strong>in</strong></td>
+<td>UTF-8 text line</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="raw-redirection-topics">
+<h2>Raw redirection topics<a class="headerlink" href="#raw-redirection-topics" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">RAW redirection not implemented for the moment</p>
+</div>
+<div class="section" id="start-redirection-in-raw-mode">
+<h3>Start redirection in <em>raw</em> mode<a class="headerlink" href="#start-redirection-in-raw-mode" title="Permalink to this headline">¶</a></h3>
+<p>Start one node serial redirection in <em>raw</em> mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/start</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="stop-raw-redirection">
+<h3>Stop raw redirection<a class="headerlink" href="#stop-raw-redirection" title="Permalink to this headline">¶</a></h3>
+<p>Equivalent to <a class="reference internal" href="#stop-redirection"><span class="std std-ref">Stop redirection</span></a> added here for completeness.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/stop</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="raw-redirection">
+<h3>RAW redirection<a class="headerlink" href="#raw-redirection" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">RAW redirection not implemented for the moment</p>
+</div>
+<p>Serial redirection handling raw data.</p>
+<p>Group of bytes are sent when received from the node redirection.
+No handling is done when receiving/sending.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><strong>RAW serial redirection</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Output</td>
+<td><em>{topic}</em>/<strong>out</strong></td>
+<td>RAW bytes</td>
+</tr>
+<tr class="row-odd"><td>Input</td>
+<td><em>{topic}</em>/<strong>in</strong></td>
+<td>RAW bytes</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Serial Redirection Agent</a><ul>
+<li><a class="reference internal" href="#iot-lab-mqtt-serial-agent">IoT-LAB MQTT Serial agent</a></li>
+<li><a class="reference internal" href="#topics-summary">Topics Summary</a></li>
+<li><a class="reference internal" href="#serial-agent-global-topics">Serial Agent global topics</a><ul>
+<li><a class="reference internal" href="#error-topic">Error Topic</a></li>
+<li><a class="reference internal" href="#stop-all-redirections">Stop all redirections</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-topics">Node topics</a><ul>
+<li><a class="reference internal" href="#stop-redirection">Stop redirection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#line-redirection-topics">Line redirection topics</a><ul>
+<li><a class="reference internal" href="#start-redirection-in-line-mode">Start redirection in <em>line</em> mode</a></li>
+<li><a class="reference internal" href="#stop-line-redirection">Stop line redirection</a></li>
+<li><a class="reference internal" href="#line-redirection">Line redirection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#raw-redirection-topics">Raw redirection topics</a><ul>
+<li><a class="reference internal" href="#start-redirection-in-raw-mode">Start redirection in <em>raw</em> mode</a></li>
+<li><a class="reference internal" href="#stop-raw-redirection">Stop raw redirection</a></li>
+<li><a class="reference internal" href="#raw-redirection">RAW redirection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../agents.html">Agents</a><ul>
+      <li>Previous: <a href="../agents.html" title="previous chapter">Agents</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/agents/serial.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Gaëtan Harter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/agents/serial.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
