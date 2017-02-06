@@ -173,3 +173,11 @@ def wait_sigint():
         signal.pause()
     except KeyboardInterrupt:
         pass
+
+
+def parser_add_iotlab_auth_args(parser):
+    """Add iotlab auth arguments to ```parser```."""
+    parser.add_argument('--iotlab-user', dest='iotlab_username',
+                        help='IoT-LAB username')
+    parser.add_argument('--iotlab-password', dest='iotlab_password',
+                        help='IoT-LAB password')

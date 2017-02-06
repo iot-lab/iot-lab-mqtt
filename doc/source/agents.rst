@@ -8,3 +8,4 @@ Agents
    agents/radiosniffer
    agents/node
    agents/process
+   agents/resources

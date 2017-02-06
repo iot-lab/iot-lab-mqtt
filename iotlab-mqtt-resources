@@ -1,0 +1,4 @@
+#! /usr/bin/env python
+
+import iotlabmqtt.resources
+iotlabmqtt.resources.main()
