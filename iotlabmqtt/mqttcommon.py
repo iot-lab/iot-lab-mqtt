@@ -256,6 +256,7 @@ class RequestServer(Topic):
     """Topic implementation for a Request server."""
 
     def __init__(self, topic, command, callback=None):
+        assert callback
         request_topic = RequestTopic.request_topic(topic, command)
         super().__init__(request_topic, callback=callback)
 

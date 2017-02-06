@@ -231,12 +231,6 @@ class RequestTest(AgentTest):
         # Callback timedout ?
         self.assertTrue(server_cb.called)
 
-    def test_requestserver_none_calback(self):
-        """Test callback None even after wrapping."""
-        callback = None
-        topic = mqttcommon.RequestServer('to/ic', 'command', callback=callback)
-        self.assertIsNone(topic.callback)
-
 
 class ChannelTest(AgentTest):
     """Test Channel classes."""
