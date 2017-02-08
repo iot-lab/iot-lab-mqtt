@@ -58,7 +58,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     scripts=SCRIPTS,
-    classifiers=['Development Status :: 1 - Planning',
+    classifiers=['Development Status :: 3 - Alpha',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2.7',
                  'Programming Language :: Python :: 3',
