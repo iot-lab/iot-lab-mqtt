@@ -13,6 +13,7 @@ import threading
 
 import mock
 from iotlabmqtt import mqttcommon
+from iotlabmqtt.clients import common as clientcommon
 from . import mqttclient_mock
 
 
@@ -118,7 +119,7 @@ class RequestTest(AgentTest):
 
     def test_request_topic(self):
         """Test RequestTopic."""
-        clientid = mqttcommon.common.clientid('testrequest')
+        clientid = clientcommon.clientid('testrequest')
 
         topicname = '{archi}/{num}/line'
         requesttopic = '{archi}/{num}/line/ctl/start/request/%s/{requestid}'
@@ -149,7 +150,7 @@ class RequestTest(AgentTest):
 
     def test_request_topics(self):
         """Test Request Topics."""
-        clientid = mqttcommon.common.clientid('testrequest')
+        clientid = clientcommon.clientid('testrequest')
         topicname = '{archi}/{num}/line'
 
         server_cb = mock.Mock()

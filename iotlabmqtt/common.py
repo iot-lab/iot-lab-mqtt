@@ -101,17 +101,6 @@ def _is_named_field(text, name, spec, conversion):
     return True
 
 
-def clientid(name=None):
-    """Return clientid for ``name``.
-
-    If ``name`` is None, use hostname.
-    """
-    import os
-    import uuid
-    name = name or os.uname()[1]
-    return '%s-%s' % (name, uuid.uuid4())
-
-
 class MQTTAgentArgumentParser(argparse.ArgumentParser):
     """ArgumentParser with common agents arguments."""
     def __init__(self, *args, **kwargs):

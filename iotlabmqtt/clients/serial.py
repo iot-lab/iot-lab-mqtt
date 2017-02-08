@@ -2,12 +2,10 @@
 
 """IoT-LAB MQTT Serial agent client"""
 
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import sys
 import cmd
 import shlex
 
@@ -15,36 +13,11 @@ from iotlabmqtt import common
 from iotlabmqtt import mqttcommon
 from iotlabmqtt import serial
 
+from . import common as clientcommon
+
 
 PARSER = common.MQTTAgentArgumentParser()
 PARSER.add_argument('--site', help='Site agent to use', required=True)
-
-
-def async_print_handle_readlinebuff(cmd_obj):
-    """Manages a clean readline buffer for asynchronous print.
-
-    If there is content in readline buffer, add a newline before calling
-    function and restore readline displayed string after function.
-    """
-    import readline
-    import functools
-
-    def _wrap(func):
-        @functools.wraps(func)
-        def _wrapped(*args, **kwargs):
-
-            if readline.get_line_buffer():
-                print()
-
-            ret = func(*args, **kwargs)
-
-            sys.stdout.write(cmd_obj.prompt)
-            sys.stdout.write(readline.get_line_buffer())
-            sys.stdout.flush()
-            return ret
-
-        return _wrapped
-    return _wrap
 
 
 class SerialShell(cmd.Cmd, object):
@@ -76,13 +49,15 @@ class SerialShell(cmd.Cmd, object):
         assert site is not None
         cmd.Cmd.__init__(self)
 
-        self.clientid = common.clientid('serialclient')
+        self.clientid = clientcommon.clientid('serialclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
 
-        line_cb = async_print_handle_readlinebuff(self)(self.line_handler)
-        error_cb = async_print_handle_readlinebuff(self)(self.error_cb)
+        _print_wrapper = clientcommon.async_print_handle_readlinebuff(self)
+        line_cb = _print_wrapper(self.line_handler)
+        error_cb = _print_wrapper(self.error_cb)
+
         self.topics = {
             'line': mqttcommon.ChannelClient(_topics['line'], line_cb),
             'linestart': mqttcommon.RequestClient(
