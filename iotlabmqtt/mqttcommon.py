@@ -300,6 +300,10 @@ class RequestClient(Topic):
     """Topic implementation for a Request client."""
 
     REQUEST_TIMEOUT = 30
+    REQUEST_ERRORS = {
+        'timeout': 'Answer timeout',
+        'pubtimeout': 'Request not published before timeout',
+    }
 
     def __init__(self, topic, command, callback=None, clientid=None):
         assert callback is None
@@ -351,9 +355,9 @@ class RequestClient(Topic):
 
         # No answer
         if message.is_published():
-            return 'Answer timeout'.encode('utf-8')
+            raise RuntimeError(self.REQUEST_ERRORS['timeout'])
         else:
-            return 'Request not published before timeout'.encode('utf-8')
+            raise RuntimeError(self.REQUEST_ERRORS['pubtimeout'])
 
     def _cb_request(self, mqttc, obj, msg):  # pylint:disable=W0221,W0613
         """Callback for request answer. Set answer and release event."""

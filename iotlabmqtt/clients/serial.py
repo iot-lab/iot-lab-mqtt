@@ -117,9 +117,13 @@ class SerialShell(cmd.Cmd, object):
     def _do_linestart(self, archi, num):
         topic = self.topics['linestart']
 
-        ret = topic.request(self.client, b'', timeout=5, archi=archi, num=num)
-        if ret:
-            print(ret.decode('utf-8'))
+        try:
+            ret = topic.request(self.client, b'', timeout=5,
+                                archi=archi, num=num)
+            if ret:
+                raise RuntimeError(ret.decode('utf-8'))
+        except RuntimeError as err:
+            print('%s' % err)
 
     def help_linestart(self, prefix=''):
         """Help linestart command."""
@@ -161,9 +165,13 @@ class SerialShell(cmd.Cmd, object):
             return 0
 
         topic = self.topics['stop']
-        ret = topic.request(self.client, b'', timeout=5, archi=archi, num=num)
-        if ret:
-            print(ret.decode('utf-8'))
+        try:
+            ret = topic.request(self.client, b'', timeout=5,
+                                archi=archi, num=num)
+            if ret:
+                raise RuntimeError(ret.decode('utf-8'))
+        except RuntimeError as err:
+            print('%s' % err)
 
     def help_stop(self, prefix=''):
         """Help stop command."""
@@ -176,9 +184,12 @@ class SerialShell(cmd.Cmd, object):
     def do_stopall(self, _):
         """Stop all nodes redirection."""
         topic = self.topics['stopall']
-        ret = topic.request(self.client, b'', timeout=5)
-        if ret:
-            print(ret.decode('utf-8'))
+        try:
+            ret = topic.request(self.client, b'', timeout=5)
+            if ret:
+                raise RuntimeError(ret.decode('utf-8'))
+        except RuntimeError as err:
+            print('%s' % err)
 
     def help_stopall(self, prefix=''):
         """Help stopall command."""

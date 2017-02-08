@@ -205,12 +205,13 @@ class RequestTest(AgentTest):
         server_cb.return_value = None  # ignore return value here
         request_msg = mqttclient_mock.mqttmessage(
             req_topic.format(requestid=3), b'querythree')
-        ret = client_topics['linestart'].request(client, b'querythree',
-                                                 timeout=5,
-                                                 archi='m3', num='1')
+
+        self.assertRaises(RuntimeError,
+                          client_topics['linestart'].request,
+                          client, b'querythree', timeout=5,
+                          archi='m3', num='1')
         server_cb.assert_called_with(request_msg, archi='m3', num='1')
         server_cb.reset_mock()
-        self.assertEqual(ret.decode('utf-8'), 'Answer timeout')
 
         # Publish timeout
         server_cb.return_value = b''
@@ -218,9 +219,10 @@ class RequestTest(AgentTest):
         server.publish_delay = 0
         request_msg = mqttclient_mock.mqttmessage(
             req_topic.format(requestid=4), b'queryfour')
-        ret = client_topics['linestart'].request(client, b'queryfour',
-                                                 timeout=0.1,
-                                                 archi='m3', num='1')
+        self.assertRaises(RuntimeError,
+                          client_topics['linestart'].request,
+                          client, b'queryfour', timeout=0.1,
+                          archi='m3', num='1')
         self.assertFalse(server_cb.called)
 
         # Cleanup
