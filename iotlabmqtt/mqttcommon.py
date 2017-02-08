@@ -51,6 +51,11 @@ class MQTTClient(mqtt.Client):
     def _subscribe_topics(self):
         """Suscribe to topics."""
         subtopics = self._subscribable_topics()
+        # No subscribe to do
+        if not subtopics:
+            self._subscribed.set()
+            return
+
         self._log_sub_topic(subtopics)
         topics = [(t.subscribe_topic.encode('utf-8'), 0) for t in subtopics]
 
