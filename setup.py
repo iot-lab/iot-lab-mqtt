@@ -56,7 +56,6 @@ setup(
     license=LICENSE,
     download_url='http://github.com/iot-lab/iot-lab-mqtt/',
     packages=find_packages(),
-    package_data={'integration/firmwares': ['integration/firmwares/*']},
     include_package_data=True,
     scripts=SCRIPTS,
     classifiers=['Development Status :: 1 - Planning',
