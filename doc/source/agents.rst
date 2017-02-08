@@ -1,9 +1,7 @@
 Agents
 ******
 
-Serial Redirection Agent
-========================
+.. toctree::
+   :maxdepth: 1
 
-.. automodule:: iotlabmqtt.serial
-
-
+   agents/serial

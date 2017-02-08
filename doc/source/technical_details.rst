@@ -1,54 +1,112 @@
 Technical details
-=================
+#################
 
+Topics format
+*************
 
-Usage of topics
----------------
+MQTT topics are a one way packet transport system.
+More advanced communication scheme need using multiple topics with some
+specific interfaces.
 
-Topics are a one way packet transport system. This will imply some design
-constraints.
+This section describes the different communication mechanisms used,
+topic naming conventions and message format.
 
-Error topic
-^^^^^^^^^^^
+.. _ChannelTopic:
 
-As not all the following communication mechanisms have a response, communicating
-errors or failures should happen on a dedicated error topic.
+Channels
+========
 
-Two way streams
-^^^^^^^^^^^^^^^
+Two way stream require having one topic for one communication side and
+one for the other.
+This includes serial port forwarding where one topic is used to
+read from the serial port and one to write to it.
 
-Two way stream require having one topic for one side and one for the other.
-This includes serial port forwarding where one topic is used to read and one to
-write.
+:input topic: ``{resourcetopic}/data/in``
+:output topic: ``{resourcetopic}/data/out``
 
-Request model
-^^^^^^^^^^^^^
+Example
+-------
 
-Requests is a form of two way stream, however, a response must correspond to the
-right request. For this, per request topic should be used.
-The chosen format is the following:
+For a resource at ``{prefix}/resource/1``, the channels topics will be:
 
 ::
 
-   # Request topic
-   {prefix}/topic/for/request/{client_id}/{request_id}
-   # Response topic
-   {prefix}/topic/for/request/{client_id}/{request_id}/ret
+    # Topic for writing to the resource
+    {prefix}/resource/1/data/in
+    # Topic where the resource writes its output
+    {prefix}/resource/1/data/out
+
+
+.. _RequestTopic:
+
+Request model
+=============
+
+Requests allow executing commands on a resource is a form of two way stream,
+one to do the request and one to give the result.
+As a response must correspond to the right request and the right client,
+a per request/client topic should be specified.
+
+The chosen format is the following:
+
+:request topic: ``{resourcetopic}/ctl/{command}/request/{clientid}/{requestid}``
+:reply topic:   ``{resourcetopic}/ctl/{command}/reply/{clientid}/{requestid}``
+
 
 In practice, using topic wildcard topic subscribe, only one subscribe is
-necessary per agent/client/request: ::
+necessary per agent/client/request/command: ::
 
    # Agent subscribe
-   {prefix}/topic/for/request/+/+
+   {prefix}/resource/topic/ctl/{command}/request/+/+
    # Client subscribe
-   {prefix}/topic/for/request/{client_id}/+/ret
+   {prefix}/resource/topic/ctl/{command}/reply/{clientid}/+
 
-For ``client_id`` I recommend using a readable identifier concatenated to an
-UUID to ensure both readability and uniqueness.
+For ``clientid`` I recommend using a readable identifier concatenated to an
+UUID to ensure both readability and unicity.
+
+
+.. _ErrorTopic:
+
+Error topic
+===========
+
+As not all the following communication mechanisms have a response,
+asynchronous errors or failures happen on an error topic.
+
+The errors are sent to a subtopic from the agent error topic.
+They are published to the concatenation of the agent error topic
+and the topic where error happend relative to the agent topic:
+
+::
+
+   {agenttopic}/error/relative/topic/where/problem/occured
+
+:payload: ``utf-8 encoded strings``.
+
+Clients subscribe to errors for this agent with:
+
+::
+
+   {agenttopic}/error/#
+
+Example
+-------
+
+An error in resource ``{agenttopic}/resource/1`` will be published to:
+
+::
+
+   {agenttopic}/error/resource/1
+
+An error in the general agent to the will be published to:
+
+::
+
+   {agenttopic}/error/    # With the trailing `/`
 
 
 Sending both UTF-8 and binary in a message
-------------------------------------------
+******************************************
 
 In the case of firmware update, the message will need to contain both a list of
 nodes and a firmware binary. It has been chosen to separate the UTF-8 string

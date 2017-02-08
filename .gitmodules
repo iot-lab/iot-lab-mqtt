@@ -1,0 +1,4 @@
+[submodule "doc/build/html"]
+	path = doc/build/html
+	url = https://github.com/iot-lab/iot-lab-mqtt.git
+	branch = gh-pages

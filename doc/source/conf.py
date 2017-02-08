@@ -38,7 +38,6 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
-    'rst2pdf.pdfbuilder',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -294,13 +293,17 @@ texinfo_documents = [
 # texinfo_no_detailmenu = False
 
 # -- RST2PDF --------------------------------------------------------------
-pdf_documents = [
-    (master_doc, u'IoT-LABMQTT', u'IoT-LAB MQTT Documentation',
-     author, 'manual'),
-]
-pdf_use_index = False
-
-# index - master document
-# rst2pdf - name of the generated pdf
-# Sample rst2pdf doc - title of the pdf
-# Your Name - author name in the pdf
+try:
+    import rst2pdf.pdfbuilder
+    extensions.append('rst2pdf.pdfbuilder')
+    # index - master document
+    # rst2pdf - name of the generated pdf
+    # Sample rst2pdf doc - title of the pdf
+    # Your Name - author name in the pdf
+    pdf_documents = [
+        (master_doc, u'IoT-LABMQTT', u'IoT-LAB MQTT Documentation',
+         author, 'manual'),
+    ]
+    pdf_use_index = False
+except ImportError:
+    pass

@@ -44,7 +44,7 @@ def get_version(package):
 
 SCRIPTS = []
 
-INSTALL_REQUIRES = ['paho-mqtt']
+INSTALL_REQUIRES = ['paho-mqtt', 'future']
 
 setup(
     name=PACKAGE,
@@ -56,10 +56,9 @@ setup(
     license=LICENSE,
     download_url='http://github.com/iot-lab/iot-lab-mqtt/',
     packages=find_packages(),
-    package_data={'integration/firmwares': ['integration/firmwares/*']},
     include_package_data=True,
     scripts=SCRIPTS,
-    classifiers=['Development Status :: 1 - Planning',
+    classifiers=['Development Status :: 3 - Alpha',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2.7',
                  'Programming Language :: Python :: 3',

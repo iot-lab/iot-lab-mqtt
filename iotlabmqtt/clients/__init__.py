@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""Provide access to IoT-LAB experiments as MQTT agents"""
+"""Clients for IoT-LAB MQTT agents"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-__version__ = '0.2.0'
+__version__ = '0.1.0'
