@@ -125,6 +125,35 @@ class MQTTClient(mqtt.Client):
         return payload
 
 
+def _fmt_topic(topic, prefix='', static_fmt_dict=None):
+    """Prepend prefix to prefix and update values from static_fmt_dict.
+
+    >>> _fmt_topic('a/{b}/c/{d}', 'pfx', {'b': 'B'}) == 'pfx/a/B/c/{d}'
+    True
+    >>> _fmt_topic('a/{b}/c/{d}') == 'a/{b}/c/{d}'
+    True
+    """
+    static_fmt_dict = static_fmt_dict or {}
+    topic = os.path.join(prefix, topic)
+    topic = common.topic_lazyformat(topic, **static_fmt_dict)
+    return topic
+
+
+def format_topics_dict(topic_dict, prefix='', static_fmt_dict=None):
+    """Return a new dict with formatted topics.
+
+    >>> topics = {'a': 'a/{b}/c/{d}', 'b': '1/2/{three}'}
+    >>> ret = {'a': 'pfx/a/B/c/{d}', 'b': 'pfx/1/2/3'}
+
+    >>> format_topics_dict(topics, 'pfx', {'b': 'B', 'three': '3'}) == ret
+    True
+    """
+
+    formatted_topics = {n: _fmt_topic(t, prefix, static_fmt_dict)
+                        for n, t in topic_dict.items()}
+    return formatted_topics
+
+
 class Topic(object):
     """Topic base class."""
     LEVEL = r'(?P<%s>[^/]+)'
