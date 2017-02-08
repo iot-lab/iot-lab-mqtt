@@ -12,7 +12,6 @@ import sys
 import signal
 import string
 import argparse
-import asyncore
 
 
 def topic_lazyformat(topic, **kwargs):
@@ -124,17 +123,6 @@ class MQTTAgentArgumentParser(argparse.ArgumentParser):
         self.add_argument('--prefix', help='Topics prefix', default='')
         self.add_argument('--broker-port', help='Broker port')
         self.add_argument('broker', help='Broker address')
-
-
-def keep_alive_dispatcher():
-    """Stup tcp dispatcher to keep asyncore looping."""
-    import socket
-    dispatcher = asyncore.dispatcher()
-    dispatcher.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-    dispatcher.set_reuse_addr()
-    dispatcher.bind(('', 0))
-    dispatcher.listen(0)
-    return dispatcher
 
 
 def traceback_error():

@@ -275,24 +275,13 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import os
-import socket
 import threading
-import asyncore
 
 from . import common
 from . import mqttcommon
+from . import asyncconnection
 
 PARSER = common.MQTTAgentArgumentParser()
-
-
-class RawHandler(object):  # pylint:disable=too-few-public-methods
-    """Raw data handler."""
-    def __init__(self, handler):
-        self.handler = handler
-
-    def __call__(self, data):
-        """Call handler on raw data."""
-        self.handler(data)
 
 
 class LineHandler(object):  # pylint:disable=too-few-public-methods
@@ -323,26 +312,14 @@ class LineHandler(object):  # pylint:disable=too-few-public-methods
         self.data = b''
 
 
-class Connection(asyncore.dispatcher_with_send):
-    """
-    Handle the connection to one node
-    Data is managed with asyncore. So to work asyncore.loop() should be run.
+class SerialConnection(asyncconnection.NodeConnection):
+    """Implement serial connection.
 
-    Child class should re-implement 'handle_data'
+    Only overrides ``_address`` to adapt to the serial port.
     """
-
     PORT = 20000
-    RECV_LEN = 8192
 
-    def __init__(self, archi, num, event_handler, data_handler=None):
-        asyncore.dispatcher_with_send.__init__(self)
-
-        self.address = self._address(archi, num)
-
-        self.event_handler = event_handler
-        self.data_handler = data_handler
-
-    def _address(self, archi, num):
+    def _address(self, archi, num):  # overrides
         """Return socket address for archi/num.
 
         Hack for 'localhost' to use ``self.num`` as port.
@@ -351,37 +328,6 @@ class Connection(asyncore.dispatcher_with_send):
             return archi, int(num)
         else:
             return ('node-%s-%s' % (archi, num), self.PORT)
-
-    def handle_data(self, data):
-        """Call given data_handler."""
-        if self.data_handler:
-            self.data_handler(data)
-
-    def start(self):
-        """Connects to node serial port:"""
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.connect(self.address)
-        except (IOError, OverflowError):
-            self.handle_close()
-
-    def handle_connect(self):
-        """Node connected."""
-        self.event_handler('connect')
-
-    def handle_close(self):
-        """Close the connection and clear buffer."""
-        self.close()
-        self.event_handler('close')
-
-    def handle_read(self):
-        """Read bytes and run data handler."""
-        data = self.recv(self.RECV_LEN)
-        self.handle_data(data)
-
-    def handle_error(self):
-        """Error."""
-        self.event_handler('error')
 
 
 class Node(object):  # pylint:disable=too-many-instance-attributes
@@ -397,14 +343,16 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
 
     STATES = ('closed', 'linestarting', 'line')
 
-    def __init__(self, archi, num, closed_cb, error_cb):
+    def __init__(self, archi, num,  # pylint:disable=too-many-arguments
+                 closed_cb, error_cb, asyncoreservice=None):
         self.host = self.hostname(archi, num)
         self.closed_cb = closed_cb
         self.error_cb = error_cb
 
         self.state = 'closed'
         self.reply_publisher = None
-        self.connection = Connection(archi, num, self.conn_event_handler)
+        self.connection = SerialConnection(archi, num, self.conn_event_handler,
+                                           service=asyncoreservice)
 
         self._lock = threading.Lock()
 
@@ -530,8 +478,6 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
 class MQTTAggregator(object):
     """Aggregator implementation for MQTT."""
 
-    ASYNCORE_LOOP_KWARGS = {'timeout': 1, 'use_poll': True}
-
     PREFIX = 'iot-lab/serial/{site}'
     TOPICS = {
         'prefix': PREFIX,
@@ -566,8 +512,7 @@ class MQTTAggregator(object):
         }
 
         self.nodes = {}
-        self.keep_alive = None
-        self.thread = threading.Thread(target=self._loop)
+        self.asyncore = asyncconnection.AsyncoreService()
 
         self.client = mqttcommon.MQTTClient(host, port=port,
                                             topics=self.topics)
@@ -596,7 +541,8 @@ class MQTTAggregator(object):
 
         Create a new node if it does not currently exists.
         """
-        new_node = Node(archi, num, self._node_closed_cb, self._node_error)
+        new_node = Node(archi, num, self._node_closed_cb, self._node_error,
+                        asyncoreservice=self.asyncore)
         node = self.nodes.setdefault(Node.hostname(archi, num), new_node)
 
         line_handler = self._line_handler(archi, num)
@@ -639,20 +585,14 @@ class MQTTAggregator(object):
 
     def start(self):
         """Start Agent."""
-        self.keep_alive = common.keep_alive_dispatcher()
-        self.thread.start()
+        self.asyncore.start()
         self.client.start()
-
-    def _loop(self):
-        """Run asyncore loop."""
-        return asyncore.loop(**self.ASYNCORE_LOOP_KWARGS)
 
     def stop(self):
         """Stop agent."""
         self.client.stop()
         self._stop_all_nodes()
-        self.keep_alive.close()
-        self.thread.join()
+        self.asyncore.stop()
 
     def _stop_all_nodes(self):
         """Close all nodes connections."""
