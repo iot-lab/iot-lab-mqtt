@@ -23,30 +23,17 @@ class MQTTClient(mqtt.Client):
     SUBSCRIBE_TIMEOUT = 10
 
     def __init__(self, server, port, topics=None):
-
         super().__init__()
+
         self.server = server
         self.port = port or 1883
-        self.topics = topics or {}
-
-        self._register_topics_callbacks()
+        self.topics = topics or ()
 
         self._subscribed = threading.Event()
-
-    def _register_topics_callbacks(self):
-        """Register the callbacks for topics."""
-        topics = (t for t in self.topics.values() if t.callback is not None)
-        for topic in topics:
-            self.message_callback_add(topic.subscribe_topic, topic.callback)
 
     def on_connect(self, mqttc, obj, flags, rc):  # pylint:disable=W0221,W0613
         """On connect, subscribe to all topics."""
         self._subscribe_topics()
-
-    def _subscribable_topics(self):
-        """Topics that are subscrible."""
-        return [t for t in self.topics.values() if
-                t.subscribe_topic is not None]
 
     def _subscribe_topics(self):
         """Suscribe to topics."""
@@ -61,6 +48,10 @@ class MQTTClient(mqtt.Client):
 
         self._subscribed.clear()
         self.subscribe(topics)
+
+    def _subscribable_topics(self):
+        """Topics that are subscrible."""
+        return [t for t in self.topics if t.subscribe_topic is not None]
 
     @staticmethod
     def _log_sub_topic(topics):
@@ -85,12 +76,20 @@ class MQTTClient(mqtt.Client):
 
     def start(self):
         """Start MQTT Agent and subscribe to topics."""
+        self._register_topics_callbacks()
+
         self.connect(self.server, self.port)
         self.loop_start()
 
         subscribed = self._subscribed.wait(self.SUBSCRIBE_TIMEOUT)
         if not subscribed:
             raise RuntimeError('Topics subscribe timeout')
+
+    def _register_topics_callbacks(self):
+        """Register the callbacks for topics."""
+        topics = (t for t in self.topics if t.callback is not None)
+        for topic in topics:
+            self.message_callback_add(topic.subscribe_topic, topic.callback)
 
     def stop(self):
         """Stop MQTT Agent."""
@@ -128,6 +127,11 @@ class MQTTClient(mqtt.Client):
         if isinstance(payload, bytes):
             return bytearray(payload)
         return payload
+
+    @classmethod
+    def from_opts_dict(cls, broker, broker_port, **_):
+        """Create class from argparse entries."""
+        return cls(broker, port=broker_port)
 
 
 def _fmt_topic(topic, prefix='', static_fmt_dict=None):

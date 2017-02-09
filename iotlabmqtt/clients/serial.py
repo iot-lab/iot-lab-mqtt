@@ -23,8 +23,7 @@ PARSER.add_argument('--site', help='Site agent to use', required=True)
 class SerialShell(cmd.Cmd, object):
     """Serial Agent Shell.
 
-    :param host: broker host
-    :param port: broker port
+    :param client: mqttclient instance
     :param prefix: topics prefix
     :param site: serial agent site
     """
@@ -45,7 +44,7 @@ class SerialShell(cmd.Cmd, object):
 
     TOPICS = {k: t for k, t in serial.MQTTAggregator.TOPICS.items()}
 
-    def __init__(self, host, port=None, prefix='', site=None):
+    def __init__(self, client, prefix, site=None):
         assert site is not None
         cmd.Cmd.__init__(self)
 
@@ -75,8 +74,8 @@ class SerialShell(cmd.Cmd, object):
                                             callback=error_cb),
         }
 
-        self.client = mqttcommon.MQTTClient(host, port=port,
-                                            topics=self.topics)
+        self.client = client
+        self.client.topics = list(self.topics.values())
 
     def error_cb(self, message, relative_topic):  # pylint:disable=no-self-use
         """Callback on 'error' topic."""
@@ -84,9 +83,10 @@ class SerialShell(cmd.Cmd, object):
         print('SERIAL ERROR:%s:%s' % (relative_topic, msg))
 
     @classmethod
-    def from_opts_dict(cls, broker, broker_port, prefix, site, **_):
+    def from_opts_dict(cls, prefix, site, **kwargs):
         """Create class from argparse entries."""
-        return cls(broker, port=broker_port, prefix=prefix, site=site)
+        client = mqttcommon.MQTTClient.from_opts_dict(**kwargs)
+        return cls(client, prefix=prefix, site=site)
 
     # # # # #
     # line  #

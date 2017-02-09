@@ -487,11 +487,14 @@ class MQTTAggregator(object):
 
     HOSTNAME = os.uname()[1]
 
-    def __init__(self, host, port=None, prefix=''):
+    def __init__(self, client, prefix=''):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
         _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+
+        self.nodes = {}
+        self.asyncore = asyncconnection.AsyncoreService()
 
         self.topics = {
             'node': mqttcommon.NullTopic(_topics['node']),
@@ -511,11 +514,8 @@ class MQTTAggregator(object):
             'error': mqttcommon.ErrorServer(_topics['prefix']),
         }
 
-        self.nodes = {}
-        self.asyncore = asyncconnection.AsyncoreService()
-
-        self.client = mqttcommon.MQTTClient(host, port=port,
-                                            topics=self.topics)
+        self.client = client
+        self.client.topics = list(self.topics.values())
 
     def error(self, topic, message):
         """Publish error that happend on topic."""
@@ -599,12 +599,17 @@ class MQTTAggregator(object):
         for node in list(self.nodes.values()):
             node.close()
 
+    @classmethod
+    def from_opts_dict(cls, prefix, **kwargs):
+        """Create class from argparse entries."""
+        client = mqttcommon.MQTTClient.from_opts_dict(**kwargs)
+        return cls(client, prefix)
+
 
 def main():
     """Run serial agent."""
     opts = PARSER.parse_args()
-    aggr = MQTTAggregator(opts.broker, port=opts.broker_port,
-                          prefix=opts.prefix)
+    aggr = MQTTAggregator.from_opts_dict(**vars(opts))
     aggr.run()
 
 

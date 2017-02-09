@@ -50,11 +50,11 @@ class MQTTClientTest(AgentTest):
                   'three': mqttcommon.NullTopic('not_subscribe')}
 
         agent = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                               topics=topics)
+                                               list(topics.values()))
         with mock.patch('iotlabmqtt.mqttcommon.print') as stdout:
             agent.start()
 
-        self.assertEqual(agent.topics, topics)
+        self.assertEqual(agent.topics, list(topics.values()))
         self.assertEqual(agent.on_message_filtered,
                          [('a/b/c', topics['one'].callback)])
 
@@ -161,9 +161,9 @@ class RequestTest(AgentTest):
             topicname, 'start', wrap_mock(server_cb))}
 
         client = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                client_topics)
+                                                list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                server_topics)
+                                                list(server_topics.values()))
 
         # Simple request answering
         req_topic = mqttcommon.common.topic_lazyformat(
@@ -280,9 +280,9 @@ class ChannelTest(AgentTest):
             topicname, wrap_mock(server_cb))}
 
         client = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                client_topics)
+                                                list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                server_topics)
+                                                list(server_topics.values()))
 
         # Client writes a message
         client_topics['line'].send(client, 'm3', 1, b'req').wait_for_publish()
@@ -343,9 +343,10 @@ class ErrorTest(AgentTest):
             topicname, wrap_mock(client_cb))}
         server_topics = {'error': mqttcommon.ErrorServer(topicname)}
 
-        _ = mqttclient_mock.MQTTClientMock('localhost', 1883, client_topics)
+        _ = mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                           list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                server_topics)
+                                                list(server_topics.values()))
         server.publish_delay = 0
 
         err = b'error message'
