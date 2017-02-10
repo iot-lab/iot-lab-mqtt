@@ -44,10 +44,28 @@ class MQTTClient(mqtt.Client):
             return
 
         self._log_sub_topic(subtopics)
-        topics = [(t.subscribe_topic.encode('utf-8'), 0) for t in subtopics]
+
+        topics = (t.subscribe_topic for t in subtopics)
+        topics = (self._paho_topic_python2_3(t) for t in topics)
+        topics_list = [(t, 0) for t in topics]
 
         self._subscribed.clear()
-        self.subscribe(topics)
+        self.subscribe(topics_list)
+
+    @staticmethod
+    def _paho_topic_python2_3(topic):
+        """Fix issue with paho 1.2.0 and python2.
+
+        It requires a 'str' topic and tries to encode it to 'utf-8' after.
+        For python2, force it to be ascii bytes so auto-conversion will work.
+        """
+        import sys  # pylint:disable=redefined-outer-name
+        import paho.mqtt
+        if (paho.mqtt.__version__ == '1.2' and
+                sys.version_info[0] < 3):
+            return topic.encode('ascii')
+
+        return topic
 
     def _subscribable_topics(self):
         """Topics that are subscrible."""

@@ -44,7 +44,7 @@ def get_version(package):
 
 SCRIPTS = []
 
-INSTALL_REQUIRES = ['paho-mqtt', 'future']
+INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
 
 setup(
     name=PACKAGE,
