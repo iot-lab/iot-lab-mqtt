@@ -26,7 +26,7 @@ class MQTTClient(mqtt.Client):
         super().__init__()
 
         self.server = server
-        self.port = port or 1883
+        self.port = int(port or 1883)
         self.topics = topics or ()
 
         self._subscribed = threading.Event()
