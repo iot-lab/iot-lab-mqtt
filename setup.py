@@ -42,7 +42,7 @@ def get_version(package):
             if line.startswith('__version__'):
                 return eval(line.split('=')[-1])  # pylint:disable=eval-used
 
-SCRIPTS = []
+SCRIPTS = ['iotlab-mqtt-serial']
 
 INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
 
