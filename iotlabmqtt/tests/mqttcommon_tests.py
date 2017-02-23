@@ -7,14 +7,13 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import os.path
-import time
-import unittest
 import threading
 
 import mock
 from iotlabmqtt import mqttcommon
 from iotlabmqtt.clients import common as clientcommon
 from . import mqttclient_mock
+from . import TestCaseImproved
 
 
 def wrap_mock(func):
@@ -29,7 +28,7 @@ def wrap_mock(func):
     return _cb_wrapper
 
 
-class AgentTest(unittest.TestCase):
+class AgentTest(TestCaseImproved):
     """Setup and cleanup Agent mock."""
 
     def setUp(self):
@@ -187,6 +186,7 @@ class RequestTest(AgentTest):
             return None
 
         def __server__cb(publisher, payload):
+            import time
             time.sleep(1)
             publisher(payload)
 
@@ -227,12 +227,7 @@ class RequestTest(AgentTest):
 
         # Cleanup
         # Wait until callback called
-        for _ in range(0, 10):
-            time.sleep(1)
-            if server_cb.called:
-                break
-        # Callback timedout ?
-        self.assertTrue(server_cb.called)
+        self.assertEqualTimeout(lambda: server_cb.called, True, timeout=10)
 
 
 class ChannelTest(AgentTest):

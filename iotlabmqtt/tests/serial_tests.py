@@ -7,14 +7,13 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 
-import unittest
-
 import mock
 
 from iotlabmqtt import serial
+from . import TestCaseImproved
 
 
-class LineHandlerTest(unittest.TestCase):
+class LineHandlerTest(TestCaseImproved):
     """Test LineHandler."""
     def test_line_handler_utf_8(self):
         """Test LineHandler newline in utf-8 sequences."""
