@@ -75,7 +75,7 @@ class SerialShell(clientcommon.CmdShell):
     def error_cb(self, message, relative_topic):  # pylint:disable=no-self-use
         """Callback on 'error' topic."""
         msg = message.payload.decode('utf-8')
-        print('SERIAL ERROR:%s:%s' % (relative_topic, msg))
+        print('SERIAL ERROR: %s: %s' % (relative_topic, msg))
 
     @classmethod
     def from_opts_dict(cls, prefix, site, **kwargs):
