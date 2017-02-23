@@ -30,7 +30,7 @@ class SerialShell(clientcommon.CmdShell):
     LINEWRITE_USAGE = ('linewrite ARCHI NUM MESSAGE\n'
                        '  ARCHI: m3/a8\n'
                        '  NUM:   node num\n'
-                       '  MESSAGE: Message line to sent\n')
+                       '  MESSAGE: Message line to send\n')
     STOP_USAGE = ('stop ARCHI NUM\n'
                   '  ARCHI: m3/a8\n'
                   '  NUM:   node num\n')
