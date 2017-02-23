@@ -38,7 +38,7 @@ class CmdShell(cmd.Cmd, object):
         * Print help on ValueError
         """
         try:
-            line = line.decode('utf-8')
+            line = self.decode_line(line, encoding='utf-8')
             line = self.replace_nbsp(line)
             return cmd.Cmd.onecmd(self, line)
 
@@ -56,6 +56,17 @@ class CmdShell(cmd.Cmd, object):
         help_func = getattr(self, 'help_' + command)
         print('Usage: ', end='')
         help_func()
+
+    @staticmethod
+    def decode_line(line, encoding='utf-8'):
+        """Decode ``line`` if is type ``bytes``.
+
+        Allows managing arguments for both python2 and python3.
+        cmd uses bytes in python2 and unicode string in python3
+        """
+        if isinstance(line, bytes):
+            line = line.decode(encoding)
+        return line
 
     @staticmethod
     def replace_nbsp(line):
