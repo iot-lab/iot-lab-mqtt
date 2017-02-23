@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import time
 import subprocess
+from io import StringIO
 
 import mock
 
@@ -13,6 +14,7 @@ from iotlabmqtt import serial
 from iotlabmqtt.clients import serial as serial_client
 
 from . import IntegrationTestCase
+from .. import TestCaseImproved
 
 
 class SerialIntegrationTest(IntegrationTestCase):
@@ -175,3 +177,93 @@ class SerialIntegrationTest(IntegrationTestCase):
         # Stop all nodes with nodes
         client.onecmd('stopall')
         self.assertEqual(serial_print.call_args_list, [])
+
+
+@mock.patch('sys.stdout', new_callable=StringIO)
+class SerialClientErrorTests(TestCaseImproved):
+    """Test SerialClient Parsing errors."""
+    def setUp(self):
+        args = ['localhost', '--broker-port', '%s' % 54321,
+                '--prefix', 'serial/test/prefix',
+                '--site', serial.MQTTAggregator.HOSTNAME]
+        opts = serial_client.PARSER.parse_args(args)
+        self.client = serial_client.SerialShell.from_opts_dict(**vars(opts))
+        # Publish should crash
+        self.client.publish = None
+
+    def test_linestart(self, stdout):
+        """Test linestart parser errors."""
+        hlp = (u'Usage: linestart ARCHI NUM\n'
+               u'  ARCHI: m3/a8\n'
+               u'  NUM:   node num\n')
+
+        # Missing port
+        self.client.onecmd('linestart localhost')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('linestart localhost abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('linestart localhost 123 haha')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_stop(self, stdout):
+        """Test stop parser errors."""
+        hlp = (u'Usage: stop ARCHI NUM\n'
+               u'  ARCHI: m3/a8\n'
+               u'  NUM:   node num\n')
+
+        # Missing port
+        self.client.onecmd('stop localhost')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('stop localhost abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('stop localhost 123 haha')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_linewrite(self, stdout):
+        """Test linewrite parser errors."""
+        hlp = (u'Usage: linewrite ARCHI NUM MESSAGE\n'
+               u'  ARCHI: m3/a8\n'
+               u'  NUM:   node num\n'
+               u'  MESSAGE: Message line to send\n')
+
+        # Missing message
+        self.client.onecmd('linewrite localhost 123')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('linewrite localhost abc message')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_stopall(self, stdout):
+        """Test stopall help."""
+        hlp = u'stopall\n'
+
+        # cannot be done from command, just call it
+        self.client.onecmd('help stopall')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
