@@ -611,7 +611,3 @@ def main():
     opts = PARSER.parse_args()
     aggr = MQTTAggregator.from_opts_dict(**vars(opts))
     aggr.run()
-
-
-if __name__ == '__main__':
-    main()
