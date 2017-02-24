@@ -187,12 +187,12 @@ class SerialShell(clientcommon.CmdShell):
         self.client.stop()
 
 
-def main():
-    """SerialAgent shell client."""
-    opts = PARSER.parse_args()
+def main(opts=None):
+    """SerialAgent shell client.
+
+    :param opts: If provided, don't parse command line but use it instead
+    :type opts: argparse Namespace object
+    """
+    opts = opts or PARSER.parse_args()
     shell = SerialShell.from_opts_dict(**vars(opts))
     shell.run()
-
-
-if __name__ == '__main__':
-    main()
