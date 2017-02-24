@@ -5,4 +5,23 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-__version__ = '0.1.0'
+import argparse
+
+from . import serial
+
+
+PARSER = argparse.ArgumentParser()
+SUBPARSER = PARSER.add_subparsers(dest='command')
+SUBPARSER.required = True
+
+# Add parser that use given module parser
+#   'add_help=False' prevents '--help' duplicate
+SUBPARSER.add_parser('serial', parents=[serial.PARSER], add_help=False,
+                     help='serial redirection client')
+
+
+def main():
+    """Run given client main function."""
+    opts = PARSER.parse_args()
+    client = globals()[opts.command]
+    client.main(opts)

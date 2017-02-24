@@ -79,6 +79,7 @@ class AsyncoreService(object):
         self.keep_alive = None
         self.map = {}
         self.thread = threading.Thread(target=self._loop)
+        self.thread.deamon = True
 
     def start(self):
         """Start service.

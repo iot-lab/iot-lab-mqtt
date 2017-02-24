@@ -6,9 +6,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import cmd
-import shlex
-
 from iotlabmqtt import common
 from iotlabmqtt import mqttcommon
 from iotlabmqtt import serial
@@ -20,23 +17,20 @@ PARSER = common.MQTTAgentArgumentParser()
 PARSER.add_argument('--site', help='Site agent to use', required=True)
 
 
-class SerialShell(cmd.Cmd, object):
+class SerialShell(clientcommon.CmdShell):
     """Serial Agent Shell.
 
-    :param host: broker host
-    :param port: broker port
+    :param client: mqttclient instance
     :param prefix: topics prefix
     :param site: serial agent site
     """
-    ARCHIS = ('m3', 'a8', 'localhost')  # could use cli-tools here
-
     LINESTART_USAGE = ('linestart ARCHI NUM\n'
                        '  ARCHI: m3/a8\n'
                        '  NUM:   node num\n')
     LINEWRITE_USAGE = ('linewrite ARCHI NUM MESSAGE\n'
                        '  ARCHI: m3/a8\n'
                        '  NUM:   node num\n'
-                       '  MESSAGE: Message line to sent\n')
+                       '  MESSAGE: Message line to send\n')
     STOP_USAGE = ('stop ARCHI NUM\n'
                   '  ARCHI: m3/a8\n'
                   '  NUM:   node num\n')
@@ -45,16 +39,16 @@ class SerialShell(cmd.Cmd, object):
 
     TOPICS = {k: t for k, t in serial.MQTTAggregator.TOPICS.items()}
 
-    def __init__(self, host, port=None, prefix='', site=None):
+    def __init__(self, client, prefix, site=None):
         assert site is not None
-        cmd.Cmd.__init__(self)
+        super().__init__()
 
         self.clientid = clientcommon.clientid('serialclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
 
-        _print_wrapper = clientcommon.async_print_handle_readlinebuff(self)
+        _print_wrapper = self.async_print_handle_readlinebuff()
         line_cb = _print_wrapper(self.line_handler)
         error_cb = _print_wrapper(self.error_cb)
 
@@ -75,18 +69,19 @@ class SerialShell(cmd.Cmd, object):
                                             callback=error_cb),
         }
 
-        self.client = mqttcommon.MQTTClient(host, port=port,
-                                            topics=self.topics)
+        self.client = client
+        self.client.topics = list(self.topics.values())
 
     def error_cb(self, message, relative_topic):  # pylint:disable=no-self-use
         """Callback on 'error' topic."""
         msg = message.payload.decode('utf-8')
-        print('SERIAL ERROR:%s:%s' % (relative_topic, msg))
+        print('SERIAL ERROR: %s: %s' % (relative_topic, msg))
 
     @classmethod
-    def from_opts_dict(cls, broker, broker_port, prefix, site, **_):
+    def from_opts_dict(cls, prefix, site, **kwargs):
         """Create class from argparse entries."""
-        return cls(broker, port=broker_port, prefix=prefix, site=site)
+        client = mqttcommon.MQTTClient.from_opts_dict(**kwargs)
+        return cls(client, prefix=prefix, site=site)
 
     # # # # #
     # line  #
@@ -101,33 +96,21 @@ class SerialShell(cmd.Cmd, object):
     # # # # # # #
     def do_linestart(self, arg):
         """Start line mode to given node: ARCHI NUM"""
-        try:
-            archi, num = shlex.split(arg)
-            num = int(num)
-            if archi not in self.ARCHIS:
-                print('archi not in %s' % (self.ARCHIS,))
-                raise ValueError()
-
-        except ValueError:
-            self.help_linestart('Usage: ')
-            return 0
+        archi, num = self.cmd_split(arg)
+        num = int(num)
 
         self._do_linestart(archi, num)
 
     def _do_linestart(self, archi, num):
         topic = self.topics['linestart']
 
-        try:
-            ret = topic.request(self.client, b'', timeout=5,
-                                archi=archi, num=num)
-            if ret:
-                raise RuntimeError(ret.decode('utf-8'))
-        except RuntimeError as err:
-            print('%s' % err)
+        ret = topic.request(self.client, b'', timeout=5,
+                            archi=archi, num=num)
+        if ret:
+            raise RuntimeError(ret.decode('utf-8'))
 
-    def help_linestart(self, prefix=''):
+    def help_linestart(self):
         """Help linestart command."""
-        print(prefix, end='')
         print(self.LINESTART_USAGE, end='')
 
     # # # # # # #
@@ -135,21 +118,14 @@ class SerialShell(cmd.Cmd, object):
     # # # # # # #
     def do_linewrite(self, arg):
         """Write line to given node: ARCHI NUM MESSAGE."""
-        try:
-            archi, num, message = shlex.split(arg)
-            num = int(num)
-        except ValueError:
-            self.help_linewrite('Usage: ')
-            return 0
+        archi, num, message = self.cmd_split(arg, 2)
+        num = int(num)
 
-        msg = message.decode('utf-8')  # Expect stdin to be utf-8
-
-        payload = msg.encode('utf-8')
+        payload = message.encode('utf-8')
         self.topics['line'].send(self.client, archi, num, payload)
 
-    def help_linewrite(self, prefix=''):
+    def help_linewrite(self):
         """Help linewrite command."""
-        print(prefix, end='')
         print(self.LINEWRITE_USAGE, end='')
 
     # # # # #
@@ -157,25 +133,17 @@ class SerialShell(cmd.Cmd, object):
     # # # # #
     def do_stop(self, arg):
         """Stop node redirection: ARCHI NUM."""
-        try:
-            archi, num = shlex.split(arg)
-            num = int(num)
-        except ValueError:
-            self.help_stop('Usage: ')
-            return 0
+        archi, num = self.cmd_split(arg)
+        num = int(num)
 
         topic = self.topics['stop']
-        try:
-            ret = topic.request(self.client, b'', timeout=5,
-                                archi=archi, num=num)
-            if ret:
-                raise RuntimeError(ret.decode('utf-8'))
-        except RuntimeError as err:
-            print('%s' % err)
+        ret = topic.request(self.client, b'', timeout=5,
+                            archi=archi, num=num)
+        if ret:
+            raise RuntimeError(ret.decode('utf-8'))
 
-    def help_stop(self, prefix=''):
+    def help_stop(self):
         """Help stop command."""
-        print(prefix, end='')
         print(self.STOP_USAGE, end='')
 
     # # # # # #
@@ -184,34 +152,38 @@ class SerialShell(cmd.Cmd, object):
     def do_stopall(self, _):
         """Stop all nodes redirection."""
         topic = self.topics['stopall']
-        try:
-            ret = topic.request(self.client, b'', timeout=5)
-            if ret:
-                raise RuntimeError(ret.decode('utf-8'))
-        except RuntimeError as err:
-            print('%s' % err)
+        ret = topic.request(self.client, b'', timeout=5)
+        if ret:
+            raise RuntimeError(ret.decode('utf-8'))
 
-    def help_stopall(self, prefix=''):
+    def help_stopall(self):
         """Help stopall command."""
-        print(prefix, end='')
         print(self.STOPALL_USAGE, end='')
 
     def run(self):
         """Run client and shell."""
-        self.client.start()
+        self.start()
         try:
             self.cmdloop()
         except KeyboardInterrupt:
             pass
+        self.stop()
+
+    def start(self):
+        """Start Agent."""
+        self.client.start()
+
+    def stop(self):
+        """Stop agent."""
         self.client.stop()
 
 
-def main():
-    """SerialAgent shell client."""
-    opts = PARSER.parse_args()
+def main(opts=None):
+    """SerialAgent shell client.
+
+    :param opts: If provided, don't parse command line but use it instead
+    :type opts: argparse Namespace object
+    """
+    opts = opts or PARSER.parse_args()
     shell = SerialShell.from_opts_dict(**vars(opts))
     shell.run()
-
-
-if __name__ == '__main__':
-    main()

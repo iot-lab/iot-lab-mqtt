@@ -7,14 +7,13 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import os.path
-import time
-import unittest
 import threading
 
 import mock
 from iotlabmqtt import mqttcommon
 from iotlabmqtt.clients import common as clientcommon
 from . import mqttclient_mock
+from . import TestCaseImproved
 
 
 def wrap_mock(func):
@@ -29,7 +28,7 @@ def wrap_mock(func):
     return _cb_wrapper
 
 
-class AgentTest(unittest.TestCase):
+class AgentTest(TestCaseImproved):
     """Setup and cleanup Agent mock."""
 
     def setUp(self):
@@ -50,11 +49,11 @@ class MQTTClientTest(AgentTest):
                   'three': mqttcommon.NullTopic('not_subscribe')}
 
         agent = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                               topics=topics)
+                                               list(topics.values()))
         with mock.patch('iotlabmqtt.mqttcommon.print') as stdout:
             agent.start()
 
-        self.assertEqual(agent.topics, topics)
+        self.assertEqual(agent.topics, list(topics.values()))
         self.assertEqual(agent.on_message_filtered,
                          [('a/b/c', topics['one'].callback)])
 
@@ -161,9 +160,9 @@ class RequestTest(AgentTest):
             topicname, 'start', wrap_mock(server_cb))}
 
         client = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                client_topics)
+                                                list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                server_topics)
+                                                list(server_topics.values()))
 
         # Simple request answering
         req_topic = mqttcommon.common.topic_lazyformat(
@@ -187,6 +186,7 @@ class RequestTest(AgentTest):
             return None
 
         def __server__cb(publisher, payload):
+            import time
             time.sleep(1)
             publisher(payload)
 
@@ -227,12 +227,7 @@ class RequestTest(AgentTest):
 
         # Cleanup
         # Wait until callback called
-        for _ in range(0, 10):
-            time.sleep(1)
-            if server_cb.called:
-                break
-        # Callback timedout ?
-        self.assertTrue(server_cb.called)
+        self.assertEqualTimeout(lambda: server_cb.called, True, timeout=10)
 
 
 class ChannelTest(AgentTest):
@@ -280,9 +275,9 @@ class ChannelTest(AgentTest):
             topicname, wrap_mock(server_cb))}
 
         client = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                client_topics)
+                                                list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                server_topics)
+                                                list(server_topics.values()))
 
         # Client writes a message
         client_topics['line'].send(client, 'm3', 1, b'req').wait_for_publish()
@@ -343,9 +338,10 @@ class ErrorTest(AgentTest):
             topicname, wrap_mock(client_cb))}
         server_topics = {'error': mqttcommon.ErrorServer(topicname)}
 
-        _ = mqttclient_mock.MQTTClientMock('localhost', 1883, client_topics)
+        _ = mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                           list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                                server_topics)
+                                                list(server_topics.values()))
         server.publish_delay = 0
 
         err = b'error message'
