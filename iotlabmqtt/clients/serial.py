@@ -171,11 +171,19 @@ class SerialShell(clientcommon.CmdShell):
 
     def run(self):
         """Run client and shell."""
-        self.client.start()
+        self.start()
         try:
             self.cmdloop()
         except KeyboardInterrupt:
             pass
+        self.stop()
+
+    def start(self):
+        """Start Agent."""
+        self.client.start()
+
+    def stop(self):
+        """Stop agent."""
         self.client.stop()
 
 
