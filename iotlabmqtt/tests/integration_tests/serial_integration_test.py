@@ -6,7 +6,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import time
 import subprocess
-from io import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import mock
 
@@ -57,8 +60,8 @@ class SerialIntegrationTest(IntegrationTestCase):
 
         return proc
 
-    @mock.patch('iotlabmqtt.clients.serial.print')
-    def test_serial_agents(self, serial_print):
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_serial_agents(self, stdout):
         """Test serial agents."""
         args = ['localhost', '--broker-port', '%s' % self.BROKERPORT,
                 '--prefix', 'serial/test/prefix']
@@ -75,15 +78,18 @@ class SerialIntegrationTest(IntegrationTestCase):
             client.start()
 
             try:
-                self._test_serial_agent_one_node(client, serial_print)
-                self._test_serial_agent_no_port(client, serial_print)
-                self._test_serial_agent_conn_stop(client, serial_print)
+                stdout.seek(0)
+                stdout.truncate(0)
+
+                self._test_serial_agent_one_node(client, stdout)
+                self._test_serial_agent_no_port(client, stdout)
+                self._test_serial_agent_conn_stop(client, stdout)
             finally:
                 client.stop()
         finally:
             server.stop()
 
-    def _test_serial_agent_one_node(self, client, serial_print):
+    def _test_serial_agent_one_node(self, client, stdout):
         """Test serial agent normal cases."""
 
         port = 20001
@@ -93,10 +99,12 @@ class SerialIntegrationTest(IntegrationTestCase):
         first = 'err_not_conn'
         client.onecmd('linewrite localhost %u %s' % (port, first))
 
-        err = [mock.call('SERIAL ERROR: localhost/20001/line/data/in: '
-                         'Non connected node localhost-20001')]
-        self.assertEqualTimeout(lambda: serial_print.call_args_list, err, 2)
-        serial_print.reset_mock()
+        err = ('SERIAL ERROR: localhost/20001/line/data/in: '
+               'Non connected node localhost-20001\n'
+               '(Cmd) ')
+        self.assertEqualTimeout(stdout.getvalue, err, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
 
         # Start line
         client.onecmd('linestart localhost %u' % port)
@@ -105,7 +113,7 @@ class SerialIntegrationTest(IntegrationTestCase):
         client.onecmd('linestart localhost %u' % port)
 
         # No message == success for both
-        self.assertEqual(serial_print.call_args_list, [])
+        self.assertEqual(stdout.getvalue(), '')
 
         # Write to node
         second = 'wrïttén'
@@ -119,32 +127,38 @@ class SerialIntegrationTest(IntegrationTestCase):
         soc.stdin.write((second_ret + '\n').encode('utf-8'))
         soc.stdin.flush()
 
-        answer = [mock.call('line_handler(localhost-20001): ánßwër')]
-        self.assertEqualTimeout(lambda: serial_print.call_args_list, answer, 2)
-        serial_print.reset_mock()
+        answer = ('line_handler(localhost-20001): ánßwër\n'
+                  '(Cmd) ')
+        self.assertEqualTimeout(stdout.getvalue, answer, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
 
         # Stop node
         client.onecmd('stop localhost %u' % port)
-        self.assertEqual(serial_print.call_args_list, [])
+        self.assertEqual(stdout.getvalue(), '')
+        stdout.seek(0)
+        stdout.truncate(0)
 
         # Correctly stopped
         third = 'err_stopped'
         client.onecmd('linewrite localhost %u %s' % (port, third))
 
-        err = [mock.call('SERIAL ERROR: localhost/20001/line/data/in: '
-                         'Non connected node localhost-20001')]
-        self.assertEqualTimeout(lambda: serial_print.call_args_list, err, 2)
-        serial_print.reset_mock()
+        err = ('SERIAL ERROR: localhost/20001/line/data/in: '
+               'Non connected node localhost-20001\n'
+               '(Cmd) ')
+        self.assertEqualTimeout(stdout.getvalue, err, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
 
         # Can stop another time without error
         client.onecmd('stop localhost %u' % port)
-        self.assertEqual(serial_print.call_args_list, [])
+        self.assertEqual(stdout.getvalue(), '')
 
         # Stop all nodes (but no nodes in fact)
         client.onecmd('stopall')
-        self.assertEqual(serial_print.call_args_list, [])
+        self.assertEqual(stdout.getvalue(), '')
 
-    def _test_serial_agent_no_port(self, client, serial_print):
+    def _test_serial_agent_no_port(self, client, stdout):
         """Test connecting on non connected node."""
         port = 20000
         assert port not in self.socat, "port 20000 is used"
@@ -153,30 +167,37 @@ class SerialIntegrationTest(IntegrationTestCase):
         client.onecmd('linestart localhost %u' % port)
 
         # Error message
-        err = [mock.call(u'Connection failed: [Errno 111] Connection refused')]
-        self.assertEqual(serial_print.call_args_list, err)
-        serial_print.reset_mock()
+        err = 'Connection failed: [Errno 111] Connection refused\n'
+        self.assertEqual(stdout.getvalue(), err)
+        stdout.seek(0)
+        stdout.truncate(0)
 
-    def _test_serial_agent_conn_stop(self, client, serial_print):
+    def _test_serial_agent_conn_stop(self, client, stdout):
         """Connection stops on one node, and stopall."""
         port = 20001
 
         for port in self.socat:
             # Start line
             client.onecmd('linestart localhost %u' % port)
-        self.assertEqual(serial_print.call_args_list, [])
+        self.assertEqual(stdout.getvalue(), '')
+        stdout.seek(0)
+        stdout.truncate(0)
 
         # Break connection and error from disconnect
         self.socat_stop(port)
-        err = [mock.call(u'SERIAL ERROR: localhost/20002: Connection closed')]
-        self.assertEqualTimeout(lambda: serial_print.call_args_list, err, 2)
-        serial_print.reset_mock()
+
+        err = ('SERIAL ERROR: localhost/20002: Connection closed\n'
+               '(Cmd) ')
+        self.assertEqualTimeout(stdout.getvalue, err, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
+
         # Restart socat
         self.socat_start(port)
 
         # Stop all nodes with nodes
         client.onecmd('stopall')
-        self.assertEqual(serial_print.call_args_list, [])
+        self.assertEqual(stdout.getvalue(), '')
 
 
 @mock.patch('sys.stdout', new_callable=StringIO)
@@ -193,9 +214,9 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_linestart(self, stdout):
         """Test linestart parser errors."""
-        hlp = (u'Usage: linestart ARCHI NUM\n'
-               u'  ARCHI: m3/a8\n'
-               u'  NUM:   node num\n')
+        hlp = ('Usage: linestart ARCHI NUM\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n')
 
         # Missing port
         self.client.onecmd('linestart localhost')
@@ -217,9 +238,9 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_stop(self, stdout):
         """Test stop parser errors."""
-        hlp = (u'Usage: stop ARCHI NUM\n'
-               u'  ARCHI: m3/a8\n'
-               u'  NUM:   node num\n')
+        hlp = ('Usage: stop ARCHI NUM\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n')
 
         # Missing port
         self.client.onecmd('stop localhost')
@@ -241,10 +262,10 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_linewrite(self, stdout):
         """Test linewrite parser errors."""
-        hlp = (u'Usage: linewrite ARCHI NUM MESSAGE\n'
-               u'  ARCHI: m3/a8\n'
-               u'  NUM:   node num\n'
-               u'  MESSAGE: Message line to send\n')
+        hlp = ('Usage: linewrite ARCHI NUM MESSAGE\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n'
+               '  MESSAGE: Message line to send\n')
 
         # Missing message
         self.client.onecmd('linewrite localhost 123')
@@ -260,7 +281,7 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_stopall(self, stdout):
         """Test stopall help."""
-        hlp = u'stopall\n'
+        hlp = 'stopall\n'
 
         # cannot be done from command, just call it
         self.client.onecmd('help stopall')

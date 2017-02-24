@@ -37,6 +37,7 @@ class CmdShell(cmd.Cmd, object):
         * decode lines as using stdin encoding
         * replace nbsp in lines
         * Print help on ValueError
+        * Print error on RuntimeError
         """
         try:
             line = self.decode_line(line, encoding=self.input_encoding)
@@ -51,6 +52,10 @@ class CmdShell(cmd.Cmd, object):
             # Error from do_command while handling `arg`
             command = self.parseline(line)[0]
             self._print_usage(command)
+
+        except RuntimeError as err:
+            # Error from command execution, ex requests
+            print('%s' % err)
 
     def _print_usage(self, command):
         """Print usage for command."""

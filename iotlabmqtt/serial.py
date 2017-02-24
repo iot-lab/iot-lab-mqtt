@@ -438,6 +438,7 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
             self._reply_request(error)
 
         elif previous_state == 'line':
+            # Generate event_error
             raise ValueError(error)
 
         else:
