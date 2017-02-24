@@ -29,16 +29,17 @@ class CmdShell(cmd.Cmd, object):
 
     def __init__(self):
         cmd.Cmd.__init__(self)
+        self.input_encoding = sys.stdin.encoding
 
     def onecmd(self, line):
         """onecmd command wrapped to nicely handle lines and ValueError.
 
-        * decode lines as utf-8
+        * decode lines as using stdin encoding
         * replace nbsp in lines
         * Print help on ValueError
         """
         try:
-            line = self.decode_line(line, encoding='utf-8')
+            line = self.decode_line(line, encoding=self.input_encoding)
             line = self.replace_nbsp(line)
             return cmd.Cmd.onecmd(self, line)
 
