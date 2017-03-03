@@ -5,6 +5,10 @@
 Implement a class for AsyncoreService and a NodeConnection with handlers.
 """
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from builtins import *  # pylint:disable=W0401,W0614,W0622
+
 import socket
 import threading
 import asyncore
@@ -48,11 +52,12 @@ class NodeConnection(asyncore.dispatcher_with_send):
 
     def start(self):
         """Connects to node serial port:"""
+
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.connect(self.address)
-        except (IOError, OverflowError):
-            self.handle_close()
+        except:  # pylint:disable=broad-except,bare-except
+            self.handle_error()
 
     def handle_connect(self):
         """Node connected."""

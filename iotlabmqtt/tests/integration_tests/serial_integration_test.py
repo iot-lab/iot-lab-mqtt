@@ -151,6 +151,27 @@ class SerialIntegrationTest(IntegrationTestCase):
         stdout.seek(0)
         stdout.truncate(0)
 
+    def test_serial_agent_dns_fail(self):
+        """Test connecting on non existing dns node."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_serial_agent_dns_fail(client, stdout)
+
+    def _test_serial_agent_dns_fail(self, client, stdout):
+        """This dns error is raised directly by connect.
+
+        So it triggers a different path than an async failure.
+        """
+
+        # Start line non existing dns entry (even on IoT-LAB, raises DNS fail)
+        client.onecmd('linestart m3 1234')
+
+        # Error message
+        err = ('Connection failed: '
+               '[Errno -5] No address associated with hostname\n')
+        self.assertEqual(stdout.getvalue(), err)
+        stdout.seek(0)
+        stdout.truncate(0)
+
     def test_serial_agent_conn_stop(self):
         """Connection stops on one node, and stopall."""
         with self.start_client_and_server(self.BROKERPORT) as (client, stdout):

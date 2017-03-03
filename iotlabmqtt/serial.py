@@ -354,7 +354,8 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
         self.connection = SerialConnection(archi, num, self.conn_event_handler,
                                            service=asyncoreservice)
 
-        self._lock = threading.Lock()
+        # Required Rlock, connection socket errors calls event_handler('close')
+        self._rlock = threading.RLock()
 
     @staticmethod
     def hostname(archi, num):
@@ -386,7 +387,7 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
         self.reply_publisher(reply.encode('utf-8'))
         self.reply_publisher = None
 
-    @common.synchronized('_lock')
+    @common.synchronized('_rlock')
     def close(self):
         """Close connection and state."""
         self._close()
@@ -401,7 +402,7 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
         self.closed_cb(self)
         return previous_state
 
-    @common.synchronized('_lock')
+    @common.synchronized('_rlock')
     def conn_event_handler(self, event):
         """Handler for connection events."""
         event_handler = {
@@ -433,7 +434,7 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
         # Jumps to event error
         raise Exception('Connection closed in state %s' % self.state)
 
-    @common.synchronized('_lock')
+    @common.synchronized('_rlock')
     def req_linestart(self, reply_publisher, line_handler):
         """Request to start line."""
 
@@ -453,7 +454,7 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
         self.connection.start()
         return None
 
-    @common.synchronized('_lock')
+    @common.synchronized('_rlock')
     def lineinput(self, payload):
         """Send ``payload`` with a newline to the node connection."""
         if self.state != 'line':
