@@ -51,6 +51,7 @@ class CmdShell(cmd.Cmd, object):
         except ValueError:
             # Error from do_command while handling `arg`
             command = self.parseline(line)[0]
+            print('Error: Invalid arguments')
             self._print_usage(command)
 
         except RuntimeError as err:

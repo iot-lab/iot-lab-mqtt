@@ -214,7 +214,8 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_linestart(self, stdout):
         """Test linestart parser errors."""
-        hlp = ('Usage: linestart ARCHI NUM\n'
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: linestart ARCHI NUM\n'
                '  ARCHI: m3/a8\n'
                '  NUM:   node num\n')
 
@@ -238,7 +239,8 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_stop(self, stdout):
         """Test stop parser errors."""
-        hlp = ('Usage: stop ARCHI NUM\n'
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: stop ARCHI NUM\n'
                '  ARCHI: m3/a8\n'
                '  NUM:   node num\n')
 
@@ -262,7 +264,8 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_linewrite(self, stdout):
         """Test linewrite parser errors."""
-        hlp = ('Usage: linewrite ARCHI NUM MESSAGE\n'
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: linewrite ARCHI NUM MESSAGE\n'
                '  ARCHI: m3/a8\n'
                '  NUM:   node num\n'
                '  MESSAGE: Message line to send\n')
