@@ -167,7 +167,8 @@ class SerialIntegrationTest(IntegrationTestCase):
         # Break connection and error from disconnect
         self.socat_stop(port)
 
-        err = ('SERIAL ERROR: localhost/20002: Connection closed\n'
+        err = ('SERIAL ERROR: localhost/20002: '
+               'Connection closed in state line\n'
                '(Cmd) ')
         self.assertEqualTimeout(stdout.getvalue, err, 2)
         stdout.seek(0)

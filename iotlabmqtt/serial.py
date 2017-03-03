@@ -395,11 +395,8 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
     def _close(self):
         """Set 'closed' state, resets data_handler and call ``closed_cb``."""
         previous_state = self.state
-        try:
-            self.connection.close()
-            self.connection.data_handler = None
-        except AttributeError:
-            pass
+        self.connection.close()
+        self.connection.data_handler = None
         self.state = 'closed'
         self.closed_cb(self)
         return previous_state
@@ -417,32 +414,24 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
     def _event_connect(self):
         if self.state == 'linestarting':
             self._reply_request('', newstate='line')
-        else:
-            raise ValueError('Got connect event in invalid state')
+            return
+
+        raise Exception('Got connect event in invalid state %s' % self.state)
 
     def _event_error(self):
+        # Received other events exceptions
         error = common.traceback_error()
         previous_state = self._close()
 
         if previous_state == 'linestarting':
             self._reply_request('Connection failed: %s' % error)
+            return
 
-        else:
-            self.error_cb(self, error)
+        self.error_cb(self, error)
 
     def _event_close(self):
-        error = 'Connection closed'
-        previous_state = self._close()
-
-        if previous_state == 'linestarting':
-            self._reply_request(error)
-
-        elif previous_state == 'line':
-            # Generate event_error
-            raise ValueError(error)
-
-        else:
-            assert self.state == 'closed'
+        # Jumps to event error
+        raise Exception('Connection closed in state %s' % self.state)
 
     @common.synchronized('_lock')
     def req_linestart(self, reply_publisher, line_handler):
@@ -451,11 +440,9 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
         if self.state == 'line':
             return b''
 
-        if self.state == 'linestarting':
-            err = "Already executing 'linestart'. Wait or stop it first"
-            return err.encode('utf-8')
-
-        assert self.state == 'closed'
+        if self.state != 'closed':
+            err = "Error: 'linestart' in mode %s. Wait or stop it first"
+            return (err % self.state).encode('utf-8')
 
         # Start line mode and register 'line_handler'
         self.state = 'linestarting'
