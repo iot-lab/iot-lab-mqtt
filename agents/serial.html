@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Serial Redirection Agent &#8212; IoT-LAB MQTT 0.3.0 documentation</title>
+    <title>Serial Redirection Agent &#8212; IoT-LAB MQTT 0.3.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.3.0',
+        VERSION:     '0.3.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -73,7 +73,7 @@ The serial redirection should first be started for each node in a mode.</p>
 <col width="13%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">&nbsp;</th>
+<tr class="row-odd"><th class="head">&#160;</th>
 <th class="head">Topic</th>
 <th class="head">Type</th>
 </tr>
@@ -83,45 +83,45 @@ The serial redirection should first be started for each node in a mode.</p>
 </tr>
 <tr class="row-odd"><td colspan="3"><code class="docutils literal"><span class="pre">{prefix}/iot-lab/serial/{site}</span></code></td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-even"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/error/</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error</span></a></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/ctl/stopall</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
 <tr class="row-even"><td colspan="3"><strong>Node</strong></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/stop</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
 <tr class="row-even"><td colspan="3"><strong>Line redirection</strong></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/ctl/start</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-even"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/ctl/stop</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/data</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></td>
 </tr>
 <tr class="row-even"><td colspan="3"><strong>Raw redirection</strong></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-even"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></td>
 </tr>
@@ -497,8 +497,8 @@ No handling is done when receiving/sending.</p>
       &copy;2017, Gaëtan Harter.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/agents/serial.rst.txt"
