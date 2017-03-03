@@ -18,6 +18,7 @@ from iotlabmqtt import radiosniffer
 from iotlabmqtt.clients import radiosniffer as radiosniffer_client
 
 from . import IntegrationTestCase
+from .. import TestCaseImproved
 
 # pylint:disable=invalid-name
 
@@ -369,5 +370,118 @@ class RadioSnifferlIntegrationTest(IntegrationTestCase):
         err = ('Connection failed: '
                '[Errno -5] No address associated with hostname\n')
         self.assertEqual(stdout.getvalue(), err)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+
+@mock.patch('sys.stdout', new_callable=StringIO)
+class RadioSnifferClientErrorTests(TestCaseImproved):
+    """Test RadioSniffer parsing errors."""
+    def setUp(self):
+        args = ['localhost', '--broker-port', '%s' % 54321,
+                '--prefix', 'radiosniffer/test/prefix',
+                '--site', radiosniffer.MQTTRadioSnifferAggregator.HOSTNAME]
+        opts = radiosniffer_client.PARSER.parse_args(args)
+        self.client = radiosniffer_client.RadioSnifferShell.from_opts_dict(
+            **vars(opts))
+        # Publish should crash
+        self.client.publish = None
+
+    def test_rawpcap(self, stdout):
+        """Test rawpcap errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: rawpcap FILEPATH\n'
+               '  FILEPATH: rawpcap output\n')
+
+        # No file
+        self.client.onecmd('rawpcap')
+        err = "Could not open file: [Errno 2] No such file or directory: ''\n"
+        self.assertEqual(stdout.getvalue(), err + hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Cannot open file
+        self.client.onecmd('rawpcap /non_exising/dir/and/file')
+        err = ("Could not open file: [Errno 2] No such file or directory: "
+               "'/non_exising/dir/and/file'\n")
+        self.assertEqual(stdout.getvalue(), err + hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_rawpcapclose(self, stdout):
+        """Test rawpcapclose help."""
+        hlp = ('rawpcapclose\n'
+               '  Close the current rawpcap file\n')
+
+        # cannot be done from command, just call it
+        self.client.onecmd('help rawpcapclose')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_rawstart(self, stdout):
+        """Test rawstart parser errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: rawstart ARCHI NUM CHANNEL\n'
+               '  ARCHI:   m3/a8\n'
+               '  NUM:     node num\n'
+               '  CHANNEL: sniffer channel\n')
+
+        # Missing port
+        self.client.onecmd('rawstart localhost')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('rawstart localhost abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid channel
+        self.client.onecmd('rawstart m3 123 CHANNEL')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('rawstart m3 123 11 anotherone')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_stop(self, stdout):
+        """Test stop parser errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: stop ARCHI NUM\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n')
+
+        # Missing port
+        self.client.onecmd('stop localhost')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('stop localhost abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('stop localhost 123 haha')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_stopall(self, stdout):
+        """Test stopall help."""
+        hlp = 'stopall\n'
+
+        # cannot be done from command, just call it
+        self.client.onecmd('help stopall')
+        self.assertEqual(stdout.getvalue(), hlp)
         stdout.seek(0)
         stdout.truncate(0)
