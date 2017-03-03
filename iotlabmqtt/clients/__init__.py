@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 import argparse
 
 from . import serial
+from . import radiosniffer
 
 
 PARSER = argparse.ArgumentParser()
@@ -18,6 +19,8 @@ SUBPARSER.required = True
 #   'add_help=False' prevents '--help' duplicate
 SUBPARSER.add_parser('serial', parents=[serial.PARSER], add_help=False,
                      help='serial redirection client')
+SUBPARSER.add_parser('radiosniffer', parents=[radiosniffer.PARSER],
+                     add_help=False, help='radiosniffer client')
 
 
 def main():

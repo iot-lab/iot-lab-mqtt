@@ -21,6 +21,7 @@
 # knowledge of the CeCILL license and that you accept its terms.
 
 import os
+import itertools
 from setuptools import setup, find_packages
 
 PACKAGE = 'iotlabmqtt'
@@ -48,12 +49,20 @@ ENTRY_POINTS = {
     'console_scripts': [
         # Server script
         'iotlab-mqtt-serial = iotlabmqtt.serial:main',
+        'iotlab-mqtt-radiosniffer = iotlabmqtt.radiosniffer:main [sniffer]',
 
         # Client script
         'iotlab-mqtt-clients = iotlabmqtt.clients:main',
     ],
 }
 
+EXTRAS_REQUIRE = {
+    'sniffer': ['iotlabcli>=2.1.0'],
+}
+
+# Sum all dependecies in 'server'
+ALL_EXTRAS_DEPS = list(itertools.chain.from_iterable(EXTRAS_REQUIRE.values()))
+EXTRAS_REQUIRE['server'] = ALL_EXTRAS_DEPS
 
 setup(
     name=PACKAGE,
@@ -74,4 +83,5 @@ setup(
                  'Topic :: Utilities', ],
     install_requires=INSTALL_REQUIRES,
     entry_points=ENTRY_POINTS,
+    extras_require=EXTRAS_REQUIRE,
 )
