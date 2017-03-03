@@ -3,9 +3,9 @@
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import time
-import subprocess
+import contextlib
 try:
     from StringIO import StringIO
 except ImportError:
@@ -24,7 +24,7 @@ class SerialIntegrationTest(IntegrationTestCase):
     """Test serial client and server using a broker."""
 
     def setUp(self):
-        self.socat = {}
+        super().setUp()
         for port in range(20001, 20003):
             self.socat_start(port)
 
@@ -32,66 +32,41 @@ class SerialIntegrationTest(IntegrationTestCase):
         for port in list(self.socat):
             self.socat_stop(port)
 
-    def socat_start(self, port, wait=1):
-        """Register new socat on ``port``."""
-        self.socat[port] = self._socat_start(port, wait)
-
-    def socat_stop(self, port):
-        """Close socat on ``port``."""
-        soc = self.socat.pop(port)
-        soc.terminate()
-        soc.wait()
-
     @staticmethod
-    def _socat_start(port, wait=1):
-        """Start socat on ``port``.
+    @contextlib.contextmanager
+    def start_client_and_server(brokerport):
+        """Start serial client and server context manager.
 
-        :param port: socat listening port
-        :param wait: waiting time after starting process to check if running
+        Yields client and stdout mock.
         """
-        tcp_listen = 'tcp4-listen:{port},reuseaddr,fork'.format(port=port)
-        cmd = ['socat', '-', tcp_listen]
-        proc = subprocess.Popen(cmd,
-                                stdout=subprocess.PIPE,
-                                stdin=subprocess.PIPE)
-        time.sleep(wait)
-        if proc.poll() is not None:
-            raise ValueError('Failed starting socat {}'.format(port))
-
-        return proc
-
-    @mock.patch('sys.stdout', new_callable=StringIO)
-    def test_serial_agents(self, stdout):
-        """Test serial agents."""
-        args = ['localhost', '--broker-port', '%s' % self.BROKERPORT,
+        args = ['localhost', '--broker-port', '%s' % brokerport,
                 '--prefix', 'serial/test/prefix']
         opts = serial.PARSER.parse_args(args)
         server = serial.MQTTAggregator.from_opts_dict(**vars(opts))
         server.start()
 
         try:
-            args = ['localhost', '--broker-port', '%s' % self.BROKERPORT,
+            args = ['localhost', '--broker-port', '%s' % brokerport,
                     '--prefix', 'serial/test/prefix',
-                    '--site', serial.MQTTAggregator.HOSTNAME]
+                    '--site', server.HOSTNAME]
             opts = serial_client.PARSER.parse_args(args)
             client = serial_client.SerialShell.from_opts_dict(**vars(opts))
             client.start()
 
             try:
-                stdout.seek(0)
-                stdout.truncate(0)
-
-                self._test_serial_agent_one_node(client, stdout)
-                self._test_serial_agent_no_port(client, stdout)
-                self._test_serial_agent_conn_stop(client, stdout)
+                with mock.patch('sys.stdout', new_callable=StringIO) as stdout:
+                    yield client, stdout
             finally:
                 client.stop()
         finally:
             server.stop()
 
-    def _test_serial_agent_one_node(self, client, stdout):
+    def test_serial_agent_one_node(self):
         """Test serial agent normal cases."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_serial_agent_one_node(client, stdout)
 
+    def _test_serial_agent_one_node(self, client, stdout):
         port = 20001
         soc = self.socat[port]
 
@@ -158,8 +133,12 @@ class SerialIntegrationTest(IntegrationTestCase):
         client.onecmd('stopall')
         self.assertEqual(stdout.getvalue(), '')
 
-    def _test_serial_agent_no_port(self, client, stdout):
+    def test_serial_agent_no_port(self):
         """Test connecting on non connected node."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_serial_agent_no_port(client, stdout)
+
+    def _test_serial_agent_no_port(self, client, stdout):
         port = 20000
         assert port not in self.socat, "port 20000 is used"
 
@@ -172,21 +151,45 @@ class SerialIntegrationTest(IntegrationTestCase):
         stdout.seek(0)
         stdout.truncate(0)
 
-    def _test_serial_agent_conn_stop(self, client, stdout):
+    def test_serial_agent_dns_fail(self):
+        """Test connecting on non existing dns node."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_serial_agent_dns_fail(client, stdout)
+
+    def _test_serial_agent_dns_fail(self, client, stdout):
+        """This dns error is raised directly by connect.
+
+        So it triggers a different path than an async failure.
+        """
+
+        # Start line non existing dns entry (even on IoT-LAB, raises DNS fail)
+        client.onecmd('linestart m3 1234')
+
+        # Error message
+        err = ('Connection failed: '
+               '[Errno -5] No address associated with hostname\n')
+        self.assertEqual(stdout.getvalue(), err)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_serial_agent_conn_stop(self):
         """Connection stops on one node, and stopall."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_serial_agent_conn_stop(client, stdout)
+
+    def _test_serial_agent_conn_stop(self, client, stdout):
         port = 20001
 
         for port in self.socat:
             # Start line
             client.onecmd('linestart localhost %u' % port)
         self.assertEqual(stdout.getvalue(), '')
-        stdout.seek(0)
-        stdout.truncate(0)
 
         # Break connection and error from disconnect
         self.socat_stop(port)
 
-        err = ('SERIAL ERROR: localhost/20002: Connection closed\n'
+        err = ('SERIAL ERROR: localhost/20002: '
+               'Connection closed in state line\n'
                '(Cmd) ')
         self.assertEqualTimeout(stdout.getvalue, err, 2)
         stdout.seek(0)
@@ -214,7 +217,8 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_linestart(self, stdout):
         """Test linestart parser errors."""
-        hlp = ('Usage: linestart ARCHI NUM\n'
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: linestart ARCHI NUM\n'
                '  ARCHI: m3/a8\n'
                '  NUM:   node num\n')
 
@@ -238,7 +242,8 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_stop(self, stdout):
         """Test stop parser errors."""
-        hlp = ('Usage: stop ARCHI NUM\n'
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: stop ARCHI NUM\n'
                '  ARCHI: m3/a8\n'
                '  NUM:   node num\n')
 
@@ -262,7 +267,8 @@ class SerialClientErrorTests(TestCaseImproved):
 
     def test_linewrite(self, stdout):
         """Test linewrite parser errors."""
-        hlp = ('Usage: linewrite ARCHI NUM MESSAGE\n'
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: linewrite ARCHI NUM MESSAGE\n'
                '  ARCHI: m3/a8\n'
                '  NUM:   node num\n'
                '  MESSAGE: Message line to send\n')

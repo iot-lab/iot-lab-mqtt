@@ -5,6 +5,10 @@
 Implement a class for AsyncoreService and a NodeConnection with handlers.
 """
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from builtins import *  # pylint:disable=W0401,W0614,W0622
+
 import socket
 import threading
 import asyncore
@@ -41,16 +45,19 @@ class NodeConnection(asyncore.dispatcher_with_send):
 
     def handle_data(self, data):
         """Call given data_handler."""
-        if self.data_handler:
-            self.data_handler(data)
+        # save value for thread safety, data_handler can change
+        handler = self.data_handler
+        if handler:
+            handler(data)
 
     def start(self):
         """Connects to node serial port:"""
+
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.connect(self.address)
-        except (IOError, OverflowError):
-            self.handle_close()
+        except:  # pylint:disable=broad-except,bare-except
+            self.handle_error()
 
     def handle_connect(self):
         """Node connected."""
@@ -60,6 +67,14 @@ class NodeConnection(asyncore.dispatcher_with_send):
         """Close the connection and clear buffer."""
         self.close()
         self.event_handler('close')
+
+    def close(self):
+        """Safe close."""
+        try:
+            asyncore.dispatcher_with_send.close(self)
+        except AttributeError:
+            # When close is done on socket == None
+            pass
 
     def handle_read(self):
         """Read bytes and run data handler."""
