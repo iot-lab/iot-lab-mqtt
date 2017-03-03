@@ -42,9 +42,17 @@ def get_version(package):
             if line.startswith('__version__'):
                 return eval(line.split('=')[-1])  # pylint:disable=eval-used
 
-SCRIPTS = ['iotlab-mqtt-serial', 'iotlab-mqtt-clients']
-
 INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
+
+ENTRY_POINTS = {
+    'console_scripts': [
+        # Server script
+        'iotlab-mqtt-serial = iotlabmqtt.serial:main',
+
+        # Client script
+        'iotlab-mqtt-clients = iotlabmqtt.clients:main',
+    ],
+}
 
 setup(
     name=PACKAGE,
@@ -57,7 +65,6 @@ setup(
     download_url='http://github.com/iot-lab/iot-lab-mqtt/',
     packages=find_packages(),
     include_package_data=True,
-    scripts=SCRIPTS,
     classifiers=['Development Status :: 3 - Alpha',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2.7',
@@ -65,4 +72,5 @@ setup(
                  'Environment :: Console',
                  'Topic :: Utilities', ],
     install_requires=INSTALL_REQUIRES,
+    entry_points=ENTRY_POINTS,
 )
