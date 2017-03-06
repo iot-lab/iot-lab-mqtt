@@ -27,6 +27,22 @@ Install in client mode on your computer::
    pip install --user .
 
 
+Add python user install directory to the ``PATH`` by
+appending the following line in your ``~/.bashrc``::
+
+   export PATH="${HOME}/.local/bin:${PATH}"
+
+You can do it with::
+
+   echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> ~/.bashrc
+   # Reload configuration
+   source ~/.bashrc
+
+If you do not have this, you will need to run the scripts from the
+repository directory prefixed with ``"./"``, so for example
+``./iotlab-mqtt-clients``.
+
+
 Documentation
 =============
 
