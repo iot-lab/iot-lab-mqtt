@@ -5,16 +5,137 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import argparse
 
 import mock
 
+from iotlabcli.rest import HTTPError
 from iotlabmqtt import iotlabapi
 
 from . import TestCaseImproved
 
 # pylint:disable=invalid-name
+# patch StringIO: Instance of 'dict' has no 'getvalue' member
+# pylint:disable=no-member
+
+
+class IoTLABAPITestInit(TestCaseImproved):
+    """Test IoTLABAPI __init__."""
+
+    def setUp(self):
+        self.parser = argparse.ArgumentParser()
+        iotlabapi.parser_add_iotlabapi_args(self.parser)
+
+        self.get_experiment = mock.patch(
+            'iotlabcli.experiment.get_experiment').start()
+        self.get_experiment.return_value = {'state': 'Running'}
+        self.stdout = mock.patch('sys.stdout', new_callable=StringIO).start()
+
+    def tearDown(self):
+        mock.patch.stopall()
+
+    def test_init_simple(self):
+        """Test IoTLABAPI init cases."""
+        # Test simple, all args and running experiment
+
+        args = ['--experiment-id', '12345',
+                '--iotlab-user', 'us3rn4me',
+                '--iotlab-password', 'p4sswd']
+        opts = self.parser.parse_args(args)
+
+        api = iotlabapi.IoTLABAPI.from_opts_dict(**vars(opts))
+
+        self.get_experiment.assert_called_with(api.api, 12345, 'state')
+
+        self.assertEqual(api.expid, 12345)
+        self.assertEqual(api.api.auth.username, 'us3rn4me')
+        self.assertEqual(api.api.auth.password, 'p4sswd')
+
+        out = ''
+        self.assertEqual(self.stdout.getvalue(), out)
+
+    @mock.patch('iotlabcli.auth.get_user_credentials')
+    def test_init_user_password_authcli(self, get_cred):
+        """Test IoTLABAPI user/password from rcfile."""
+        get_cred.return_value = ('user', 'password')
+
+        # User and password from rcfile
+        args = ['--experiment-id', '12345']
+        opts = self.parser.parse_args(args)
+
+        api = iotlabapi.IoTLABAPI.from_opts_dict(**vars(opts))
+
+        self.get_experiment.assert_called_with(api.api, 12345, 'state')
+        get_cred.assert_called_with(None, None)
+        self.assertEqual(api.expid, 12345)
+        self.assertEqual(api.api.auth.username, 'user')
+        self.assertEqual(api.api.auth.password, 'password')
+
+        out = ''
+        self.assertEqual(self.stdout.getvalue(), out)
+
+    @mock.patch('iotlabcli.auth.get_user_credentials')
+    def test_init_no_user_password(self, get_cred):
+        """Test IoTLABAPI no user/password Auth fails."""
+        get_cred.return_value = (None, None)
+
+        err = HTTPError(None, 401, 'msg', None, None)
+        self.get_experiment.side_effect = err
+
+        args = ['--experiment-id', '12345']
+        opts = self.parser.parse_args(args)
+
+        self.assertRaises(SystemExit,
+                          iotlabapi.IoTLABAPI.from_opts_dict, **vars(opts))
+
+        self.assertTrue(self.get_experiment.called)
+        get_cred.assert_called_with(None, None)
+
+        out = (
+            'IoT-LAB API not authorized.\n'
+            'Provide ``--iotlab-user`` and ``--iotlab-password`` options.\n'
+            'Or register them using ``auth-cli --user USERNAME``\n')
+        self.assertEqual(self.stdout.getvalue(), out)
+
+    @mock.patch('iotlabcli.helpers.get_current_experiment')
+    def test_init_no_experiment(self, get_cur_exp):
+        """Test IoTLABAPI no experiment provided."""
+        err = ValueError("You have no 'Running' experiment")
+        get_cur_exp.side_effect = err
+
+        args = ['--iotlab-user', 'us3rn4me',
+                '--iotlab-password', 'p4sswd']
+        opts = self.parser.parse_args(args)
+
+        self.assertRaises(SystemExit,
+                          iotlabapi.IoTLABAPI.from_opts_dict, **vars(opts))
+
+        self.assertTrue(get_cur_exp.called)
+        self.assertFalse(self.get_experiment.called)
+
+        out = "You have no 'Running' experiment\n"
+        self.assertEqual(self.stdout.getvalue(), out)
+
+    def test_init_exp_not_running(self):
+        """Test IoTLABAPI no experiment provided."""
+        self.get_experiment.return_value = {'state': 'Error'}
+
+        args = ['--experiment-id', '12345',
+                '--iotlab-user', 'us3rn4me',
+                '--iotlab-password', 'p4sswd']
+        opts = self.parser.parse_args(args)
+
+        self.assertRaises(SystemExit,
+                          iotlabapi.IoTLABAPI.from_opts_dict, **vars(opts))
+        self.assertTrue(self.get_experiment.called)
+
+        out = "Experiment 12345 not running 'Error'\n"
+        self.assertEqual(self.stdout.getvalue(), out)
 
 
 class IoTLABAPITest(TestCaseImproved):
