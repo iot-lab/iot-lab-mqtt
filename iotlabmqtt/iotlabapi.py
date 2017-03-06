@@ -10,14 +10,15 @@ import os
 import json
 
 
-def parser_add_iotlabapi_args(parser):
+def parser_add_iotlabapi_args(parser, group_help='IoT-LAB API configuration'):
     """Add iotlab auth arguments and experiment id to ``parser``."""
-    parser.add_argument('--iotlab-user', dest='iotlab_username',
-                        help='IoT-LAB username')
-    parser.add_argument('--iotlab-password', dest='iotlab_password',
-                        help='IoT-LAB password')
-    parser.add_argument('--experiment-id', dest='experiment_id', type=int,
-                        help='experiment id submission')
+    group = parser.add_argument_group(group_help)
+    group.add_argument('--iotlab-user', dest='iotlab_username',
+                       help='IoT-LAB username')
+    group.add_argument('--iotlab-password', dest='iotlab_password',
+                       help='IoT-LAB password')
+    group.add_argument('--experiment-id', dest='experiment_id', type=int,
+                       help='experiment id submission')
 
 
 class IoTLABAPI(object):
