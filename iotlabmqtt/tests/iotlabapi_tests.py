@@ -19,7 +19,12 @@ from . import TestCaseImproved
 
 class IoTLABAPITest(TestCaseImproved):
     """Test IoTLABAPI."""
+
     def setUp(self):
+        get_experiment = mock.patch(
+            'iotlabcli.experiment.get_experiment').start()
+        get_experiment.return_value = {'state': 'Running'}
+
         parser = argparse.ArgumentParser()
         iotlabapi.parser_add_iotlabapi_args(parser)
         args = ['--iotlab-user', 'user',
@@ -30,6 +35,9 @@ class IoTLABAPITest(TestCaseImproved):
 
         # Prevent un-patched calls
         self.api.api = mock.MagicMock(spec_set=True)
+
+    def tearDown(self):
+        mock.patch.stopall()
 
     def test_set_sniffer_channel_localhost(self):
         """Test IoTLABAPI set_sniffer_channel for localhost."""

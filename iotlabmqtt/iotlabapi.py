@@ -29,13 +29,21 @@ class IoTLABAPI(object):
     """
     HOSTNAME = os.uname()[1]
 
+    AUTH_ERROR = (
+        'IoT-LAB API not authorized.\n'
+        'Provide ``--iotlab-user`` and ``--iotlab-password`` options.\n'
+        'Or register them using ``auth-cli --user USERNAME``'
+    )
+
     def __init__(self, user=None, password=None, experiment_id=None):
         import iotlabcli.rest
 
         # Autoset user, password and experiment if they are None
         user, password = self._user_password(user, password)
         api = iotlabcli.rest.Api(user, password)
-        experiment_id = self._experiment_id(api, experiment_id)
+        # Get experiment ID and verify the experiment is Running.
+        # This tests the user/password provided with the API
+        experiment_id = self._experiment_id_and_running(api, experiment_id)
 
         self.api = api
         self.expid = experiment_id
@@ -49,11 +57,45 @@ class IoTLABAPI(object):
         import iotlabcli.auth
         return iotlabcli.auth.get_user_credentials(user, password)
 
+    @classmethod
+    def _experiment_id_and_running(cls, api, experiment_id=None):
+        """Try getting experiment_id if None and check it is Running.
+
+        System exit on failure.
+        """
+        import iotlabcli.rest
+        try:
+            experiment_id = cls._experiment_id(api, experiment_id)
+            cls._check_experiment_running(api, experiment_id)
+            return experiment_id
+        except iotlabcli.rest.HTTPError:
+            print(cls.AUTH_ERROR)
+            exit(1)
+        except (ValueError, RuntimeError) as err:
+            print(err)
+            exit(1)
+
     @staticmethod
     def _experiment_id(api, experiment_id):
         """Try getting experiment_id if not provided."""
         import iotlabcli.helpers
         return iotlabcli.helpers.get_current_experiment(api, experiment_id)
+
+    @classmethod
+    def _check_experiment_running(cls, api, experiment_id):
+        """Check that experiment is Running."""
+        ret = cls._get_experiment(api, experiment_id, 'state')
+        state = ret['state']
+        if state != 'Running':
+            raise RuntimeError("Experiment %u not running '%s'" % (
+                experiment_id, state))
+
+    # Allow mocking this for tests
+    @staticmethod
+    def _get_experiment(api, experiment_id, info):
+        """Get experiment ``info`` for ``experiment_id``."""
+        import iotlabcli.experiment
+        return iotlabcli.experiment.get_experiment(api, experiment_id, info)
 
     @classmethod
     def from_opts_dict(cls, iotlab_username=None, iotlab_password=None,
