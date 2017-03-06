@@ -110,3 +110,9 @@ class CmdShell(cmd.Cmd, object):
 
             return _wrapped
         return _wrap
+
+
+def parser_add_site_arg(parser, group_help='Server agent IoT-LAB site name'):
+    """Add server agent IoT-LAB site name argument."""
+    group = parser.add_argument_group(group_help)
+    group.add_argument('--site', help='Server agent site', required=True)
