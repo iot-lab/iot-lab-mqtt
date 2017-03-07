@@ -21,7 +21,6 @@
 # knowledge of the CeCILL license and that you accept its terms.
 
 import os
-import sys
 from setuptools import setup, find_packages
 
 PACKAGE = 'iotlabmqtt'
@@ -42,6 +41,7 @@ def get_version(package):
             if line.startswith('__version__'):
                 return eval(line.split('=')[-1])  # pylint:disable=eval-used
 
+
 INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
 
 ENTRY_POINTS = {
@@ -53,6 +53,7 @@ ENTRY_POINTS = {
         'iotlab-mqtt-clients = iotlabmqtt.clients:main',
     ],
 }
+
 
 setup(
     name=PACKAGE,
