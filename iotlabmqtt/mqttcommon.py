@@ -423,6 +423,18 @@ class ChannelTopic(object):
         return cls.input_topic(topic)
 
 
+class OutputChannelServer(NullTopic):
+    """Topic implementation for a Output only Channel server."""
+    def __init__(self, topic, callback=None):
+        super().__init__(topic, callback=callback)
+        self.output_topic = ChannelTopic.output_topic(topic)
+
+    def output_publisher(self, client, archi, num):
+        """Return Channel output publisher function for ``archi``, ``num``."""
+        topic = self.output_topic.format(archi=archi, num=num)
+        return client.publisher(topic)
+
+
 class ChannelServer(Topic):
     """Topic implementation for a Channel server."""
     def __init__(self, topic, callback=None):

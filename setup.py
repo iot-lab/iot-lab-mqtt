@@ -21,7 +21,7 @@
 # knowledge of the CeCILL license and that you accept its terms.
 
 import os
-import sys
+import itertools
 from setuptools import setup, find_packages
 
 PACKAGE = 'iotlabmqtt'
@@ -42,9 +42,27 @@ def get_version(package):
             if line.startswith('__version__'):
                 return eval(line.split('=')[-1])  # pylint:disable=eval-used
 
-SCRIPTS = ['iotlab-mqtt-serial', 'iotlab-mqtt-clients']
 
 INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
+
+ENTRY_POINTS = {
+    'console_scripts': [
+        # Server script
+        'iotlab-mqtt-serial = iotlabmqtt.serial:main',
+        'iotlab-mqtt-radiosniffer = iotlabmqtt.radiosniffer:main [sniffer]',
+
+        # Client script
+        'iotlab-mqtt-clients = iotlabmqtt.clients:main',
+    ],
+}
+
+EXTRAS_REQUIRE = {
+    'sniffer': ['iotlabcli>=2.1.0'],
+}
+
+# Sum all dependecies in 'server'
+ALL_EXTRAS_DEPS = list(itertools.chain.from_iterable(EXTRAS_REQUIRE.values()))
+EXTRAS_REQUIRE['server'] = ALL_EXTRAS_DEPS
 
 setup(
     name=PACKAGE,
@@ -57,7 +75,6 @@ setup(
     download_url='http://github.com/iot-lab/iot-lab-mqtt/',
     packages=find_packages(),
     include_package_data=True,
-    scripts=SCRIPTS,
     classifiers=['Development Status :: 3 - Alpha',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2.7',
@@ -65,4 +82,6 @@ setup(
                  'Environment :: Console',
                  'Topic :: Utilities', ],
     install_requires=INSTALL_REQUIRES,
+    entry_points=ENTRY_POINTS,
+    extras_require=EXTRAS_REQUIRE,
 )

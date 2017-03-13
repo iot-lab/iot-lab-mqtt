@@ -67,3 +67,6 @@ Session.vim
 .netrwhist
 *~
 
+#####=== Other ===#####
+*.pcap
+*.pdf

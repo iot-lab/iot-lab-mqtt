@@ -127,12 +127,14 @@ class RequestTest(AgentTest):
         replytopic %= clientid
 
         # Verify topics values
-        self.assertEqual(mqttcommon.RequestTopic.request_topic(
-            topicname, 'start', clientid=clientid),
-                         requesttopic)
-        self.assertEqual(mqttcommon.RequestTopic.reply_topic(
-            topicname, 'start', clientid=clientid),
-                         replytopic)
+        self.assertEqual(
+            mqttcommon.RequestTopic.request_topic(topicname, 'start',
+                                                  clientid=clientid),
+            requesttopic)
+        self.assertEqual(
+            mqttcommon.RequestTopic.reply_topic(topicname, 'start',
+                                                clientid=clientid),
+            replytopic)
 
         # Request/reply conversion
         self.assertEqual(mqttcommon.RequestTopic.reply_topic_from_request(
@@ -338,8 +340,8 @@ class ErrorTest(AgentTest):
             topicname, wrap_mock(client_cb))}
         server_topics = {'error': mqttcommon.ErrorServer(topicname)}
 
-        _ = mqttclient_mock.MQTTClientMock('localhost', 1883,
-                                           list(client_topics.values()))
+        mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                       list(client_topics.values()))
         server = mqttclient_mock.MQTTClientMock('localhost', 1883,
                                                 list(server_topics.values()))
         server.publish_delay = 0

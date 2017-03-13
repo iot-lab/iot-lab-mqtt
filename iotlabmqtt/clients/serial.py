@@ -14,7 +14,7 @@ from . import common as clientcommon
 
 
 PARSER = common.MQTTAgentArgumentParser()
-PARSER.add_argument('--site', help='Site agent to use', required=True)
+clientcommon.parser_add_site_arg(PARSER)
 
 
 class SerialShell(clientcommon.CmdShell):

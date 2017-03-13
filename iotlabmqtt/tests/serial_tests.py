@@ -42,4 +42,4 @@ class LineHandlerTest(TestCaseImproved):
         Python2 iter with bytes, python3 with ints.
         http://stackoverflow.com/a/14267935/395687
         """
-        return [bytes_str[i:i+1] for i in range(len(bytes_str))]
+        return [bytes_str[i:i + 1] for i in range(len(bytes_str))]
