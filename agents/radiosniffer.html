@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Radio Sniffer Agent &#8212; IoT-LAB MQTT 0.1.0 documentation</title>
+    <title>Radio Sniffer Agent &#8212; IoT-LAB MQTT 0.4.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -73,7 +73,7 @@ Packets are encapsulated as <code class="docutils literal"><span class="pre">pca
 <col width="15%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">&nbsp;</th>
+<tr class="row-odd"><th class="head">&#160;</th>
 <th class="head">Topic</th>
 <th class="head">Type</th>
 </tr>
@@ -83,35 +83,35 @@ Packets are encapsulated as <code class="docutils literal"><span class="pre">pca
 </tr>
 <tr class="row-odd"><td colspan="3"><code class="docutils literal"><span class="pre">{prefix}/iot-lab/radiosniffer/{site}</span></code></td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-even"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/error/</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error</span></a></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/ctl/stopall</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
 <tr class="row-even"><td colspan="3"><strong>Node</strong></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/stop</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
 <tr class="row-even"><td colspan="3"><strong>Raw packet sniffer</strong></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/raw/ctl/header</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-even"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-odd"><td>&nbsp;</td>
+<tr class="row-odd"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
 </tr>
-<tr class="row-even"><td>&nbsp;</td>
+<tr class="row-even"><td>&#160;</td>
 <td><code class="docutils literal"><span class="pre">{snifferagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
 <td><div class="first last line-block">
 <div class="line">Output</div>
@@ -420,8 +420,8 @@ per message header: <a class="reference external" href="https://wiki.wireshark.o
       &copy;2017, Gaëtan Harter.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/agents/radiosniffer.rst.txt"
