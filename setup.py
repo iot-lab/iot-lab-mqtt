@@ -29,6 +29,15 @@ PACKAGE = 'iotlabmqtt'
 LICENSE = 'CeCILL v2.1'
 
 
+LONG_DESCRIPTION_FILES = ('README.rst', )
+
+
+def cat(files, join_str=''):
+    """Concatenate `files` content with `join_str` between them."""
+    files_content = (open(f).read() for f in files)
+    return join_str.join(files_content)
+
+
 def get_version(package):
     """ Extract package version without importing file
     Importing cause issues with coverage,
@@ -68,6 +77,7 @@ setup(
     name=PACKAGE,
     version=get_version(PACKAGE),
     description='Provide access to IoT-LAB experiments as MQTT agents',
+    long_description=cat(LONG_DESCRIPTION_FILES, '\n\n'),
     author='IoT-LAB Team',
     author_email='admin@iot-lab.info',
     url='http://www.iot-lab.info',
