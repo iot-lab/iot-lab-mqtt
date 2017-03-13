@@ -6,3 +6,4 @@ Agents
 
    agents/serial
    agents/radiosniffer
+   agents/node
