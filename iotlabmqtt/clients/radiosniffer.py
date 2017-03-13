@@ -73,7 +73,7 @@ class RadioSnifferShell(clientcommon.CmdShell):
     :param host: broker host
     :param port: broker port
     :param prefix: topics prefix
-    :param site: serial agent site
+    :param site: agent site
     """
 
     RAWSTART_USAGE = ('rawstart ARCHI NUM CHANNEL\n'

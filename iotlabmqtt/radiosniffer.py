@@ -3,7 +3,7 @@
 r"""IoT-LAB MQTT Radio Sniffer agent
 ====================================
 
-Radio Sniffer Agent provide access to the IoT-LAB nodes radio sniffer.
+Radio Sniffer Agent provides access to the IoT-LAB nodes radio sniffer.
 Packets are encapsulated as ``pcap`` (`wireshark:pcap`_).
 
 .. _wireshark\:pcap: https://wiki.wireshark.org/Development/LibpcapFileFormat
