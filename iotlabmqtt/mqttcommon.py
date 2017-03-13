@@ -420,11 +420,10 @@ class JsonRequestServer(Topic):
             # Load request payload
             try:
                 msg.json = self.json_loads(msg.payload)
-            except ValueError as err:
-                return self.error_dict(str(err))
-
-            try:
                 return callback(msg, **fields_values)
+            except ValueError as err:
+                # Json loads
+                return self.error_dict(str(err))
             except Exception:  # pylint:disable=broad-except
                 return self.error_dict(common.traceback_error())
 
