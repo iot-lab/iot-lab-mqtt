@@ -182,7 +182,7 @@ class IoTLABAPI(object):
                 archi_, num, site_ = infos_from_node(node)
                 numstr = str(num)
                 assert (archi_, site_) == (archi, self.site)
-                assert numstr not in ret_dict
+                assert numstr not in result
                 result[str(num)] = value
         return result
 
