@@ -89,6 +89,8 @@ Update firmware
 Update node with given firmware. If no firmware is provided ``empty``,
 default ``idle`` firmware is used instead.
 
+:Note: 'Idle' flashing not implemented yet
+
 :archi: supported ``m3``
 
 |postnotespace|
@@ -182,3 +184,137 @@ Powering ON an already powered ON does nothing.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
+
+import os
+import threading
+import tempfile
+import contextlib
+
+from . import common
+from . import iotlabapi
+from . import mqttcommon
+
+PARSER = common.MQTTAgentArgumentParser()
+iotlabapi.parser_add_iotlabapi_args(PARSER)
+
+
+@contextlib.contextmanager
+def _firmware_file(data):
+    """Context manager that yields a temporary file with ``data``."""
+    sha1_suffix = '--sha1:%s' % common.short_hash(data)
+
+    with tempfile.NamedTemporaryFile('w+b', suffix=sha1_suffix) as tmpfile:
+        tmpfile.write(data)
+        # Ensure file is flushed as it should be readable before close
+        tmpfile.flush()
+        yield tmpfile.name
+
+
+class MQTTNodeAgent(object):
+    """Radio Sniffer Aggregator implementation for MQTT."""
+    PREFIX = 'iot-lab/node/{site}'
+    TOPICS = {
+        'prefix': PREFIX,
+        'node': os.path.join(PREFIX, '{archi}/{num}'),
+    }
+    HOSTNAME = common.hostname()
+
+    def __init__(self, client, prefix='', iotlab_api=None):
+        assert iotlab_api
+        super().__init__()
+
+        staticfmt = {'site': self.HOSTNAME}
+        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+
+        self.topics = {
+            'reset': mqttcommon.RequestServer(_topics['node'], 'reset',
+                                              callback=self.cb_reset),
+            'update': mqttcommon.RequestServer(_topics['node'], 'update',
+                                               callback=self.cb_update),
+            'poweron': mqttcommon.RequestServer(_topics['node'], 'poweron',
+                                                callback=self.cb_poweron),
+            'poweroff': mqttcommon.RequestServer(_topics['node'], 'poweroff',
+                                                 callback=self.cb_poweroff),
+
+            'error': mqttcommon.ErrorServer(_topics['prefix']),
+        }
+
+        self.iotlabapi = iotlab_api
+
+        self.client = client
+        self.client.topics = list(self.topics.values())
+
+    def cb_reset(self, message, archi, num):
+        """Reset node cpu."""
+        args = (self.iotlabapi.reset, message.reply_publisher, archi, num)
+        threading.Thread(target=self._thread_command, args=args).start()
+        return None
+
+    def cb_update(self, message, archi, num):
+        """Update node firmware."""
+        if archi != 'm3':
+            return "Only archi 'm3' supported for the moment".encode('utf-8')
+        args = (message.payload, message.reply_publisher, archi, num)
+        threading.Thread(target=self._thread_update, args=args).start()
+        return None
+
+    def _thread_update(self, firmware, reply_publisher, archi, num):
+        if not firmware:
+            reply_publisher('TODO handle Idle firmware'.encode('utf-8'))
+            return
+
+        with _firmware_file(firmware) as firmware_path:
+            ret_dict = self.iotlabapi.update(firmware_path, archi, num)
+
+        ret = ret_dict[str(num)]
+        reply_publisher(ret.encode('utf-8'))
+
+    def cb_poweron(self, message, archi, num):
+        """Power ON node."""
+        args = (self.iotlabapi.poweron, message.reply_publisher, archi, num)
+        threading.Thread(target=self._thread_command, args=args).start()
+        return None
+
+    def cb_poweroff(self, message, archi, num):
+        """Power OFF node."""
+        args = (self.iotlabapi.poweroff, message.reply_publisher, archi, num)
+        threading.Thread(target=self._thread_command, args=args).start()
+        return None
+
+    @staticmethod
+    def _thread_command(function, reply_publisher, archi, num):
+        ret_dict = function(archi, num)
+        ret = ret_dict[str(num)]
+        reply_publisher(ret.encode('utf-8'))
+
+    # Agent running
+
+    def run(self):
+        """Run agent."""
+        try:
+            self.start()
+            common.wait_sigint()
+        finally:
+            self.stop()
+
+    def start(self):
+        """Start Agent."""
+        self.client.start()
+
+    def stop(self):
+        """Stop agent."""
+        self.client.stop()
+
+    @classmethod
+    def from_opts_dict(cls, prefix, **kwargs):
+        """Create class from argparse entries."""
+        api = iotlabapi.IoTLABAPI.from_opts_dict(**kwargs)
+        client = mqttcommon.MQTTClient.from_opts_dict(**kwargs)
+        return cls(client, prefix, iotlab_api=api)
+
+
+def main():
+    """Run radio sniffer agent."""
+    opts = PARSER.parse_args()
+    aggr = MQTTNodeAgent.from_opts_dict(**vars(opts))
+    aggr.run()
