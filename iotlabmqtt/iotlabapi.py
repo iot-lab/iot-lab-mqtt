@@ -6,8 +6,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import os
 import json
+
+from . import common
 
 
 def parser_add_iotlabapi_args(parser, group_help='IoT-LAB API configuration'):
@@ -27,7 +28,7 @@ class IoTLABAPI(object):
     Run commands using the REST API wrapped for the need of mqtt agents.
     It only runs commands for nodes on current execution site.
     """
-    HOSTNAME = os.uname()[1]
+    HOSTNAME = common.hostname()
 
     AUTH_ERROR = (
         'IoT-LAB API not authorized.\n'

@@ -686,7 +686,7 @@ class MQTTRadioSnifferAggregator(object):
         'node': os.path.join(PREFIX, '{archi}/{num}'),
         'noderaw': os.path.join(PREFIX, '{archi}/{num}/raw'),
     }
-    HOSTNAME = os.uname()[1]
+    HOSTNAME = common.hostname()
 
     def __init__(self, client, prefix='', iotlab_api=None):
         assert iotlab_api

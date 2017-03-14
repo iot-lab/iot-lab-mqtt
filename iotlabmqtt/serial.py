@@ -474,7 +474,7 @@ class MQTTAggregator(object):
         'line': os.path.join(PREFIX, '{archi}/{num}/line'),
     }
 
-    HOSTNAME = os.uname()[1]
+    HOSTNAME = common.hostname()
 
     def __init__(self, client, prefix=''):
         super().__init__()
