@@ -106,44 +106,27 @@ class IoTLABAPI(object):
     def set_sniffer_channel(self, channel, archi, *nums):
         """Set sniffer on ``channel`` for nodes ``archi`` and ``*nums``."""
         assert nums
-        assert len(nums) == 1, "More than one node not managed yet"
+        return self._update_profile(channel, archi, *nums)
 
-        nodes = self._nodes_for_num(archi, *nums)
-        ret = self._update_profile(nodes, archi, channel)
-
-        # Only one ret
-        return self._result_dict(ret, archi)
-
-    def _result_dict(self, ret_dict, archi):
-        result = {}
-        for value, nodes_list in ret_dict.items():
-            value = '' if value == '0' else value
-            for node in nodes_list:
-                archi_, num, site_ = infos_from_node(node)
-                numstr = str(num)
-                assert (archi_, site_) == (archi, self.site)
-                assert numstr not in ret_dict
-                result[str(num)] = value
-        return result
-
-    def _nodes_for_num(self, archi, *nums):
-        """Return nodes address list for `archi` and `*nums`."""
-        return [node_from_infos(archi, num, self.site) for num in nums]
-
-    def _update_profile(self, nodes, archi, channel):
+    def _update_profile(self, channel, archi, *nums):
         """Update profile for nodes with archi and channel
 
         If ``archi`` == 'localhost' just ignore as used in tests.
         """
         if archi == 'localhost':
-            return {'0': nodes}
+            return self.retval('', *nums)
+
         try:
             profile = self._create_sniffer_profile(archi, channel)
-            return self._node_command('profile', nodes, profile)
-        except ValueError as err:
-            return {'Create profile failed: %s' % err: nodes}
-        except RuntimeError as err:
-            return {'Update profile failed: %s' % err: nodes}
+        except (ValueError, RuntimeError) as err:
+            return self.retval('Create profile failed: %s' % err, *nums)
+
+        return self.node_command('profile', profile, archi, *nums)
+
+    @staticmethod
+    def retval(message, *nums):
+        """Return value for ``message`` and ``*nums``."""
+        return {str(num): message for num in nums}
 
     def _create_sniffer_profile(self, archi, channel):
         """Create sniffer profile for ``archi`` and ``channel``.
@@ -172,13 +155,36 @@ class IoTLABAPI(object):
         except (KeyError, TypeError):
             raise ValueError("Add profile failed: '%s'" % json.dumps(ret))
 
-    def _node_command(self, command, nodes, cmd_opt=None):
-        import iotlabcli.node
+    def node_command(self, command, cmd_opt, archi, *nums):
+        """Run IoT-LAB node command and handle errors."""
         try:
-            return iotlabcli.node.node_command(self.api, command, self.expid,
-                                               nodes, cmd_opt)
+            return self._node_command(command, cmd_opt, archi, *nums)
         except (IOError, RuntimeError) as err:
-            raise RuntimeError("IoT-LAB Request error: '%s'" % err)
+            msg = "IoT-LAB Request '%s' error: '%s'" % (command, err)
+            return self.retval(msg, *nums)
+
+    def _node_command(self, command, cmd_opt, archi, *nums):
+        import iotlabcli.node
+        nodes = self._nodes_for_num(archi, *nums)
+        result = iotlabcli.node.node_command(self.api, command, self.expid,
+                                             nodes, cmd_opt)
+        return self._command_result_to_retval(result, archi)
+
+    def _nodes_for_num(self, archi, *nums):
+        """Return nodes address list for `archi` and `*nums`."""
+        return [node_from_infos(archi, num, self.site) for num in nums]
+
+    def _command_result_to_retval(self, ret_dict, archi):
+        result = {}
+        for value, nodes_list in ret_dict.items():
+            value = '' if value == '0' else value
+            for node in nodes_list:
+                archi_, num, site_ = infos_from_node(node)
+                numstr = str(num)
+                assert (archi_, site_) == (archi, self.site)
+                assert numstr not in ret_dict
+                result[str(num)] = value
+        return result
 
 
 def node_from_infos(archi, num, site):  # pylint:disable=unused-argument
