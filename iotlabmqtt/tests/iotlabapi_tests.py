@@ -195,12 +195,12 @@ class IoTLABAPITest(TestCaseImproved):
         ret = self.api.set_sniffer_channel(11, 'm3', 42, 66)
         self.assertEqual(ret, {'42': '', '66': ''})
 
-        # Command fails
+        # Command fails, message replaced
         self.api.api.node_command.return_value = {
             '1': ['m3-42.%s.iot-lab.info' % self.api.HOSTNAME],
         }
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
-        self.assertEqual(ret, {'42': '1'})
+        self.assertEqual(ret, {'42': 'Execution failed on node'})
 
         self.api.api.node_command.return_value = {
             '0': ['a8-128.%s.iot-lab.info' % self.api.HOSTNAME],

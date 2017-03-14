@@ -175,9 +175,10 @@ class IoTLABAPI(object):
         return [node_from_infos(archi, num, self.site) for num in nums]
 
     def _command_result_to_retval(self, ret_dict, archi):
+        readable_value = {'0': '', '1': 'Execution failed on node'}
         result = {}
         for value, nodes_list in ret_dict.items():
-            value = '' if value == '0' else value
+            value = readable_value.get(value, value)
             for node in nodes_list:
                 archi_, num, site_ = infos_from_node(node)
                 numstr = str(num)
