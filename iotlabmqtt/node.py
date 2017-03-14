@@ -89,8 +89,6 @@ Update firmware
 Update node with given firmware. If no firmware is provided ``empty``,
 default ``idle`` firmware is used instead.
 
-:Note: 'Idle' flashing not implemented yet
-
 :archi: supported ``m3``
 
 |postnotespace|
@@ -252,22 +250,30 @@ class MQTTNodeAgent(object):
 
     def cb_update(self, message, archi, num):
         """Update node firmware."""
-        if archi != 'm3':
-            return "Only archi 'm3' supported for the moment".encode('utf-8')
         args = (message.payload, message.reply_publisher, archi, num)
         threading.Thread(target=self._thread_update, args=args).start()
         return None
 
     def _thread_update(self, firmware, reply_publisher, archi, num):
         if not firmware:
-            reply_publisher('TODO handle Idle firmware'.encode('utf-8'))
-            return
+            if archi != 'm3':
+                err = 'Idle firmware not handled for %s' % archi
+                reply_publisher(err.encode('utf-8'))
+                return
+            firmware = self._idle_m3_firmware()
 
         with _firmware_file(firmware) as firmware_path:
             ret_dict = self.iotlabapi.update(firmware_path, archi, num)
 
         ret = ret_dict[str(num)]
         reply_publisher(ret.encode('utf-8'))
+
+    @staticmethod
+    def _idle_m3_firmware():
+        """Return m3 idle firmware."""
+        path = os.path.join(os.path.dirname(__file__), 'static', 'idle_m3.elf')
+        with open(path, 'rb') as firmware:
+            return firmware.read()
 
     def cb_poweron(self, message, archi, num):
         """Power ON node."""
