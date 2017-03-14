@@ -58,6 +58,7 @@ ENTRY_POINTS = {
     'console_scripts': [
         # Server script
         'iotlab-mqtt-serial = iotlabmqtt.serial:main',
+        'iotlab-mqtt-node = iotlabmqtt.node:main [node]',
         'iotlab-mqtt-radiosniffer = iotlabmqtt.radiosniffer:main [sniffer]',
 
         # Client script
@@ -66,6 +67,7 @@ ENTRY_POINTS = {
 }
 
 EXTRAS_REQUIRE = {
+    'node': ['iotlabcli>=2.1.0'],
     'sniffer': ['iotlabcli>=2.1.0'],
 }
 
