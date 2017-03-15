@@ -166,9 +166,11 @@ class SerialIntegrationTest(IntegrationTestCase):
         client.onecmd('linestart m3 1234')
 
         # Error message
-        err = ('Connection failed: '
-               '[Errno -5] No address associated with hostname\n')
-        self.assertEqual(stdout.getvalue(), err)
+        error_start = 'Connection failed: [Errno -'
+        # -5] No address associated with hostname')
+        # got a different message on ArchLinux
+        # -2] Name or service not known
+        self.assertTrue(stdout.getvalue().startswith(error_start))
         stdout.seek(0)
         stdout.truncate(0)
 

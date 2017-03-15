@@ -342,9 +342,11 @@ class RadioSnifferlIntegrationTest(IntegrationTestCase):
 
         # Start sniffer but connection fails
         client.onecmd('rawstart m3 1234 11')
-        err = ('Connection failed: '
-               '[Errno -5] No address associated with hostname\n')
-        self.assertEqual(stdout.getvalue(), err)
+        error_start = 'Connection failed: [Errno -'
+        # -5] No address associated with hostname')
+        # got a different message on ArchLinux
+        # -2] Name or service not known
+        self.assertTrue(stdout.getvalue().startswith(error_start))
         stdout.seek(0)
         stdout.truncate(0)
 
@@ -367,9 +369,11 @@ class RadioSnifferlIntegrationTest(IntegrationTestCase):
         }
         # Start sniffer on a8 but connection fails
         client.onecmd('rawstart a8 1234 11')
-        err = ('Connection failed: '
-               '[Errno -5] No address associated with hostname\n')
-        self.assertEqual(stdout.getvalue(), err)
+        error_start = 'Connection failed: [Errno -'
+        # -5] No address associated with hostname')
+        # got a different message on ArchLinux
+        # -2] Name or service not known
+        self.assertTrue(stdout.getvalue().startswith(error_start))
         stdout.seek(0)
         stdout.truncate(0)
 
