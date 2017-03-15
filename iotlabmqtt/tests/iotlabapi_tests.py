@@ -241,3 +241,44 @@ class IoTLABAPITest(TestCaseImproved):
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
         err = "IoT-LAB Request 'profile' error: 'FAILED'"
         self.assertEqual(ret, {'42': err})
+
+    def test_node_commands(self):
+        """Test IoTLABAPI commands using node_command."""
+        self.api.api.mock_add_spec(['node_command'])
+        node = 'm3-42.%s.iot-lab.info' % self.api.HOSTNAME
+        self.api.api.node_command.return_value = {
+            '0': [node]
+        }
+
+        ret = self.api.reset('m3', 42)
+        self.assertEqual(ret, {'42': ''})
+        self.api.api.node_command.assert_called_with('reset', 12345, [node])
+
+        ret = self.api.poweron('m3', 42)
+        self.assertEqual(ret, {'42': ''})
+        self.api.api.node_command.assert_called_with('start', 12345, [node])
+
+        ret = self.api.poweroff('m3', 42)
+        self.assertEqual(ret, {'42': ''})
+        self.api.api.node_command.assert_called_with('stop', 12345, [node])
+
+    @mock.patch('iotlabcli.node.node_command')
+    def test_update(self, node_command):
+        """Test IoTLABAPI update."""
+        node = 'm3-42.%s.iot-lab.info' % self.api.HOSTNAME
+        node_command.return_value = {'0': [node]}
+
+        ret = self.api.update('tutorial_m3.elf', 'm3', 42)
+        self.assertEqual(ret, {'42': ''})
+        node_command.assert_called_with(self.api.api, 'update', 12345,
+                                        [node], 'tutorial_m3.elf')
+
+    def test_update_no_firmware_file(self):
+        """Test IoTLABAPI update without firmware file."""
+        ret = self.api.update('/tmp/non/existant/file', 'm3', 42)
+
+        # Use startswith because of python2/python3 string printing compat
+        error = ret['42']
+        error_start = ("IoT-LAB Request 'update' error: "
+                       "'[Errno 2] No such file or directory: ")
+        self.assertTrue(error.startswith(error_start))
