@@ -358,7 +358,7 @@ class RadioSnifferlIntegrationTest(IntegrationTestCase):
         # Verify node_command call
         api.node_command.assert_called_with(
             'profile', self.server.iotlabapi.expid,
-            ['m3-1234.mercator.iot-lab.info'], '&name=iotlabmqtt_11_m3')
+            ['m3-1234.%s.iot-lab.info' % site], '&name=iotlabmqtt_11_m3')
 
         # Test A8
         api.add_profile.return_value = {'create': 'iotlabmqtt_11_a8'}
