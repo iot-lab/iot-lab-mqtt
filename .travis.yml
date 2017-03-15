@@ -9,3 +9,6 @@ install:
   - pip install tox
 script:
   - tox
+addons:
+  hosts:
+    - localhost
