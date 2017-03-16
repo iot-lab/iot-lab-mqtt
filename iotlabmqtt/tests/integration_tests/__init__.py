@@ -30,13 +30,16 @@ class IntegrationTestCase(TestCaseImproved):
         mosquitto_conf = os.path.join(os.path.dirname(__file__),
                                       'mosquitto.conf')
         cmd = ['mosquitto', '-p', '%s' % port, '-c', mosquitto_conf]
-        proc = subprocess.Popen(cmd)
+        try:
+            proc = subprocess.Popen(cmd)
 
-        time.sleep(wait)
-        if proc.poll() is not None:
-            raise unittest.SkipTest('Could not start "mosquitto"')
+            time.sleep(wait)
+            if proc.poll() is None:
+                return proc
+        except OSError:
+            pass
 
-        return proc
+        raise unittest.SkipTest('Could not start "mosquitto"')
 
     @classmethod
     def tearDownClass(cls):

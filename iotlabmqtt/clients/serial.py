@@ -22,7 +22,7 @@ class SerialShell(clientcommon.CmdShell):
 
     :param client: mqttclient instance
     :param prefix: topics prefix
-    :param site: serial agent site
+    :param site: agent site
     """
     LINESTART_USAGE = ('linestart ARCHI NUM\n'
                        '  ARCHI: m3/a8\n'

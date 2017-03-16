@@ -26,7 +26,7 @@ r"""IoT-LAB MQTT Serial agent
 .. |out_topic|        replace::  *{topic}*/**out**
 
 
-Serial agent provide access to the nodes serial link.
+Serial agent provides access to the nodes serial link.
 The serial redirection should first be started for each node in a mode.
 
 
@@ -474,7 +474,7 @@ class MQTTAggregator(object):
         'line': os.path.join(PREFIX, '{archi}/{num}/line'),
     }
 
-    HOSTNAME = os.uname()[1]
+    HOSTNAME = common.hostname()
 
     def __init__(self, client, prefix=''):
         super().__init__()

@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 
+import os
 import sys
 import signal
 import string
@@ -112,6 +113,15 @@ class MQTTAgentArgumentParser(argparse.ArgumentParser):
         self.add_argument('--prefix', help='Topics prefix', default='')
         self.add_argument('--broker-port', help='Broker port')
         self.add_argument('broker', help='Broker address')
+
+
+def hostname():
+    """Return system 'hostname'.
+
+    Read from environment variable to allow overwriting in tests.
+    Read it from os.uname() if not available.
+    """
+    return os.environ.get('HOSTNAME', os.uname()[1])
 
 
 def traceback_error():

@@ -3,7 +3,7 @@
 r"""IoT-LAB MQTT Radio Sniffer agent
 ====================================
 
-Radio Sniffer Agent provide access to the IoT-LAB nodes radio sniffer.
+Radio Sniffer Agent provides access to the IoT-LAB nodes radio sniffer.
 Packets are encapsulated as ``pcap`` (`wireshark:pcap`_).
 
 .. _wireshark\:pcap: https://wiki.wireshark.org/Development/LibpcapFileFormat
@@ -686,7 +686,7 @@ class MQTTRadioSnifferAggregator(object):
         'node': os.path.join(PREFIX, '{archi}/{num}'),
         'noderaw': os.path.join(PREFIX, '{archi}/{num}/raw'),
     }
-    HOSTNAME = os.uname()[1]
+    HOSTNAME = common.hostname()
 
     def __init__(self, client, prefix='', iotlab_api=None):
         assert iotlab_api

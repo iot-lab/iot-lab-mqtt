@@ -167,6 +167,11 @@ class IoTLABAPITest(TestCaseImproved):
         ret = self.api.set_sniffer_channel(11, 'localhost', 30001)
         self.assertEqual(ret, {'30001': ''})
 
+        # Multiple 'localhost' test
+        ret = self.api.set_sniffer_channel(11, 'localhost',
+                                           30001, 30002, 30003)
+        self.assertEqual(ret, {'30001': '', '30002': '', '30003': ''})
+
     @staticmethod
     def _add_profile_mock(name, profile):  # pylint:disable=unused-argument
         """Add_profile mock."""
@@ -182,6 +187,20 @@ class IoTLABAPITest(TestCaseImproved):
         }
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
         self.assertEqual(ret, {'42': ''})
+
+        self.api.api.node_command.return_value = {
+            '0': ['m3-42.%s.iot-lab.info' % self.api.HOSTNAME,
+                  'm3-66.%s.iot-lab.info' % self.api.HOSTNAME],
+        }
+        ret = self.api.set_sniffer_channel(11, 'm3', 42, 66)
+        self.assertEqual(ret, {'42': '', '66': ''})
+
+        # Command fails, message replaced
+        self.api.api.node_command.return_value = {
+            '1': ['m3-42.%s.iot-lab.info' % self.api.HOSTNAME],
+        }
+        ret = self.api.set_sniffer_channel(11, 'm3', 42)
+        self.assertEqual(ret, {'42': 'Execution failed on node'})
 
         self.api.api.node_command.return_value = {
             '0': ['a8-128.%s.iot-lab.info' % self.api.HOSTNAME],
@@ -220,5 +239,5 @@ class IoTLABAPITest(TestCaseImproved):
 
         self.api.api.node_command.side_effect = RuntimeError('FAILED')
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
-        err = "Update profile failed: IoT-LAB Request error: 'FAILED'"
+        err = "IoT-LAB Request 'profile' error: 'FAILED'"
         self.assertEqual(ret, {'42': err})
