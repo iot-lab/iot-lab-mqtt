@@ -154,3 +154,25 @@ class NodeIntegrationTest(IntegrationTestCase):
         self.assertEqual(stdout.getvalue(), out)
         stdout.seek(0)
         stdout.truncate(0)
+
+    def test_node_agent_update_idle(self):
+        """Test node agent update with firmware idle."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_node_agent_update_idle(client, stdout)
+
+    @mock.patch('iotlabcli.node.node_command')
+    def _test_node_agent_update_idle(self, client, stdout, node_command=None):
+        """Update firmware with idle."""
+
+        node_host = 'm3-1.%s.iot-lab.info' % self.server.HOSTNAME
+        idle_sha1 = 'b4b38e'
+
+        # Update
+        node_command.return_value = {'0': [node_host]}
+        client.onecmd('update m3 1')
+        self.assertEqual(stdout.getvalue(), '')
+        self.assertTrue(node_command.called)
+
+        # Verify firmware call
+        firmware_path = node_command.call_args[0][-1]
+        self.assertTrue(firmware_path.endswith('--sha1:%s' % idle_sha1))
