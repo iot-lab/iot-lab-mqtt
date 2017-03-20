@@ -1,0 +1,1 @@
+include iotlabmqtt/tests/integration_tests/files/*
