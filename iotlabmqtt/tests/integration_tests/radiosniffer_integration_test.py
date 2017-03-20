@@ -48,7 +48,7 @@ def generate_zep_packet():
     return binascii.a2b_hex(zep_msg)
 
 
-class RadioSnifferlIntegrationTest(IntegrationTestCase):
+class RadioSnifferIntegrationTest(IntegrationTestCase):
     """Test sniffer client and server using a broker."""
 
     def setUp(self):
@@ -106,7 +106,7 @@ class RadioSnifferlIntegrationTest(IntegrationTestCase):
             server.stop()
 
     def test_radiosniffer_agent_one_node(self):
-        """Test radiosniffer agent normale case."""
+        """Test radiosniffer agent normal case."""
         with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
             self._test_radiosniffer_agent_one_node(client, stdout)
 
