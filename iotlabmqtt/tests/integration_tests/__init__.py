@@ -76,3 +76,11 @@ class IntegrationTestCase(TestCaseImproved):
             raise ValueError('Failed starting socat {}'.format(port))
 
         return proc
+
+    @staticmethod
+    def file_path(name):
+        """Return testfile ``name`` path.
+
+        Testfiles are in ``files`` directory.
+        """
+        return os.path.join(os.path.dirname(__file__), 'files', name)
