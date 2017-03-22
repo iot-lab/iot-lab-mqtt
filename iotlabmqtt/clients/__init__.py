@@ -9,6 +9,7 @@ import argparse
 
 from . import serial
 from . import radiosniffer
+from . import log
 
 
 PARSER = argparse.ArgumentParser()
@@ -21,6 +22,8 @@ SUBPARSER.add_parser('serial', parents=[serial.PARSER], add_help=False,
                      help='serial redirection client')
 SUBPARSER.add_parser('radiosniffer', parents=[radiosniffer.PARSER],
                      add_help=False, help='radiosniffer client')
+SUBPARSER.add_parser('log', parents=[log.PARSER],
+                     add_help=False, help='log messages')
 
 
 def main():
