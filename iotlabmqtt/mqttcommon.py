@@ -574,3 +574,83 @@ class ErrorClient(Topic):
             return callback(msg, rel_topic)
 
         return _wrapper
+
+
+class DiscoverTopic(object):
+    """DiscoverTopic format."""
+    PROBE_SUFFIX = 'discover/probe'
+    ANNOUNCE_SUFFIX = 'discover/announce'
+
+    @classmethod
+    def probe_topic(cls, topic):
+        topic = os.path.join(topic, cls.PROBE_SUFFIX)
+        return topic
+
+    @classmethod
+    def announce_topic(cls, topic):
+        topic = os.path.join(topic, cls.ANNOUNCE_SUFFIX)
+        return topic
+
+
+class DiscoverClient(Topic):
+
+    def __init__(self, topic, callback=None):
+        assert callback is not None
+
+        announce_topic = DiscoverTopic.announce_topic(topic)
+        super().__init__(announce_topic, callback=callback)
+
+        self.prefix = topic
+        self.probe_topic = DiscoverTopic.probe_topic(topic)
+
+    def wrap_callback(self, callback):
+        """Wrap callback to call it with full announce topic."""
+        @functools.wraps(callback)
+        def _wrapper(mqttc, obj, msg):  # pylint:disable=unused-argument
+            topic = msg.payload.decode('utf-8')
+            full_topic = os.path.join(self.prefix, topic)
+            return callback(msg, full_topic)
+
+        return _wrapper
+
+    def probe(self, client):
+        """Probe for existing agents."""
+        client.publish(self.probe_topic, b'')
+
+
+class StatusUpdateTopic(object):
+    UPDATE_SUFFIX = 'status/update'
+    @classmethod
+    def update_topic(cls, topic):
+        """Update topic from topic."""
+        topic = os.path.join(topic, cls.UPDATE_SUFFIX)
+        return topic
+
+
+class StatusUpdateClient(Topic):
+    def __init__(self, topic, callback=None):
+        assert callback is not None
+        update_topic = StatusUpdateTopic.update_topic(topic)
+        super().__init__(update_topic, callback=callback)
+        self._state = None
+        self._state_rlock = threading.RLock()
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, state):
+        with self._state_rlock:
+            self._state = state
+
+    def set_state_from_request(self, state):
+        """Set state from request reply, only if not already set.
+
+        This prevents issues if the state is updated asynchrously during a
+        request. The value that matters is the one received asynchronously as
+        it is up to date. Even if request answer was newer, the value would
+        updated soon."""
+        with self._state_rlock:
+            if self._state is None:
+                self._state = state

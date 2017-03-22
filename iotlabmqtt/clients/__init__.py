@@ -11,6 +11,7 @@ from . import serial
 from . import node
 from . import radiosniffer
 from . import process
+from . import monitoring
 from . import log
 
 
@@ -28,6 +29,8 @@ SUBPARSER.add_parser('radiosniffer', parents=[radiosniffer.PARSER],
                      add_help=False, help='radiosniffer client')
 SUBPARSER.add_parser('process', parents=[process.PARSER],
                      add_help=False, help='process client')
+SUBPARSER.add_parser('monitoring', parents=[monitoring.PARSER],
+                     add_help=False, help='monitoring client')
 SUBPARSER.add_parser('log', parents=[log.PARSER],
                      add_help=False, help='log messages')
 
