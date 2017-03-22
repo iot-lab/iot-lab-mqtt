@@ -230,6 +230,15 @@ class NullTopic(Topic):
         self.subscribe_topic = None
 
 
+class LogTopic(Topic):
+    """Topic to log all messages."""
+
+    def __init__(self, topic, callback=None):
+        logtopic = os.path.join(topic, '#')
+
+        super().__init__(logtopic, callback)
+
+
 class RequestTopic(object):
     """RequestTopic format."""
 
