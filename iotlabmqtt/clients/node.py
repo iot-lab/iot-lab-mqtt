@@ -117,7 +117,7 @@ class NodeShell(clientcommon.CmdShell):
         num = int(num)
 
         topic = self.topics['update']
-        ret = topic.request(self.client, firmware, timeout=15,
+        ret = topic.request(self.client, firmware, timeout=60,
                             archi=archi, num=num)
         if ret:
             raise RuntimeError(ret.decode('utf-8'))
