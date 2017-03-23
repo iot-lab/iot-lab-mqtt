@@ -405,9 +405,9 @@ class RadioSnifferClientErrorTests(TestCaseImproved):
         stdout.truncate(0)
 
         # Cannot open file
-        self.client.onecmd('rawpcap /non_exising/dir/and/file')
+        self.client.onecmd('rawpcap /non_existing/dir/and/file')
         err = ("Could not open file: [Errno 2] No such file or directory: "
-               "'/non_exising/dir/and/file'\n")
+               "'/non_existing/dir/and/file'\n")
         self.assertEqual(stdout.getvalue(), err + hlp)
         stdout.seek(0)
         stdout.truncate(0)
