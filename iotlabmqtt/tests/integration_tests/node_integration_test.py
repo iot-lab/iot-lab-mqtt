@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
+import os
 import contextlib
 try:
     from StringIO import StringIO
@@ -17,6 +18,8 @@ from iotlabmqtt.clients import node as node_client
 
 from . import IntegrationTestCase
 from .. import TestCaseImproved
+
+# pylint:disable=invalid-name
 
 
 class NodeIntegrationTest(IntegrationTestCase):
@@ -177,6 +180,50 @@ class NodeIntegrationTest(IntegrationTestCase):
         # Verify firmware call
         firmware_path = node_command.call_args[0][-1]
         self.assertTrue(firmware_path.endswith('--sha1:%s' % idle_sha1))
+
+    def test_node_agent_update_idle_not_supported(self):
+        """Test node agent update for an archi not supported."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_node_agent_update_idle_not_supported(client, stdout)
+
+    @mock.patch('iotlabcli.node.node_command')
+    def _test_node_agent_update_idle_not_supported(self, client, stdout,
+                                                   node_command=None):
+        """Update firmware with idle not supported."""
+
+        # Use a 'custom' archi where idle is not implemented
+
+        # Update
+        node_command.side_effect = RuntimeError()
+        client.onecmd('update samr21 1')
+        self.assertFalse(node_command.called)
+
+        out = 'Idle firmware not handled for samr21\n'
+        self.assertEqual(stdout.getvalue(), out)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_node_agent_error_cb(self):
+        """Test node client error_cb."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_node_agent_error_cb(client, stdout)
+
+    def _test_node_agent_error_cb(self, client, stdout):
+        """Call node client error cb."""
+        topic = self.server.topics['error'].topic
+        topic = topic.replace('/error/', '')
+        topic = os.path.join(topic, 'a/topic/on/server')
+
+        error = 'test manual error'.encode('utf-8')
+        self.server.topics['error'].publish_error(self.server.client, topic,
+                                                  error)
+
+        err = ('NODE ERROR: a/topic/on/server: test manual error\n'
+               '(Cmd) ')
+
+        self.assertEqualTimeout(stdout.getvalue, err, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
 
 
 @mock.patch('sys.stdout', new_callable=StringIO)
