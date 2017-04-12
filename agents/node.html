@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Nodes Agent &#8212; IoT-LAB MQTT 0.5.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Radio Sniffer Agent" href="radiosniffer.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-iotlabmqtt.node">
+<span id="nodes-agent"></span><h1>Nodes Agent<a class="headerlink" href="#module-iotlabmqtt.node" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="iot-lab-mqtt-node-agent">
+<h2>IoT-LAB MQTT Node agent<a class="headerlink" href="#iot-lab-mqtt-node-agent" title="Permalink to this headline">¶</a></h2>
+<p>Node Agent provides access to the IoT-LAB nodes interactions:</p>
+<ul class="simple">
+<li>update the node firmware</li>
+<li>reset the CPU</li>
+<li>power node ON and OFF</li>
+</ul>
+<p>Node agent base topic:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">lab</span><span class="o">/</span><span class="n">node</span><span class="o">/</span><span class="p">{</span><span class="n">site</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Every topics from node agent topics start by this topic prefix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param prefix:</th><td class="field-body">configured prefix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param site:</th><td class="field-body">site where the agent is run</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="topics-summary">
+<h2>Topics Summary<a class="headerlink" href="#topics-summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="1%" />
+<col width="84%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&#160;</th>
+<th class="head">Topic</th>
+<th class="head">Type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="3"><strong>Node agent</strong></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><code class="docutils literal"><span class="pre">{prefix}/iot-lab/node/{site}</span></code></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{nodeagenttopic}/error/</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error</span></a></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><strong>Node</strong></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/update</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/reset</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/poweron</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/poweroff</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="node-agent-global-topics">
+<h2>Node Agent global topics<a class="headerlink" href="#node-agent-global-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="error-topic">
+<h3>Error Topic<a class="headerlink" href="#error-topic" title="Permalink to this headline">¶</a></h3>
+<p>Asynchronous error messages are posted to error topic.
+Failure on requests are not duplicated here.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">{nodeagenttopic}/error/</span></code></li>
+</ul>
+<p>For format see: <a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error topic</span></a></p>
+</div>
+</div>
+<div class="section" id="node-topics">
+<h2>Node topics<a class="headerlink" href="#node-topics" title="Permalink to this headline">¶</a></h2>
+<p>Requests to interact with nodes.</p>
+<div class="section" id="update-firmware">
+<h3>Update firmware<a class="headerlink" href="#update-firmware" title="Permalink to this headline">¶</a></h3>
+<p>Update node with given firmware. If no firmware is provided <code class="docutils literal"><span class="pre">empty</span></code>,
+default <code class="docutils literal"><span class="pre">idle</span></code> firmware is used instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">archi:</th><td class="field-body">supported <code class="docutils literal"><span class="pre">m3</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><p></p></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">update</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/update</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><dl class="first last docutils">
+<dt><code class="docutils literal"><span class="pre">Firmware</span> <span class="pre">binary</span></code> or</dt>
+<dd><em>empty</em> for <code class="docutils literal"><span class="pre">idle</span></code></dd>
+</dl>
+</td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="reset-cpu">
+<h3>Reset cpu<a class="headerlink" href="#reset-cpu" title="Permalink to this headline">¶</a></h3>
+<p>Reset node CPU to restart firmware execution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">archi:</th><td class="field-body">supported <code class="docutils literal"><span class="pre">m3</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><p></p></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">reset</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/reset</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="power-off-node">
+<h3>Power OFF Node<a class="headerlink" href="#power-off-node" title="Permalink to this headline">¶</a></h3>
+<p>Power OFF node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">Nodes are powered ON by default.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">archi:</th><td class="field-body">supported <code class="docutils literal"><span class="pre">m3</span></code>, <code class="docutils literal"><span class="pre">a8</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><p></p></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">poweroff</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/poweroff</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="power-on-node">
+<h3>Power ON Node<a class="headerlink" href="#power-on-node" title="Permalink to this headline">¶</a></h3>
+<p>Power ON node if it has been powered OFF.
+Powering ON an already powered ON does nothing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">Nodes are powered ON by default.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">archi:</th><td class="field-body">supported <code class="docutils literal"><span class="pre">m3</span></code>, <code class="docutils literal"><span class="pre">a8</span></code></td>
+</tr>
+</tbody>
+</table>
+<p><p></p></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">poweron</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{nodeagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/ctl/poweron</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Nodes Agent</a><ul>
+<li><a class="reference internal" href="#iot-lab-mqtt-node-agent">IoT-LAB MQTT Node agent</a></li>
+<li><a class="reference internal" href="#topics-summary">Topics Summary</a></li>
+<li><a class="reference internal" href="#node-agent-global-topics">Node Agent global topics</a><ul>
+<li><a class="reference internal" href="#error-topic">Error Topic</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#node-topics">Node topics</a><ul>
+<li><a class="reference internal" href="#update-firmware">Update firmware</a></li>
+<li><a class="reference internal" href="#reset-cpu">Reset cpu</a></li>
+<li><a class="reference internal" href="#power-off-node">Power OFF Node</a></li>
+<li><a class="reference internal" href="#power-on-node">Power ON Node</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../agents.html">Agents</a><ul>
+      <li>Previous: <a href="radiosniffer.html" title="previous chapter">Radio Sniffer Agent</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/agents/node.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Gaëtan Harter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/agents/node.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
