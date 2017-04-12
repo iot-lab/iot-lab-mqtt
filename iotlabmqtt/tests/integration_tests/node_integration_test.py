@@ -16,6 +16,7 @@ from iotlabmqtt import node
 from iotlabmqtt.clients import node as node_client
 
 from . import IntegrationTestCase
+from .. import TestCaseImproved
 
 
 class NodeIntegrationTest(IntegrationTestCase):
@@ -176,3 +177,127 @@ class NodeIntegrationTest(IntegrationTestCase):
         # Verify firmware call
         firmware_path = node_command.call_args[0][-1]
         self.assertTrue(firmware_path.endswith('--sha1:%s' % idle_sha1))
+
+
+@mock.patch('sys.stdout', new_callable=StringIO)
+class NodeClientErrorTests(TestCaseImproved):
+    """Test Node parsing errors."""
+    def setUp(self):
+        args = ['localhost', '--broker-port', '%s' % 54321,
+                '--prefix', 'node/test/prefix',
+                '--site', node.MQTTNodeAgent.HOSTNAME]
+        opts = node_client.PARSER.parse_args(args)
+        self.client = node_client.NodeShell.from_opts_dict(**vars(opts))
+        # Publish should crash
+        self.client.publish = None
+
+    def test_reset(self, stdout):
+        """Test reset errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: reset ARCHI NUM\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n')
+
+        # Missing port
+        self.client.onecmd('reset m3')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('reset m3 abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('reset m3 123 anotherone')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_poweron(self, stdout):
+        """Test poweron errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: poweron ARCHI NUM\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n')
+
+        # Missing port
+        self.client.onecmd('poweron m3')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('poweron m3 abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('poweron m3 123 anotherone')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_poweroff(self, stdout):
+        """Test poweroff errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: poweroff ARCHI NUM\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n')
+
+        # Missing port
+        self.client.onecmd('poweroff m3')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('poweroff m3 abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        self.client.onecmd('poweroff m3 123 anotherone')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_update(self, stdout):
+        """Test update errors."""
+        hlp = ('Error: Invalid arguments\n'
+               'Usage: update ARCHI NUM FIRMWAREPATH\n'
+               '  ARCHI: m3/a8\n'
+               '  NUM:   node num\n'
+               '  FIRMWAREPATH: Path to the firmware.\n'
+               '                Idle firmware if not provided\n')
+
+        # Missing port
+        self.client.onecmd('update m3')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid port
+        self.client.onecmd('update m3 abc')
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Invalid file path
+        self.client.onecmd('update m3 1 /non/existing/path/fw.elf')
+        err = ("Could not open file: [Errno 2] No such file or directory: "
+               "'/non/existing/path/fw.elf'\n")
+        self.assertEqual(stdout.getvalue(), err + hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Too many arguments
+        cmd = 'update m3 123 %s anotherone' % os.devnull
+        self.client.onecmd(cmd)
+        self.assertEqual(stdout.getvalue(), hlp)
+        stdout.seek(0)
+        stdout.truncate(0)
