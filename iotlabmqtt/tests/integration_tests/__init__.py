@@ -44,6 +44,7 @@ class IntegrationTestCase(TestCaseImproved):
     @classmethod
     def tearDownClass(cls):
         cls.proc.terminate()
+        cls.proc.wait()
 
     def setUp(self):
         self.socat = {}
