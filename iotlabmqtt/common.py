@@ -10,6 +10,7 @@ from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import os
 import sys
+import hashlib
 import signal
 import string
 import argparse
@@ -127,6 +128,21 @@ def hostname():
 def traceback_error():
     """Get error from traceback to return as answer."""
     return '%s' % (sys.exc_info()[1],)
+
+
+def short_hash(data, algorithm='sha1', length=6):
+    """Returns hash of ``length`` char for ``data`` with ``algorithm``.
+
+    >>> short_hash(b'example') == 'c3499c'
+    True
+
+    >>> short_hash(b'example', 'sha1', 6) == 'c3499c'
+    True
+    """
+    hash_ = hashlib.new(algorithm)
+    hash_.update(data)
+    hash_hexstr = hash_.hexdigest()
+    return hash_hexstr[:length]
 
 
 def synchronized(lockname):

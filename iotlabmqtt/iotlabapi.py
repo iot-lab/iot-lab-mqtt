@@ -106,8 +106,23 @@ class IoTLABAPI(object):
 
     def set_sniffer_channel(self, channel, archi, *nums):
         """Set sniffer on ``channel`` for nodes ``archi`` and ``*nums``."""
-        assert nums
         return self._update_profile(channel, archi, *nums)
+
+    def reset(self, archi, *nums):
+        """Reset nodes ``archi`` and ``*nums``."""
+        return self.node_command('reset', None, archi, *nums)
+
+    def update(self, firmwarepath, archi, *nums):
+        """Reset nodes ``archi`` and ``*nums``."""
+        return self.node_command('update', firmwarepath, archi, *nums)
+
+    def poweron(self, archi, *nums):
+        """Power ON nodes ``archi`` and ``*nums``."""
+        return self.node_command('start', None, archi, *nums)
+
+    def poweroff(self, archi, *nums):
+        """Power OFF nodes ``archi`` and ``*nums``."""
+        return self.node_command('stop', None, archi, *nums)
 
     def _update_profile(self, channel, archi, *nums):
         """Update profile for nodes with archi and channel
@@ -158,6 +173,7 @@ class IoTLABAPI(object):
 
     def node_command(self, command, cmd_opt, archi, *nums):
         """Run IoT-LAB node command and handle errors."""
+        assert nums
         try:
             return self._node_command(command, cmd_opt, archi, *nums)
         except (IOError, RuntimeError) as err:

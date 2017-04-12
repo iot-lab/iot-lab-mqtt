@@ -52,12 +52,13 @@ def get_version(package):
                 return eval(line.split('=')[-1])  # pylint:disable=eval-used
 
 
-INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
+INSTALL_REQUIRES = ['paho-mqtt==1.2', 'future']
 
 ENTRY_POINTS = {
     'console_scripts': [
         # Server script
         'iotlab-mqtt-serial = iotlabmqtt.serial:main',
+        'iotlab-mqtt-node = iotlabmqtt.node:main [node]',
         'iotlab-mqtt-radiosniffer = iotlabmqtt.radiosniffer:main [sniffer]',
 
         # Client script
@@ -66,6 +67,7 @@ ENTRY_POINTS = {
 }
 
 EXTRAS_REQUIRE = {
+    'node': ['iotlabcli>=2.1.0'],
     'sniffer': ['iotlabcli>=2.1.0'],
 }
 
