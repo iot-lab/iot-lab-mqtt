@@ -52,7 +52,7 @@ def get_version(package):
                 return eval(line.split('=')[-1])  # pylint:disable=eval-used
 
 
-INSTALL_REQUIRES = ['paho-mqtt>=1.2', 'future']
+INSTALL_REQUIRES = ['paho-mqtt==1.2', 'future']
 
 ENTRY_POINTS = {
     'console_scripts': [
