@@ -88,7 +88,7 @@ class SerialShell(clientcommon.CmdShell):
     # # # # #
     def line_handler(self, message, archi, num):  # pylint:disable=no-self-use
         """Handle line received from nodes."""
-        line = message.payload.decode('utf-8')
+        line = message.payload.decode('utf-8', 'replace')
         print('line_handler(%s-%s): %s' % (archi, num, line))
 
     # # # # # # #

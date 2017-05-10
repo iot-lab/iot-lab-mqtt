@@ -108,6 +108,17 @@ class SerialIntegrationTest(IntegrationTestCase):
         stdout.seek(0)
         stdout.truncate(0)
 
+        # Node sends not utf-8 data
+        invalid_bytes = b'this: \xc3\x28 is invalid\n'
+        soc.stdin.write(invalid_bytes)
+        soc.stdin.flush()
+
+        answer = ('line_handler(localhost-20001): this: �( is invalid\n'
+                  '(Cmd) ')
+        self.assertEqualTimeout(stdout.getvalue, answer, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
+
         # Stop node
         client.onecmd('stop localhost %u' % port)
         self.assertEqual(stdout.getvalue(), '')
