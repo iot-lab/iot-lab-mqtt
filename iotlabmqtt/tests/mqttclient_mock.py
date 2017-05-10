@@ -95,14 +95,16 @@ class MQTTClientMock(mqttcommon.MQTTClient):
         # Set published after 'handled' to ease tests
         info._set_as_published()  # pylint:disable=protected-access
 
-    def subscribe(self, *args, **kwargs):  # pylint:disable=unused-argument
+    def subscribe(self, *args, **kwargs):
+        # pylint:disable=unused-argument,arguments-differ
         threading.Thread(target=self._subscribe).start()
 
     def _subscribe(self):
         time.sleep(self.subscribe_delay)
         self.on_subscribe(self, None, None, 0)  # pylint:disable=not-callable
 
-    def connect(self, *args, **kwargs):  # pylint:disable=unused-argument
+    def connect(self, *args, **kwargs):
+        # pylint:disable=unused-argument,arguments-differ
         threading.Thread(target=self._connect).start()
 
     def _connect(self):
