@@ -154,11 +154,11 @@ def synchronized(lockname):
     """
     import functools
 
-    def _wrapper(method):
-        @functools.wraps(method)
+    def _wrapper(method_):
+        @functools.wraps(method_)
         def _synchronized_method(self, *args, **kwargs):
             with getattr(self, lockname):
-                return method(self, *args, **kwargs)
+                return method_(self, *args, **kwargs)
         return _synchronized_method
     return _wrapper
 
