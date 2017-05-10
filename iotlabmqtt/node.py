@@ -288,8 +288,8 @@ class MQTTNodeAgent(object):
         return None
 
     @staticmethod
-    def _thread_command(function, reply_publisher, archi, num):
-        ret_dict = function(archi, num)
+    def _thread_command(func, reply_publisher, archi, num):
+        ret_dict = func(archi, num)
         ret = ret_dict[str(num)]
         reply_publisher(ret.encode('utf-8'))
 
