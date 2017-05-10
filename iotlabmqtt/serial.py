@@ -324,6 +324,7 @@ class SerialConnection(asyncconnection.NodeConnection):
 
         Hack for 'localhost' to use ``self.num`` as port.
         """
+        # pylint:disable=no-else-return
         if archi == 'localhost':
             return archi, int(num)
         else:
