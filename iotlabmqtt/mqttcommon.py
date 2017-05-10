@@ -354,7 +354,7 @@ class RequestClient(Topic):
 
     def request(self, client, data, timeout=None, **fields):
         """Perform request under lock and wait for response."""
-        with self._request_lock:
+        with self._request_lock:  # pylint:disable=not-context-manager
             return self._request(client, data, timeout=timeout, **fields)
 
     def _request(self, client, data, timeout=None, **fields):

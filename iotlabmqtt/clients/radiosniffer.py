@@ -31,7 +31,7 @@ class PcapFiles(object):
 
     def clear(self, pcaptype):
         """Remove given file and close it."""
-        with self._lock:
+        with self._lock:  # pylint:disable=not-context-manager
             return self._clear(pcaptype)
 
     def _clear(self, pcaptype):
@@ -44,7 +44,7 @@ class PcapFiles(object):
 
     def set(self, pcaptype, pcapfd, pcap_header):
         """Set pcap file as `pcaptype` and write its header."""
-        with self._lock:
+        with self._lock:  # pylint:disable=not-context-manager
             return self._set(pcaptype, pcapfd, pcap_header)
 
     def _set(self, pcaptype, pcapfd, pcap_header):
@@ -56,7 +56,7 @@ class PcapFiles(object):
 
     def write(self, pcaptype, data):
         """Write to given `pcaptype` file if its set."""
-        with self._lock:
+        with self._lock:  # pylint:disable=not-context-manager
             self._write(pcaptype, data)
 
     def _write(self, pcaptype, data):
