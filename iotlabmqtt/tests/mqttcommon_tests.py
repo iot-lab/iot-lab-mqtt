@@ -99,7 +99,10 @@ class TopicTest(AgentTest):
 
         mqttc = mock.Mock()
         obj = mock.Mock()
-        msg = mqttcommon.mqtt.MQTTMessage(topic='a/b/value/argument')
+
+        msg_topic = 'a/b/value/argument'
+        msg_topic = mqttclient_mock.encode_topic_if_needed(msg_topic)
+        msg = mqttcommon.mqtt.MQTTMessage(topic=msg_topic)
 
         topic.callback(mqttc, obj, msg)
 

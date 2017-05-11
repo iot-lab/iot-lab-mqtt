@@ -11,10 +11,14 @@ import os.path
 import functools
 import contextlib
 import threading
+import packaging.version
 
+import paho.mqtt
 import paho.mqtt.client as mqtt
 
 from . import common
+
+PAHO_VERSION = packaging.version.parse(paho.mqtt.__version__)
 
 
 class MQTTClient(mqtt.Client):
@@ -54,16 +58,23 @@ class MQTTClient(mqtt.Client):
 
     @staticmethod
     def _paho_topic_python2_3(topic):
-        """Fix issue with paho 1.2.0 and python2.
+        """Fix issue with paho 1.2.x and python2.
 
         It requires a 'str' topic and tries to encode it to 'utf-8' after.
         For python2, force it to be ascii bytes so auto-conversion will work.
         """
         import sys  # pylint:disable=redefined-outer-name
-        import paho.mqtt
-        if (paho.mqtt.__version__ == '1.2' and
-                sys.version_info[0] < 3):
+        if sys.version_info[0] >= 3:
+            return topic
+
+        # Handle paho-mqtt 1.2.x
+        if (PAHO_VERSION >= packaging.version.parse('1.2') or
+                PAHO_VERSION < packaging.version.parse('1.3')):
             return topic.encode('ascii')
+
+        # It may change in 1.3, so raise a warning to force to check this
+        from warnings import warn
+        warn('paho-mqtt version %s has not been validated' % PAHO_VERSION)
 
         return topic
 

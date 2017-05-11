@@ -8,6 +8,7 @@ from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import time
 import threading
+import packaging.version
 from iotlabmqtt import mqttcommon
 
 
@@ -36,8 +37,23 @@ class MQTTMessage(mqttcommon.mqtt.MQTTMessage):  # pylint:disable=R0903
         return obj_d
 
 
+def encode_topic_if_needed(topic):
+    """Encode topic if required for specific paho and python version."""
+    import sys  # pylint:disable=redefined-outer-name
+    if sys.version_info[0] < 3:
+        return topic
+
+    # Handle new MQTTMessage version
+    version_needs_bytes = packaging.version.parse('1.2.1')
+    if mqttcommon.PAHO_VERSION >= version_needs_bytes:
+        return topic.encode('utf-8')
+
+    return topic
+
+
 def mqttmessage(topic, payload):
     """Create message for topic/payload."""
+    topic = encode_topic_if_needed(topic)
     msg = MQTTMessage(topic=topic)
     # Handle '_bytes_safe_payload'
     if isinstance(payload, bytearray):
