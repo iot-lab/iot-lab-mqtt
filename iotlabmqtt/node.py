@@ -209,7 +209,7 @@ def _firmware_file(data):
 
 
 class MQTTNodeAgent(object):
-    """Radio Sniffer Aggregator implementation for MQTT."""
+    """Node Agent implementation for MQTT."""
     PREFIX = 'iot-lab/node/{site}'
     TOPICS = {
         'prefix': PREFIX,
