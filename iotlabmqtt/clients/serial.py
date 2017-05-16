@@ -122,7 +122,7 @@ class SerialShell(clientcommon.CmdShell):
         num = int(num)
 
         payload = message.encode('utf-8')
-        self.topics['line'].send(self.client, archi, num, payload)
+        self.topics['line'].send(self.client, payload, archi=archi, num=num)
 
     def help_linewrite(self):
         """Help linewrite command."""

@@ -544,7 +544,7 @@ class MQTTAggregator(object):
         Publish the message to the correct topic for ``archi``, ``num``.
         """
         channel = self.topics['line']
-        publisher = channel.output_publisher(self.client, archi, num)
+        publisher = channel.output_publisher(self.client, archi=archi, num=num)
         return LineHandler(publisher)
 
     def _node_closed_cb(self, node):

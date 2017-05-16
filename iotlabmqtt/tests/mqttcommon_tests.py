@@ -285,7 +285,8 @@ class ChannelTest(AgentTest):
                                                 list(server_topics.values()))
 
         # Client writes a message
-        client_topics['line'].send(client, 'm3', 1, b'req').wait_for_publish()
+        client_topics['line'].send(client, b'req',
+                                   archi='m3', num=1).wait_for_publish()
         self.assertTrue(server_cb.called)
 
         write_topic = server_topics['line'].topic.format(archi='m3', num='1')
@@ -293,7 +294,8 @@ class ChannelTest(AgentTest):
         server_cb.assert_called_with(write_msg, archi='m3', num='1')
 
         # Server writes a message
-        line_write = server_topics['line'].output_publisher(server, 'm3', '1')
+        line_write = server_topics['line'].output_publisher(
+            server, archi='m3', num='1')
         line_write(b'response').wait_for_publish()
         self.assertTrue(client_cb.called)
 

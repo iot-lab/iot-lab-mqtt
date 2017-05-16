@@ -767,7 +767,7 @@ class MQTTRadioSnifferAggregator(object):
         # Publish the message to the correct topic for ``archi``, ``num``.
         # """
         channel = self.topics['raw']
-        publisher = channel.output_publisher(self.client, archi, num)
+        publisher = channel.output_publisher(self.client, archi=archi, num=num)
         raw_encoder = ZepToPcap(mode='RAW').convert
 
         return ZEPHandler(lambda msg: publisher(raw_encoder(msg)))
