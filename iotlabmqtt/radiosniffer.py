@@ -227,7 +227,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import os
 import struct
 import threading
 
@@ -682,10 +681,9 @@ class MQTTRadioSnifferAggregator(object):
     """Radio Sniffer Aggregator implementation for MQTT."""
     AGENTTOPIC = 'iot-lab/radiosniffer/{site}'
     TOPICS = {
-        'agenttopic': AGENTTOPIC,
-        'raw': os.path.join(AGENTTOPIC, 'raw'),
-        'node': os.path.join(AGENTTOPIC, '{archi}/{num}'),
-        'noderaw': os.path.join(AGENTTOPIC, '{archi}/{num}/raw'),
+        'raw': 'raw',
+        'node': '{archi}/{num}',
+        'noderaw': '{archi}/{num}/raw',
     }
     HOSTNAME = common.hostname()
 
@@ -694,7 +692,9 @@ class MQTTRadioSnifferAggregator(object):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(self.TOPICS,
+                                                  prefix, self.AGENTTOPIC,
+                                                  staticfmt)
 
         self.topics = {
             'node': mqttcommon.NullTopic(_topics['node']),

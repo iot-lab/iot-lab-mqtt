@@ -274,7 +274,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import os
 import threading
 
 from . import common
@@ -470,9 +469,8 @@ class MQTTAggregator(object):
 
     AGENTTOPIC = 'iot-lab/serial/{site}'
     TOPICS = {
-        'agenttopic': AGENTTOPIC,
-        'node': os.path.join(AGENTTOPIC, '{archi}/{num}'),
-        'line': os.path.join(AGENTTOPIC, '{archi}/{num}/line'),
+        'node': '{archi}/{num}',
+        'line': '{archi}/{num}/line',
     }
 
     HOSTNAME = common.hostname()
@@ -481,7 +479,8 @@ class MQTTAggregator(object):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(self.TOPICS, prefix,
+                                                  self.AGENTTOPIC, staticfmt)
 
         self.nodes = {}
         self.asyncore = asyncconnection.AsyncoreService()

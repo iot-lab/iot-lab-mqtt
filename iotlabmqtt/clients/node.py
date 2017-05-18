@@ -8,9 +8,9 @@ from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import os
 
+import iotlabmqtt.node
 from iotlabmqtt import common
 from iotlabmqtt import mqttcommon
-from iotlabmqtt import node
 from . import common as clientcommon
 
 PARSER = common.MQTTAgentArgumentParser()
@@ -42,7 +42,7 @@ class NodeShell(clientcommon.CmdShell):
                       '  ARCHI: m3/a8\n'
                       '  NUM:   node num\n')
 
-    TOPICS = {k: t for k, t in node.MQTTNodeAgent.TOPICS.items()}
+    SERVER = iotlabmqtt.node.MQTTNodeAgent
 
     def __init__(self, client, prefix, site=None):
         assert site is not None
@@ -51,7 +51,8 @@ class NodeShell(clientcommon.CmdShell):
         self.clientid = clientcommon.clientid('serialclient')
 
         staticfmt = {'site': site}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(
+            self.SERVER.TOPICS, prefix, self.SERVER.AGENTTOPIC, staticfmt)
 
         _print_wrapper = self.async_print_handle_readlinebuff()
         error_cb = _print_wrapper(self.error_cb)

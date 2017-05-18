@@ -212,8 +212,7 @@ class MQTTNodeAgent(object):
     """Node Agent implementation for MQTT."""
     AGENTTOPIC = 'iot-lab/node/{site}'
     TOPICS = {
-        'agenttopic': AGENTTOPIC,
-        'node': os.path.join(AGENTTOPIC, '{archi}/{num}'),
+        'node': '{archi}/{num}',
     }
     HOSTNAME = common.hostname()
 
@@ -222,7 +221,8 @@ class MQTTNodeAgent(object):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(self.TOPICS, prefix,
+                                                  self.AGENTTOPIC, staticfmt)
 
         self.topics = {
             'reset': mqttcommon.RequestServer(_topics['node'], 'reset',

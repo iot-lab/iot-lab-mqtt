@@ -177,6 +177,16 @@ def _fmt_topic(topic, prefix='', static_fmt_dict=None):
     return topic
 
 
+def generate_topics_dict(topics_dict, prefix='', agenttopic='',
+                         static_fmt_dict=None):
+    """Generate full topics dict and add 'agenttopic'."""
+
+    topics = {k: os.path.join(agenttopic, v) for k, v in topics_dict.items()}
+    topics['agenttopic'] = agenttopic
+
+    return format_topics_dict(topics, prefix, static_fmt_dict)
+
+
 def format_topics_dict(topic_dict, prefix='', static_fmt_dict=None):
     """Return a new dict with formatted topics.
 
