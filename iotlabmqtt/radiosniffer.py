@@ -680,12 +680,12 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
 
 class MQTTRadioSnifferAggregator(object):
     """Radio Sniffer Aggregator implementation for MQTT."""
-    PREFIX = 'iot-lab/radiosniffer/{site}'
+    AGENTTOPIC = 'iot-lab/radiosniffer/{site}'
     TOPICS = {
-        'prefix': PREFIX,
-        'raw': os.path.join(PREFIX, 'raw'),
-        'node': os.path.join(PREFIX, '{archi}/{num}'),
-        'noderaw': os.path.join(PREFIX, '{archi}/{num}/raw'),
+        'agenttopic': AGENTTOPIC,
+        'raw': os.path.join(AGENTTOPIC, 'raw'),
+        'node': os.path.join(AGENTTOPIC, '{archi}/{num}'),
+        'noderaw': os.path.join(AGENTTOPIC, '{archi}/{num}/raw'),
     }
     HOSTNAME = common.hostname()
 
@@ -710,10 +710,11 @@ class MQTTRadioSnifferAggregator(object):
             'stop': mqttcommon.RequestServer(_topics['node'], 'stop',
                                              callback=self.cb_stop),
 
-            'stopall': mqttcommon.RequestServer(_topics['prefix'], 'stopall',
+            'stopall': mqttcommon.RequestServer(_topics['agenttopic'],
+                                                'stopall',
                                                 callback=self.cb_stopall),
 
-            'error': mqttcommon.ErrorServer(_topics['prefix']),
+            'error': mqttcommon.ErrorServer(_topics['agenttopic']),
         }
 
         self.iotlabapi = iotlab_api

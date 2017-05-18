@@ -117,9 +117,9 @@ class RadioSnifferShell(clientcommon.CmdShell):
                 _topics['node'], 'stop', clientid=self.clientid),
 
             'stopall': mqttcommon.RequestClient(
-                _topics['prefix'], 'stopall', clientid=self.clientid),
+                _topics['agenttopic'], 'stopall', clientid=self.clientid),
 
-            'error': mqttcommon.ErrorClient(_topics['prefix'],
+            'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),
         }
 

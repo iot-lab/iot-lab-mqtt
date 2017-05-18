@@ -210,10 +210,10 @@ def _firmware_file(data):
 
 class MQTTNodeAgent(object):
     """Node Agent implementation for MQTT."""
-    PREFIX = 'iot-lab/node/{site}'
+    AGENTTOPIC = 'iot-lab/node/{site}'
     TOPICS = {
-        'prefix': PREFIX,
-        'node': os.path.join(PREFIX, '{archi}/{num}'),
+        'agenttopic': AGENTTOPIC,
+        'node': os.path.join(AGENTTOPIC, '{archi}/{num}'),
     }
     HOSTNAME = common.hostname()
 
@@ -234,7 +234,7 @@ class MQTTNodeAgent(object):
             'poweroff': mqttcommon.RequestServer(_topics['node'], 'poweroff',
                                                  callback=self.cb_poweroff),
 
-            'error': mqttcommon.ErrorServer(_topics['prefix']),
+            'error': mqttcommon.ErrorServer(_topics['agenttopic']),
         }
 
         self.iotlabapi = iotlab_api

@@ -468,11 +468,11 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
 class MQTTAggregator(object):
     """Aggregator implementation for MQTT."""
 
-    PREFIX = 'iot-lab/serial/{site}'
+    AGENTTOPIC = 'iot-lab/serial/{site}'
     TOPICS = {
-        'prefix': PREFIX,
-        'node': os.path.join(PREFIX, '{archi}/{num}'),
-        'line': os.path.join(PREFIX, '{archi}/{num}/line'),
+        'agenttopic': AGENTTOPIC,
+        'node': os.path.join(AGENTTOPIC, '{archi}/{num}'),
+        'line': os.path.join(AGENTTOPIC, '{archi}/{num}/line'),
     }
 
     HOSTNAME = common.hostname()
@@ -499,9 +499,9 @@ class MQTTAggregator(object):
                 _topics['node'], 'stop', callback=self.cb_stop),
 
             'stopall': mqttcommon.RequestServer(
-                _topics['prefix'], 'stopall', callback=self.cb_stopall),
+                _topics['agenttopic'], 'stopall', callback=self.cb_stopall),
 
-            'error': mqttcommon.ErrorServer(_topics['prefix']),
+            'error': mqttcommon.ErrorServer(_topics['agenttopic']),
         }
 
         self.client = client

@@ -66,7 +66,7 @@ class NodeShell(clientcommon.CmdShell):
             'poweroff': mqttcommon.RequestClient(
                 _topics['node'], 'poweroff', clientid=self.clientid),
 
-            'error': mqttcommon.ErrorClient(_topics['prefix'],
+            'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),
         }
 
