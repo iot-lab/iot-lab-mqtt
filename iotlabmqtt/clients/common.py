@@ -86,7 +86,10 @@ class CmdShell(cmd.Cmd, object):
 
         Cannot use shlex.split as it has issues with unicode strings.
         """
-        return re.split(r'\s+', arg, maxsplit=maxsplit)
+        splitted = re.split(r'\s+', arg, maxsplit=maxsplit)
+        # Remove empty values
+        splitted = [a for a in splitted if a]
+        return splitted
 
     def async_print_handle_readlinebuff(self):
         """Manages a clean readline buffer for asynchronous print.
