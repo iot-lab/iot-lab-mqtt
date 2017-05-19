@@ -17,7 +17,7 @@ import argparse
 
 
 def topic_lazyformat(topic, **kwargs):
-    u"""Format only replace values in 'kwargs' keeping the other intact.
+    """Format only replace values in 'kwargs' keeping the other intact.
 
 
     >>> topic_lazyformat('a/{b}/c/{d}/e') == 'a/{b}/c/{d}/e'
@@ -41,7 +41,7 @@ def topic_lazyformat(topic, **kwargs):
 
 
 def topic_fields(topic):
-    u"""Extract named fields from topic.
+    """Extract named fields from topic.
 
     >>> topic_fields('{archi}/{num}/line/{clientid}/{requestid}')
     ['archi', 'num', 'clientid', 'requestid']
