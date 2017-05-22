@@ -251,6 +251,30 @@ class NullTopic(Topic):
         self.subscribe_topic = None
 
 
+class InputServer(Topic):
+    """Topic implementation for an Input Server."""
+    pass
+
+
+class InputClient(NullTopic):
+    """Topic implementation for an Input Client."""
+
+    def send(self, client, data, **fmt):
+        """Send ``data`` to topic formatted with **fmt."""
+        topic = self.topic.format(**fmt)
+        return client.publish(topic, data)
+
+
+class OutputServer(InputClient):
+    """Topic implementation for an Output Server."""
+    pass
+
+
+class OutputClient(InputServer):
+    """Topic implementation for an Output Client."""
+    pass
+
+
 class LogTopic(Topic):
     """Topic to log all messages."""
 
