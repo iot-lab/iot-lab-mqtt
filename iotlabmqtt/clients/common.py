@@ -119,3 +119,24 @@ def parser_add_site_arg(parser, group_help='Server agent IoT-LAB site name'):
     """Add server agent IoT-LAB site name argument."""
     group = parser.add_argument_group(group_help)
     group.add_argument('--site', help='Server agent site', required=True)
+
+
+def parser_add_site_or_agenttopic_arg(
+        parser, title='Server agent topic configuration',
+        group_help='Server agent IoT-LAB site name or agent topic'):
+    # pylint:disable=invalid-name
+    """Add server agent IoT-LAB site name or agenttopic argument."""
+    group = parser.add_argument_group(title, group_help)
+    group.add_argument('--site', help='Server agent site')
+    group.add_argument('--agenttopic', help='Agent topic overwrite')
+
+
+def parser_verify_site_and_agenttopic(parser, opts):
+    # pylint:disable=invalid-name
+    """Verify that at least site or agenttopic is given."""
+    if opts.site is None and opts.agenttopic is None:
+        parser.error('at least one of --site and --agenttopic is required')
+
+    if opts.agenttopic is not None:
+        if opts.site is None and '{site}' in opts.agenttopic:
+            parser.error('agenttopic contains "{site}" so --site is required')

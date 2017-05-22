@@ -115,6 +115,10 @@ class MQTTAgentArgumentParser(argparse.ArgumentParser):
         self.add_argument('--broker-port', help='Broker port')
         self.add_argument('broker', help='Broker address')
 
+    def add_agenttopic_argument(self):
+        """Add common agents arguments to parser."""
+        self.add_argument('--agenttopic', help='Agent topic overwrite')
+
 
 def hostname():
     """Return system 'hostname'.
