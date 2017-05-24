@@ -1,5 +1,94 @@
 # -*- coding: utf-8 -*-
 
+r"""IoT-LAB MQTT Manager agent
+=============================
+
+Manager agent allows managing IoT-LAB MQTT agents.
+
+Manager agent base topic: ::
+
+   {prefix}/iot-lab/manager/{site}
+
+Every topics from manager agent topics start by this topic prefix
+
+:param prefix: configured prefix
+:param site: site where the agent is run
+
+.. note::
+
+   This is a restricted implementation of the Process agent.
+   All methods behave the same and should be looked at its documentation.
+
+At startup, all IoT-LAB agents are run as managed `process` and are accessible
+through the following topics.
+
+Topics Summary
+==============
+
+.. |proc|             replace::  ``{processagenttopic}``
+
+.. |ctllist|          replace::  |proc|\ ``/ctl/list``
+
+.. |procid|           replace::  |proc|\ ``/process/{procid}``
+.. |procctlpoll|      replace::  |procid|\ ``/ctl/poll``
+.. |procctlkill|      replace::  |procid|\ ``/ctl/kill``
+.. |procctlrerun|     replace::  |procid|\ ``/ctl/rerun``
+
+.. |fdin|             replace::  ``fd/stdin``
+.. |fdout|            replace::  ``fd/stdout``
+.. |fderr|            replace::  ``fd/stderr``
+.. |procstdin|        replace::  |procid|\ /\ |fdin|
+.. |procstdout|       replace::  |procid|\ /\ |fdout|
+.. |procstderr|       replace::  |procid|\ /\ |fderr|
+
+.. |retcode|          replace::  ``event/returncode``
+.. |procret|          replace::  |procid|\ /\ |retcode|
+
+.. |error_t|          replace::  |proc|\ ``/error/``
+.. |request|          replace::  :ref:`Request <RequestTopic>`
+.. |error|            replace::  :ref:`Error <ErrorTopic>`
+
+.. |request_topic|    replace::  *{topic}*/**request/{clientid}/{requestid}**
+.. |reply_topic|      replace::  *{topic}*/**reply/{clientid}/{requestid}**
+
+.. |outtopic|         replace::  Output
+.. |intopic|          replace::  Input
+
++-+---------------------------------------------------------------+-----------+
+| |Topic                                                          | Type      |
++=+===============================================================+===========+
+|  **Manager agent**                                                          |
++-+---------------------------------------------------------------+-----------+
+| ``{prefix}/iot-lab/manager/{site}``                                         |
++-+---------------------------------------------------------------+-----------+
+| ||error_t|                                                      | |error|   |
++-+---------------------------------------------------------------+-----------+
+|  **Process ids management**                                                 |
++-+---------------------------------------------------------------+-----------+
+| ||ctllist|                                                      ||request|  |
++-+---------------------------------------------------------------+-----------+
+|  **Process control**                                                        |
++-+---------------------------------------------------------------+-----------+
+| ||procctlpoll|                                                  ||request|  |
++-+---------------------------------------------------------------+-----------+
+| ||procctlkill|                                                  ||request|  |
++-+---------------------------------------------------------------+-----------+
+| ||procctlrerun|                                                 ||request|  |
++-+---------------------------------------------------------------+-----------+
+|  **Process file descriptors**                                               |
++-+---------------------------------------------------------------+-----------+
+| ||procstdin|                                                    | |intopic| |
++-+---------------------------------------------------------------+-----------+
+| ||procstdout|                                                   | |outtopic||
++-+---------------------------------------------------------------+-----------+
+| ||procstderr|                                                   | |outtopic||
++-+---------------------------------------------------------------+-----------+
+|  **Process events**                                                         |
++-+---------------------------------------------------------------+-----------+
+| ||procret|                                                      | |outtopic||
++-+---------------------------------------------------------------+-----------+
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
