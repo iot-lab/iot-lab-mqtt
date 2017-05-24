@@ -93,12 +93,12 @@ class Process(object):
         return '%s' % retcode
 
     @common.synchronized('_rlock')
-    def kill(self):
+    def kill(self, timeout=1):
         """Kill current process."""
         if self.state != 'Running':  # Include 'Stopping'
             return ''
 
-        self._kill(timeout=1)
+        self._kill(timeout=timeout)
 
         return ''
 
