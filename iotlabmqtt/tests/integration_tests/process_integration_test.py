@@ -378,6 +378,40 @@ class ProcessIntegrationTests(IntegrationTestCase):
         stdout.seek(0)
         stdout.truncate(0)
 
+    def test_process_agent_python_buffered(self):
+        """Test process agent running with a python program."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_process_agent_python_buffered(client, stdout)
+
+    def _test_process_agent_python_buffered(self, client, stdout):
+        """Test process agent running with a python program."""
+        script_file = self.file_path('print_one_line.py')
+        # spaces not supported
+        self.assertTrue(' ' not in script_file)
+
+        client.onecmd('new python')
+        self.assertEqual(stdout.getvalue(), 'python\n')
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # Message is received because python is run with PYTHONUNBUFFERED
+        client.onecmd('run python %s' % script_file)
+        messages = ("stdout(python): 'Message\\n'\n"
+                    "(Cmd) ")
+        self.assertEqualTimeout(stdout.getvalue, messages, 2)
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        # kill
+        stdout.write('(Cmd) ')  # Add (Cmd) to help compare order
+        client.onecmd('kill python')
+        output = '(Cmd) ' + PROC_END_FMT.format(procid='python', ret='-15')
+        self.assertEqualTimeout(
+            lambda: sorted(stdout.getvalue().splitlines(True)),
+            sorted(output.splitlines(True)), 10)
+        stdout.seek(0)
+        stdout.truncate(0)
+
     def test_process_agent_kill(self):
         """Test process agent kill cases."""
         with self.start_client_and_server(self.BROKERPORT) as (client, stdout):

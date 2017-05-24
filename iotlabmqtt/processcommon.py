@@ -10,6 +10,7 @@ try:
     import Queue as queue
 except ImportError:  # pragma: no cover
     import queue
+import os
 import time
 import threading
 import subprocess
@@ -147,12 +148,18 @@ class Process(object):
         self.stdin_queue.put(data)
 
     def _popen(self):
+        # Set PYTHONUNBUFFERED as its our major language
+        # And it will be used by agents
+        env = os.environ.copy()
+        env['PYTHONUNBUFFERED'] = '1'
+
         popen_kwargs = {
             'stdin': subprocess.PIPE,
             'stdout': subprocess.PIPE,
             'stderr': subprocess.PIPE,
             'shell': False,
             'close_fds': False,
+            'env': env,
         }
 
         self.proc = subprocess.Popen(args=self.command, **popen_kwargs)
@@ -218,7 +225,6 @@ class Process(object):
     @staticmethod
     def _set_nonblocking(pipe):
         """Set supbrocess pipe non blocking."""
-        import os
         import fcntl
         flags = fcntl.fcntl(pipe, fcntl.F_GETFL)
         fcntl.fcntl(pipe, fcntl.F_SETFL, flags | os.O_NONBLOCK)
