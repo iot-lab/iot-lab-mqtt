@@ -538,9 +538,11 @@ class MQTTProcessAgent(object):
     def start(self):
         """Start Agent."""
         self.client.start()
+        self.process.start()
 
     def stop(self):
         """Stop agent."""
+        self.process.stop()
         self.client.stop()
 
     @classmethod

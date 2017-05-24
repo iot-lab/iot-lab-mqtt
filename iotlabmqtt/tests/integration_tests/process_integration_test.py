@@ -34,9 +34,8 @@ PROC_END_FMT = (
 class ProcessIntegrationTests(IntegrationTestCase):
     """Test process client and server using a broker."""
 
-    @staticmethod
     @contextlib.contextmanager
-    def start_client_and_server(brokerport):
+    def start_client_and_server(self, brokerport):
         """Start process client and server context manager.
 
         Yields client and stdout mock.
@@ -47,6 +46,7 @@ class ProcessIntegrationTests(IntegrationTestCase):
         opts = process.PARSER.parse_args(args)
         server = process.MQTTProcessAgent.from_opts_dict(**vars(opts))
         server.start()
+        self.server = server
         try:
             args = ['localhost', '--broker-port', '%s' % brokerport,
                     '--prefix', 'process/test/prefix',
@@ -453,6 +453,41 @@ class ProcessIntegrationTests(IntegrationTestCase):
 
         client.onecmd('poll 1')
         self.assertEqual(stdout.getvalue(), '-9\n')
+        stdout.seek(0)
+        stdout.truncate(0)
+
+    def test_process_agent_stop_kill(self):
+        """Test process agent stop that kills running processes."""
+        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
+            self._test_process_agent_stop_kill(client, stdout)
+
+    def _test_process_agent_stop_kill(self, client, stdout):
+        """Test process agent stop that kills running processes.
+
+        Server is stopped before client to still get messages on it.
+        """
+        trap_sigterm_file = self.file_path('trap_sigterm.sh')
+
+        client.onecmd('new stop')
+        self.assertEqual(stdout.getvalue(), 'stop\n')
+        stdout.seek(0)
+        stdout.truncate(0)
+
+        client.onecmd('run stop %s' % trap_sigterm_file)
+        self.assertEqual(stdout.getvalue(), '')
+
+        stdout.write('(Cmd) ')  # Add (Cmd) to help compare order
+        # Stop server, program should be killed by this
+        self.server.stop()
+
+        # Check process has indeed been killed
+        output = '(Cmd) ' + (
+            "stdout(stop): 'Process caught SIGTERM\\n'\n"
+            "(Cmd) "
+        ) + PROC_END_FMT.format(procid='stop', ret='-9')
+        self.assertEqualTimeout(
+            lambda: sorted(stdout.getvalue().splitlines(True)),
+            sorted(output.splitlines(True)), 10)
         stdout.seek(0)
         stdout.truncate(0)
 

@@ -269,6 +269,41 @@ class ProcessManager(dict):
         self._pid = 0
         self._rlock = threading.RLock()
 
+    def start(self):
+        """Start ProcessManager."""
+        # Nothing to do currently
+        pass
+
+    def stop(self, timeout=5, step=0.05):
+        """Stop ProcessManager.
+
+        Kills all processes and wait for them to finish.
+        """
+        # First kill all before using timeout
+        self._killall()
+
+        t_end = time.time() + timeout
+        while time.time() < t_end:
+            if self._trystop():
+                break
+            time.sleep(step)
+
+    def _trystop(self):
+        """Try stopping all processes."""
+        self._killall()
+        return self._safefreeall()
+
+    def _killall(self):
+        """Kill all processes."""
+        for proc in self.values():
+            proc.kill()
+
+    def _safefreeall(self):
+        """Safe free all idle processes. Returns if all are freed."""
+        for name in list(self.keys()):
+            self.safefree(name)
+        return not bool(self)
+
     @common.synchronized('_rlock')
     def new(self, name=''):
         """Allocate a new uniq process name.
@@ -311,6 +346,14 @@ class ProcessManager(dict):
             raise RuntimeError('Process still running wait or kill it first')
 
         self.pop(name)
+
+    @common.synchronized('_rlock')
+    def safefree(self, name):
+        """Free given process name process if idle. Ignore if still running."""
+        try:
+            self.free(name)
+        except RuntimeError:
+            pass
 
     @common.synchronized('_rlock')
     def list(self):
