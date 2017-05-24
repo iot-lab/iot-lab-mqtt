@@ -1,0 +1,4 @@
+#! /usr/bin/env python
+
+import iotlabmqtt.manager
+iotlabmqtt.manager.main()
