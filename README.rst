@@ -92,12 +92,14 @@ On the server, you should run the ``server`` agents first::
    iotlab-mqtt-serial       [ARGUMENTS]
    iotlab-mqtt-radiosniffer [ARGUMENTS]
    iotlab-mqtt-node         [ARGUMENTS]
+   iotlab-mqtt-process      [ARGUMENTS]
 
 And on the client, you should run either your client, or the provided example::
 
    iotlab-mqtt-clients serial       [ARGUMENTS]
    iotlab-mqtt-clients radiosniffer [ARGUMENTS]
    iotlab-mqtt-clients node         [ARGUMENTS]
+   iotlab-mqtt-clients process      [ARGUMENTS]
    iotlab-mqtt-clients log          [ARGUMENTS]
 
 
