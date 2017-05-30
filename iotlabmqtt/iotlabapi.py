@@ -113,7 +113,7 @@ class IoTLABAPI(object):
         return self.node_command('reset', None, archi, *nums)
 
     def update(self, firmwarepath, archi, *nums):
-        """Reset nodes ``archi`` and ``*nums``."""
+        """Update nodes ``archi`` and ``*nums`` with ``firmwarepath``."""
         return self.node_command('update', firmwarepath, archi, *nums)
 
     def poweron(self, archi, *nums):
