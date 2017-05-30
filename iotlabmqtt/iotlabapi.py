@@ -112,6 +112,10 @@ class IoTLABAPI(object):
         """Reset nodes ``archi`` and ``*nums``."""
         return self.node_command('reset', None, archi, *nums)
 
+    def update_idle(self, archi, *nums):
+        """Update nodes ``archi`` and ``*nums`` with idle firmware."""
+        return self.node_command('update-idle', None, archi, *nums)
+
     def update(self, firmwarepath, archi, *nums):
         """Update nodes ``archi`` and ``*nums`` with ``firmwarepath``."""
         return self.node_command('update', firmwarepath, archi, *nums)

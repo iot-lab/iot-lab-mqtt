@@ -256,14 +256,10 @@ class MQTTNodeAgent(object):
 
     def _thread_update(self, firmware, reply_publisher, archi, num):
         if not firmware:
-            if archi != 'm3':
-                err = 'Idle firmware not handled for %s' % archi
-                reply_publisher(err.encode('utf-8'))
-                return
-            firmware = self._idle_m3_firmware()
-
-        with _firmware_file(firmware) as firmware_path:
-            ret_dict = self.iotlabapi.update(firmware_path, archi, num)
+            ret_dict = self.iotlabapi.update_idle(archi, num)
+        else:
+            with _firmware_file(firmware) as firmware_path:
+                ret_dict = self.iotlabapi.update(firmware_path, archi, num)
 
         ret = ret_dict[str(num)]
         reply_publisher(ret.encode('utf-8'))
