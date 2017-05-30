@@ -175,7 +175,7 @@ class IoTLABAPITest(TestCaseImproved):
     @staticmethod
     def _add_profile_mock(name, profile):  # pylint:disable=unused-argument
         """Add_profile mock."""
-        return {'create': name}
+        return {'created': name}
 
     def test_set_sniffer_channel_m3_a8(self):
         """Test IoTLABAPI set_sniffer_channel for m3 and a8."""

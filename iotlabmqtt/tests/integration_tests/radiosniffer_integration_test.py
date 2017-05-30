@@ -335,7 +335,7 @@ class RadioSnifferIntegrationTest(IntegrationTestCase):
         site = self.server.iotlabapi.site
 
         # M3-1234 channel 11
-        api.add_profile.return_value = {'create': 'iotlabmqtt_11_m3'}
+        api.add_profile.return_value = {'created': 'iotlabmqtt_11_m3'}
         api.node_command.return_value = {
             '0': ['m3-1234.%s.iot-lab.info' % site],
         }
@@ -363,7 +363,7 @@ class RadioSnifferIntegrationTest(IntegrationTestCase):
             ['m3-1234.%s.iot-lab.info' % site], '&name=iotlabmqtt_11_m3')
 
         # Test A8
-        api.add_profile.return_value = {'create': 'iotlabmqtt_11_a8'}
+        api.add_profile.return_value = {'created': 'iotlabmqtt_11_a8'}
         api.node_command.return_value = {
             '0': ['a8-1234.%s.iot-lab.info' % site],
         }

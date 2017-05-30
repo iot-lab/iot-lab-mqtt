@@ -167,7 +167,7 @@ class IoTLABAPI(object):
         ret = self.api.add_profile(name, profile)
 
         try:
-            return ret['create']
+            return ret['created']
         except (KeyError, TypeError):
             raise ValueError("Add profile failed: '%s'" % json.dumps(ret))
 
