@@ -122,7 +122,7 @@ class IoTLABAPITestInit(TestCaseImproved):
         self.assertEqual(self.stdout.getvalue(), out)
 
     def test_init_exp_not_running(self):
-        """Test IoTLABAPI no experiment provided."""
+        """Test IoTLABAPI experiment not running."""
         self.get_experiment.return_value = {'state': 'Error'}
 
         args = ['--experiment-id', '12345',
