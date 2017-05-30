@@ -55,6 +55,16 @@ class IoTLABAPI(object):
 
         assert self.expid is not None
 
+    @property
+    def username(self):
+        """Return IoT-LAB username."""
+        return self.api.auth.username
+
+    @property
+    def password(self):
+        """Return IoT-LAB password."""
+        return self.api.auth.password
+
     @staticmethod
     def _user_password(user, password):
         """Load username password from files if not defined."""

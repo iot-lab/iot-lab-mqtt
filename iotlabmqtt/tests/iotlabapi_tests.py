@@ -55,8 +55,8 @@ class IoTLABAPITestInit(TestCaseImproved):
         self.get_experiment.assert_called_with(api.api, 12345, 'state')
 
         self.assertEqual(api.expid, 12345)
-        self.assertEqual(api.api.auth.username, 'us3rn4me')
-        self.assertEqual(api.api.auth.password, 'p4sswd')
+        self.assertEqual(api.username, 'us3rn4me')
+        self.assertEqual(api.password, 'p4sswd')
 
         out = ''
         self.assertEqual(self.stdout.getvalue(), out)
@@ -75,8 +75,8 @@ class IoTLABAPITestInit(TestCaseImproved):
         self.get_experiment.assert_called_with(api.api, 12345, 'state')
         get_cred.assert_called_with(None, None)
         self.assertEqual(api.expid, 12345)
-        self.assertEqual(api.api.auth.username, 'user')
-        self.assertEqual(api.api.auth.password, 'password')
+        self.assertEqual(api.username, 'user')
+        self.assertEqual(api.password, 'password')
 
         out = ''
         self.assertEqual(self.stdout.getvalue(), out)
@@ -151,8 +151,8 @@ class IoTLABAPITestInit(TestCaseImproved):
         self.get_experiment.assert_called_with(api.api, 232323, 'state')
 
         self.assertEqual(api.expid, 232323)
-        self.assertEqual(api.api.auth.username, 'us3rn4me')
-        self.assertEqual(api.api.auth.password, 'p4sswd')
+        self.assertEqual(api.username, 'us3rn4me')
+        self.assertEqual(api.password, 'p4sswd')
 
         out = ''
         self.assertEqual(self.stdout.getvalue(), out)
