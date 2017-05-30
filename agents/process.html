@@ -1,0 +1,615 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Process Agent &#8212; IoT-LAB MQTT 0.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Nodes Agent" href="node.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-iotlabmqtt.process">
+<span id="process-agent"></span><h1>Process Agent<a class="headerlink" href="#module-iotlabmqtt.process" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="iot-lab-mqtt-process-agent">
+<h2>IoT-LAB MQTT process agent<a class="headerlink" href="#iot-lab-mqtt-process-agent" title="Permalink to this headline">¶</a></h2>
+<p>Process agent allows running and managing processes.</p>
+<p>Process agent base topic:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">lab</span><span class="o">/</span><span class="n">process</span><span class="o">/</span><span class="p">{</span><span class="n">site</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Every topics from process agent topics start by this topic prefix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param prefix:</th><td class="field-body">configured prefix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param site:</th><td class="field-body">site where the agent is run</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">iot-lab/process/{site}</span></code> part can be replaced with the <code class="docutils literal"><span class="pre">--agenttopic</span></code>
+option to allow running it on other servers than IoT-LAB.</p>
+</div>
+</div>
+<div class="section" id="topics-summary">
+<h2>Topics Summary<a class="headerlink" href="#topics-summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="1%" />
+<col width="84%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&#160;</th>
+<th class="head">Topic</th>
+<th class="head">Type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="3"><strong>Process agent</strong></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><code class="docutils literal"><span class="pre">{prefix}/iot-lab/process/{site}</span></code></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/error/</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error</span></a></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><strong>Process ids management</strong></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/ctl/new</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/ctl/free</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/ctl/list</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><strong>Process control</strong></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/run</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/poll</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/kill</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/rerun</span></code></td>
+<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Process file descriptors</strong></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code>/<code class="docutils literal"><span class="pre">fd/stdin</span></code></td>
+<td>Input</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code>/<code class="docutils literal"><span class="pre">fd/stdout</span></code></td>
+<td>Output</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code>/<code class="docutils literal"><span class="pre">fd/stderr</span></code></td>
+<td>Output</td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Process events</strong></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code>/<code class="docutils literal"><span class="pre">event/returncode</span></code></td>
+<td>Output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="process-agent-global-topics">
+<h2>Process Agent global topics<a class="headerlink" href="#process-agent-global-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="error-topic">
+<h3>Error Topic<a class="headerlink" href="#error-topic" title="Permalink to this headline">¶</a></h3>
+<p>Asynchronous error messages are posted to error topic.
+Failure on requests are not duplicated here.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/error/</span></code></li>
+</ul>
+<p>For format see: <a class="reference internal" href="../technical_details.html#errortopic"><span class="std std-ref">Error topic</span></a></p>
+</div>
+</div>
+<div class="section" id="process-ids-management-topics">
+<h2>Process ids management topics<a class="headerlink" href="#process-ids-management-topics" title="Permalink to this headline">¶</a></h2>
+<p>To run a process, a process id should first be allocated.
+This id will be used for every commands on the process.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Seperating this from the <code class="docutils literal"><span class="pre">procrun</span></code> command allows registering first to
+all interesting topics (e.g. <code class="docutils literal"><span class="pre">fd/stdout</span></code>, <code class="docutils literal"><span class="pre">event/returncode</span></code>) so no
+messages are missed.</p>
+</div>
+<div class="section" id="new-process-id">
+<h3>New process id<a class="headerlink" href="#new-process-id" title="Permalink to this headline">¶</a></h3>
+<p>Allocate a new process id, if a <code class="docutils literal"><span class="pre">procid</span></code> is given it will use this one or
+if empty, an uniq integer one will be provided.</p>
+<p>Process ids will either be the provided ones, or a string representation of
+integers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param procid:</th><td class="field-body"><code class="docutils literal"><span class="pre">procid</span></code> can be given or empty to get an uniq <code class="docutils literal"><span class="pre">int</span></code> one.
+An error is returned if given one is already used.
+It cannot contain <code class="docutils literal"><span class="pre">{}/+#</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type procid:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span></code> encoded string</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span></code> allocated procid, which is either the given one or
+an <code class="docutils literal"><span class="pre">int</span></code> string.
+If message does not match above rules, its an error message.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="53%" />
+<col width="31%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">new</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/ctl/new</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or <code class="docutils literal"><span class="pre">procid</span></code></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><code class="docutils literal"><span class="pre">procid</span></code> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="free-process-id">
+<h3>Free process id<a class="headerlink" href="#free-process-id" title="Permalink to this headline">¶</a></h3>
+<p>Free given process id. Process should be idle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param procid:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span></code> <code class="docutils literal"><span class="pre">procid</span></code> to release</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type procid:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span></code> encoded string</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">free</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/ctl/free</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><code class="docutils literal"><span class="pre">procid</span></code></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="list-processes-ids">
+<h3>List processes ids<a class="headerlink" href="#list-processes-ids" title="Permalink to this headline">¶</a></h3>
+<p>List processes ids.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span></code> encoded json list of ids</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">list</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/ctl/list</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><code class="docutils literal"><span class="pre">utf-8</span> <span class="pre">json</span> <span class="pre">list</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="process-control">
+<h2>Process control<a class="headerlink" href="#process-control" title="Permalink to this headline">¶</a></h2>
+<p>Control process execution.</p>
+<div class="section" id="process-run">
+<h3>Process run<a class="headerlink" href="#process-run" title="Permalink to this headline">¶</a></h3>
+<p>Run given command for given process id. The process should currently be idle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param command:</th><td class="field-body"><code class="docutils literal"><span class="pre">utf-8</span></code> encoded json list of arguments</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">run</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/run</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>command</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="process-poll">
+<h3>Process poll<a class="headerlink" href="#process-poll" title="Permalink to this headline">¶</a></h3>
+<p>Check if given process is still running.
+If stopped, it returns returncode else an empty message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">returns:</th><td class="field-body">empty if running, returncode <code class="docutils literal"><span class="pre">int</span></code> string if stopped or
+an error message.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">poll</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/poll</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or
+<code class="docutils literal"><span class="pre">returncode</span></code> or
+error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="process-kill">
+<h3>Process kill<a class="headerlink" href="#process-kill" title="Permalink to this headline">¶</a></h3>
+<p>Kill given process.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A SIGTERM is first sent, then a SIGKILL one second after if still running.</p>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">kill</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/kill</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="process-rerun">
+<h3>Process rerun<a class="headerlink" href="#process-rerun" title="Permalink to this headline">¶</a></h3>
+<p>Re-run given process with the same command.
+The process should currently be idle.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">rerun</span></code> request:</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code><code class="docutils literal"><span class="pre">/ctl/rerun</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Request</td>
+<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
+<td><em>empty</em></td>
+</tr>
+<tr class="row-odd"><td>Reply</td>
+<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
+<td><em>empty</em> or error_msg</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="process-file-descriptors">
+<h2>Process file descriptors<a class="headerlink" href="#process-file-descriptors" title="Permalink to this headline">¶</a></h2>
+<p>Process standard input, output and error topics.
+They transport raw data to allow exchanging everything with the application.</p>
+<p>This implies that messages may not be <code class="docutils literal"><span class="pre">utf-8</span></code> data,
+or not seperated on new lines characters or even split in the middle of
+an <code class="docutils literal"><span class="pre">utf-8</span></code> code-point.</p>
+<p>Sent messages are only empty on process termination,
+where <code class="docutils literal"><span class="pre">fd/stdout</span></code> and <code class="docutils literal"><span class="pre">fd/stderr</span></code> receive a final empty message.
+During normal execution output messages are never empty.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><strong>Process file descriptors</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Input</td>
+<td><code class="docutils literal"><span class="pre">fd/stdin</span></code></td>
+<td>RAW bytes</td>
+</tr>
+<tr class="row-odd"><td>Output</td>
+<td><code class="docutils literal"><span class="pre">fd/stdout</span></code></td>
+<td>RAW bytes</td>
+</tr>
+<tr class="row-even"><td>Output</td>
+<td><code class="docutils literal"><span class="pre">fd/stderr</span></code></td>
+<td>RAW bytes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="process-events">
+<h2>Process events<a class="headerlink" href="#process-events" title="Permalink to this headline">¶</a></h2>
+<p>Sends process returncode as a <code class="docutils literal"><span class="pre">int</span></code> string on process termination.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="55%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"><strong>Events  file descriptors</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Topic:</td>
+<td colspan="2"><code class="docutils literal"><span class="pre">{processagenttopic}</span></code><code class="docutils literal"><span class="pre">/process/{procid}</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Message</strong></td>
+<td><strong>Topic</strong></td>
+<td><strong>Payload</strong></td>
+</tr>
+<tr class="row-even"><td>Output</td>
+<td><code class="docutils literal"><span class="pre">event/returncode</span></code></td>
+<td><code class="docutils literal"><span class="pre">returncode</span> <span class="pre">string</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Process Agent</a><ul>
+<li><a class="reference internal" href="#iot-lab-mqtt-process-agent">IoT-LAB MQTT process agent</a></li>
+<li><a class="reference internal" href="#topics-summary">Topics Summary</a></li>
+<li><a class="reference internal" href="#process-agent-global-topics">Process Agent global topics</a><ul>
+<li><a class="reference internal" href="#error-topic">Error Topic</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#process-ids-management-topics">Process ids management topics</a><ul>
+<li><a class="reference internal" href="#new-process-id">New process id</a></li>
+<li><a class="reference internal" href="#free-process-id">Free process id</a></li>
+<li><a class="reference internal" href="#list-processes-ids">List processes ids</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#process-control">Process control</a><ul>
+<li><a class="reference internal" href="#process-run">Process run</a></li>
+<li><a class="reference internal" href="#process-poll">Process poll</a></li>
+<li><a class="reference internal" href="#process-kill">Process kill</a></li>
+<li><a class="reference internal" href="#process-rerun">Process rerun</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#process-file-descriptors">Process file descriptors</a></li>
+<li><a class="reference internal" href="#process-events">Process events</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../agents.html">Agents</a><ul>
+      <li>Previous: <a href="node.html" title="previous chapter">Nodes Agent</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/agents/process.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Gaëtan Harter.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/agents/process.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
