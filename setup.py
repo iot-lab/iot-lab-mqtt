@@ -69,7 +69,7 @@ ENTRY_POINTS = {
 
 EXTRAS_REQUIRE = {
     'node': ['iotlabcli>=2.4.0'],
-    'sniffer': ['iotlabcli>=2.1.0'],
+    'sniffer': ['iotlabcli>=2.4.0'],
 }
 
 # Sum all dependecies in 'server'

@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import json
+import tempfile
 
 from . import common
 
@@ -137,23 +137,28 @@ class IoTLABAPI(object):
             return self.retval('', *nums)
 
         try:
-            profile = self._create_sniffer_profile(archi, channel)
+            profile_str = self._sniffer_profile_json(archi, channel)
         except (ValueError, RuntimeError) as err:
             return self.retval('Create profile failed: %s' % err, *nums)
 
-        return self.node_command('profile', profile, archi, *nums)
+        with tempfile.NamedTemporaryFile() as prof:
+            prof.write(profile_str.encode('ascii'))
+            prof.flush()
+            return self.node_command('profile-load', prof.name, archi, *nums)
 
     @staticmethod
     def retval(message, *nums):
         """Return value for ``message`` and ``*nums``."""
         return {str(num): message for num in nums}
 
-    def _create_sniffer_profile(self, archi, channel):
-        """Create sniffer profile for ``archi`` and ``channel``.
+    @staticmethod
+    def _sniffer_profile_json(archi, channel):
+        """Return sniffer profile json for ``archi`` and ``channel``.
 
         Raise ValueError or RuntimeError on error.
         """
         import iotlabcli.profile
+        import iotlabcli.helpers
         profiles = {
             'm3': iotlabcli.profile.ProfileM3,
             'a8': iotlabcli.profile.ProfileA8,
@@ -168,12 +173,8 @@ class IoTLABAPI(object):
 
         profile = profile_class(name, 'dc')
         profile.set_radio('sniffer', [channel])
-        ret = self.api.add_profile(name, profile)
 
-        try:
-            return ret['created']
-        except (KeyError, TypeError):
-            raise ValueError("Add profile failed: '%s'" % json.dumps(ret))
+        return iotlabcli.helpers.json_dumps(profile)
 
     def node_command(self, command, cmd_opt, archi, *nums):
         """Run IoT-LAB node command and handle errors."""
