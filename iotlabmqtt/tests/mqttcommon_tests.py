@@ -235,6 +235,56 @@ class RequestTest(AgentTest):
         self.assertEqualTimeout(lambda: server_cb.called, True, timeout=10)
 
 
+class InputOutputTest(AgentTest):
+    """Test InputOutput classes."""
+
+    def test_input_topics(self):
+        """Test Input Topics."""
+        topicname = '{procid}/fd/stdin'
+
+        server_cb = mock.Mock()
+        client_topics = {'in': mqttcommon.InputClient(topicname)}
+        server_topics = {'in': mqttcommon.InputServer(topicname,
+                                                      wrap_mock(server_cb))}
+
+        client = mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                                list(client_topics.values()))
+        mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                       list(server_topics.values()))
+
+        # Client writes a message
+        client_topics['in'].send(client, b'input',
+                                 procid='1').wait_for_publish()
+        self.assertTrue(server_cb.called)
+
+        write_topic = server_topics['in'].topic.format(procid='1')
+        write_msg = mqttclient_mock.mqttmessage(write_topic, b'input')
+        server_cb.assert_called_with(write_msg, procid='1')
+
+    def test_output_topics(self):
+        """Test Output Topics."""
+        topicname = '{procid}/fd/stdout'
+
+        client_cb = mock.Mock()
+        client_topics = {'out': mqttcommon.OutputClient(topicname,
+                                                        wrap_mock(client_cb))}
+        server_topics = {'out': mqttcommon.OutputServer(topicname)}
+
+        client = mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                                list(client_topics.values()))
+        mqttclient_mock.MQTTClientMock('localhost', 1883,
+                                       list(server_topics.values()))
+
+        # Server writes a message
+        server_topics['out'].send(client, b'output',
+                                  procid='1').wait_for_publish()
+        self.assertTrue(client_cb.called)
+
+        read_topic = client_topics['out'].topic.format(procid='1')
+        read_msg = mqttclient_mock.mqttmessage(read_topic, b'output')
+        client_cb.assert_called_with(read_msg, procid='1')
+
+
 class ChannelTest(AgentTest):
     """Test Channel classes."""
 
@@ -285,7 +335,8 @@ class ChannelTest(AgentTest):
                                                 list(server_topics.values()))
 
         # Client writes a message
-        client_topics['line'].send(client, 'm3', 1, b'req').wait_for_publish()
+        client_topics['line'].send(client, b'req',
+                                   archi='m3', num=1).wait_for_publish()
         self.assertTrue(server_cb.called)
 
         write_topic = server_topics['line'].topic.format(archi='m3', num='1')
@@ -293,7 +344,8 @@ class ChannelTest(AgentTest):
         server_cb.assert_called_with(write_msg, archi='m3', num='1')
 
         # Server writes a message
-        line_write = server_topics['line'].output_publisher(server, 'm3', '1')
+        line_write = server_topics['line'].output_publisher(
+            server, archi='m3', num='1')
         line_write(b'response').wait_for_publish()
         self.assertTrue(client_cb.called)
 

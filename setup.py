@@ -60,6 +60,7 @@ ENTRY_POINTS = {
         'iotlab-mqtt-serial = iotlabmqtt.serial:main',
         'iotlab-mqtt-node = iotlabmqtt.node:main [node]',
         'iotlab-mqtt-radiosniffer = iotlabmqtt.radiosniffer:main [sniffer]',
+        'iotlab-mqtt-process = iotlabmqtt.process:main',
 
         # Client script
         'iotlab-mqtt-clients = iotlabmqtt.clients:main',

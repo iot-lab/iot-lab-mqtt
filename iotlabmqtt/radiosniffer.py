@@ -227,7 +227,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import os
 import struct
 import threading
 
@@ -680,12 +679,11 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
 
 class MQTTRadioSnifferAggregator(object):
     """Radio Sniffer Aggregator implementation for MQTT."""
-    PREFIX = 'iot-lab/radiosniffer/{site}'
+    AGENTTOPIC = 'iot-lab/radiosniffer/{site}'
     TOPICS = {
-        'prefix': PREFIX,
-        'raw': os.path.join(PREFIX, 'raw'),
-        'node': os.path.join(PREFIX, '{archi}/{num}'),
-        'noderaw': os.path.join(PREFIX, '{archi}/{num}/raw'),
+        'raw': 'raw',
+        'node': '{archi}/{num}',
+        'noderaw': '{archi}/{num}/raw',
     }
     HOSTNAME = common.hostname()
 
@@ -694,7 +692,9 @@ class MQTTRadioSnifferAggregator(object):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(self.TOPICS,
+                                                  prefix, self.AGENTTOPIC,
+                                                  staticfmt)
 
         self.topics = {
             'node': mqttcommon.NullTopic(_topics['node']),
@@ -710,10 +710,11 @@ class MQTTRadioSnifferAggregator(object):
             'stop': mqttcommon.RequestServer(_topics['node'], 'stop',
                                              callback=self.cb_stop),
 
-            'stopall': mqttcommon.RequestServer(_topics['prefix'], 'stopall',
+            'stopall': mqttcommon.RequestServer(_topics['agenttopic'],
+                                                'stopall',
                                                 callback=self.cb_stopall),
 
-            'error': mqttcommon.ErrorServer(_topics['prefix']),
+            'error': mqttcommon.ErrorServer(_topics['agenttopic']),
         }
 
         self.iotlabapi = iotlab_api
@@ -767,7 +768,7 @@ class MQTTRadioSnifferAggregator(object):
         # Publish the message to the correct topic for ``archi``, ``num``.
         # """
         channel = self.topics['raw']
-        publisher = channel.output_publisher(self.client, archi, num)
+        publisher = channel.output_publisher(self.client, archi=archi, num=num)
         raw_encoder = ZepToPcap(mode='RAW').convert
 
         return ZEPHandler(lambda msg: publisher(raw_encoder(msg)))

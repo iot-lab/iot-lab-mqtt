@@ -6,9 +6,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
+import iotlabmqtt.serial
 from iotlabmqtt import common
 from iotlabmqtt import mqttcommon
-from iotlabmqtt import serial
 
 from . import common as clientcommon
 
@@ -37,7 +37,7 @@ class SerialShell(clientcommon.CmdShell):
 
     STOPALL_USAGE = 'stopall\n'
 
-    TOPICS = {k: t for k, t in serial.MQTTAggregator.TOPICS.items()}
+    SERVER = iotlabmqtt.serial.MQTTAggregator
 
     def __init__(self, client, prefix, site=None):
         assert site is not None
@@ -46,7 +46,8 @@ class SerialShell(clientcommon.CmdShell):
         self.clientid = clientcommon.clientid('serialclient')
 
         staticfmt = {'site': site}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(
+            self.SERVER.TOPICS, prefix, self.SERVER.AGENTTOPIC, staticfmt)
 
         _print_wrapper = self.async_print_handle_readlinebuff()
         line_cb = _print_wrapper(self.line_handler)
@@ -63,9 +64,9 @@ class SerialShell(clientcommon.CmdShell):
                 _topics['node'], 'stop', clientid=self.clientid),
 
             'stopall': mqttcommon.RequestClient(
-                _topics['prefix'], 'stopall', clientid=self.clientid),
+                _topics['agenttopic'], 'stopall', clientid=self.clientid),
 
-            'error': mqttcommon.ErrorClient(_topics['prefix'],
+            'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),
         }
 
@@ -122,7 +123,7 @@ class SerialShell(clientcommon.CmdShell):
         num = int(num)
 
         payload = message.encode('utf-8')
-        self.topics['line'].send(self.client, archi, num, payload)
+        self.topics['line'].send(self.client, payload, archi=archi, num=num)
 
     def help_linewrite(self):
         """Help linewrite command."""

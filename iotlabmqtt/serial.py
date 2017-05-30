@@ -274,7 +274,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
-import os
 import threading
 
 from . import common
@@ -468,11 +467,10 @@ class Node(object):  # pylint:disable=too-many-instance-attributes
 class MQTTAggregator(object):
     """Aggregator implementation for MQTT."""
 
-    PREFIX = 'iot-lab/serial/{site}'
+    AGENTTOPIC = 'iot-lab/serial/{site}'
     TOPICS = {
-        'prefix': PREFIX,
-        'node': os.path.join(PREFIX, '{archi}/{num}'),
-        'line': os.path.join(PREFIX, '{archi}/{num}/line'),
+        'node': '{archi}/{num}',
+        'line': '{archi}/{num}/line',
     }
 
     HOSTNAME = common.hostname()
@@ -481,7 +479,8 @@ class MQTTAggregator(object):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(self.TOPICS, prefix,
+                                                  self.AGENTTOPIC, staticfmt)
 
         self.nodes = {}
         self.asyncore = asyncconnection.AsyncoreService()
@@ -499,9 +498,9 @@ class MQTTAggregator(object):
                 _topics['node'], 'stop', callback=self.cb_stop),
 
             'stopall': mqttcommon.RequestServer(
-                _topics['prefix'], 'stopall', callback=self.cb_stopall),
+                _topics['agenttopic'], 'stopall', callback=self.cb_stopall),
 
-            'error': mqttcommon.ErrorServer(_topics['prefix']),
+            'error': mqttcommon.ErrorServer(_topics['agenttopic']),
         }
 
         self.client = client
@@ -544,7 +543,7 @@ class MQTTAggregator(object):
         Publish the message to the correct topic for ``archi``, ``num``.
         """
         channel = self.topics['line']
-        publisher = channel.output_publisher(self.client, archi, num)
+        publisher = channel.output_publisher(self.client, archi=archi, num=num)
         return LineHandler(publisher)
 
     def _node_closed_cb(self, node):

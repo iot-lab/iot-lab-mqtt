@@ -17,7 +17,7 @@ import argparse
 
 
 def topic_lazyformat(topic, **kwargs):
-    u"""Format only replace values in 'kwargs' keeping the other intact.
+    """Format only replace values in 'kwargs' keeping the other intact.
 
 
     >>> topic_lazyformat('a/{b}/c/{d}/e') == 'a/{b}/c/{d}/e'
@@ -41,7 +41,7 @@ def topic_lazyformat(topic, **kwargs):
 
 
 def topic_fields(topic):
-    u"""Extract named fields from topic.
+    """Extract named fields from topic.
 
     >>> topic_fields('{archi}/{num}/line/{clientid}/{requestid}')
     ['archi', 'num', 'clientid', 'requestid']
@@ -114,6 +114,10 @@ class MQTTAgentArgumentParser(argparse.ArgumentParser):
         self.add_argument('--prefix', help='Topics prefix', default='')
         self.add_argument('--broker-port', help='Broker port')
         self.add_argument('broker', help='Broker address')
+
+    def add_agenttopic_argument(self):
+        """Add common agents arguments to parser."""
+        self.add_argument('--agenttopic', help='Agent topic overwrite')
 
 
 def hostname():

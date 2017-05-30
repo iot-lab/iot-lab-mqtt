@@ -209,11 +209,10 @@ def _firmware_file(data):
 
 
 class MQTTNodeAgent(object):
-    """Radio Sniffer Aggregator implementation for MQTT."""
-    PREFIX = 'iot-lab/node/{site}'
+    """Node Agent implementation for MQTT."""
+    AGENTTOPIC = 'iot-lab/node/{site}'
     TOPICS = {
-        'prefix': PREFIX,
-        'node': os.path.join(PREFIX, '{archi}/{num}'),
+        'node': '{archi}/{num}',
     }
     HOSTNAME = common.hostname()
 
@@ -222,7 +221,8 @@ class MQTTNodeAgent(object):
         super().__init__()
 
         staticfmt = {'site': self.HOSTNAME}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(self.TOPICS, prefix,
+                                                  self.AGENTTOPIC, staticfmt)
 
         self.topics = {
             'reset': mqttcommon.RequestServer(_topics['node'], 'reset',
@@ -234,7 +234,7 @@ class MQTTNodeAgent(object):
             'poweroff': mqttcommon.RequestServer(_topics['node'], 'poweroff',
                                                  callback=self.cb_poweroff),
 
-            'error': mqttcommon.ErrorServer(_topics['prefix']),
+            'error': mqttcommon.ErrorServer(_topics['agenttopic']),
         }
 
         self.iotlabapi = iotlab_api

@@ -8,9 +8,9 @@ from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import threading
 
+import iotlabmqtt.radiosniffer
 from iotlabmqtt import common
 from iotlabmqtt import mqttcommon
-from iotlabmqtt import radiosniffer
 
 from . import common as clientcommon
 
@@ -91,8 +91,7 @@ class RadioSnifferShell(clientcommon.CmdShell):
 
     STOPALL_USAGE = 'stopall\n'
 
-    TOPICS = {k: t for k, t in
-              radiosniffer.MQTTRadioSnifferAggregator.TOPICS.items()}
+    SERVER = iotlabmqtt.radiosniffer.MQTTRadioSnifferAggregator
 
     def __init__(self, client, prefix='', site=None):
         assert site is not None
@@ -101,7 +100,8 @@ class RadioSnifferShell(clientcommon.CmdShell):
         self.clientid = clientcommon.clientid('serialclient')
 
         staticfmt = {'site': site}
-        _topics = mqttcommon.format_topics_dict(self.TOPICS, prefix, staticfmt)
+        _topics = mqttcommon.generate_topics_dict(
+            self.SERVER.TOPICS, prefix, self.SERVER.AGENTTOPIC, staticfmt)
 
         _print_wrapper = self.async_print_handle_readlinebuff()
         error_cb = _print_wrapper(self.error_cb)
@@ -117,9 +117,9 @@ class RadioSnifferShell(clientcommon.CmdShell):
                 _topics['node'], 'stop', clientid=self.clientid),
 
             'stopall': mqttcommon.RequestClient(
-                _topics['prefix'], 'stopall', clientid=self.clientid),
+                _topics['agenttopic'], 'stopall', clientid=self.clientid),
 
-            'error': mqttcommon.ErrorClient(_topics['prefix'],
+            'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),
         }
 

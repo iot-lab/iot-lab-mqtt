@@ -177,6 +177,16 @@ def _fmt_topic(topic, prefix='', static_fmt_dict=None):
     return topic
 
 
+def generate_topics_dict(topics_dict, prefix='', agenttopic='',
+                         static_fmt_dict=None):
+    """Generate full topics dict and add 'agenttopic'."""
+
+    topics = {k: os.path.join(agenttopic, v) for k, v in topics_dict.items()}
+    topics['agenttopic'] = agenttopic
+
+    return format_topics_dict(topics, prefix, static_fmt_dict)
+
+
 def format_topics_dict(topic_dict, prefix='', static_fmt_dict=None):
     """Return a new dict with formatted topics.
 
@@ -239,6 +249,30 @@ class NullTopic(Topic):
         super().__init__(topic, callback)
         # Disable subscription for NullTopic
         self.subscribe_topic = None
+
+
+class InputServer(Topic):
+    """Topic implementation for an Input Server."""
+    pass
+
+
+class InputClient(NullTopic):
+    """Topic implementation for an Input Client."""
+
+    def send(self, client, data, **fmt):
+        """Send ``data`` to topic formatted with **fmt."""
+        topic = self.topic.format(**fmt)
+        return client.publish(topic, data)
+
+
+class OutputServer(InputClient):
+    """Topic implementation for an Output Server."""
+    pass
+
+
+class OutputClient(InputServer):
+    """Topic implementation for an Output Client."""
+    pass
 
 
 class LogTopic(Topic):
@@ -449,9 +483,9 @@ class OutputChannelServer(NullTopic):
         super().__init__(topic, callback=callback)
         self.output_topic = ChannelTopic.output_topic(topic)
 
-    def output_publisher(self, client, archi, num):
-        """Return Channel output publisher function for ``archi``, ``num``."""
-        topic = self.output_topic.format(archi=archi, num=num)
+    def output_publisher(self, client, **fmt):
+        """Output publisher function for topic formatted with **fmt."""
+        topic = self.output_topic.format(**fmt)
         return client.publisher(topic)
 
 
@@ -462,9 +496,9 @@ class ChannelServer(Topic):
         super().__init__(input_topic, callback=callback)
         self.output_topic = ChannelTopic.output_topic(topic)
 
-    def output_publisher(self, client, archi, num):
-        """Return Channel output publisher function for ``archi``, ``num``."""
-        topic = self.output_topic.format(archi=archi, num=num)
+    def output_publisher(self, client, **fmt):
+        """Output publisher function for topic formatted with **fmt."""
+        topic = self.output_topic.format(**fmt)
         return client.publisher(topic)
 
 
@@ -475,9 +509,9 @@ class ChannelClient(Topic):
         super().__init__(output_topic, callback=callback)
         self.input_topic = ChannelTopic.input_topic(topic)
 
-    def send(self, client, archi, num, data):
-        """Send ``data`` to ``archi``, ``num``."""
-        topic = self.input_topic.format(archi=archi, num=num)
+    def send(self, client, data, **fmt):
+        """Send ``data`` to topic formatted with **fmt."""
+        topic = self.input_topic.format(**fmt)
         return client.publish(topic, data)
 
 
