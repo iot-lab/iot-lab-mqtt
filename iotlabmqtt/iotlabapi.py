@@ -123,6 +123,14 @@ class IoTLABAPI(object):
         """Create class from argparse entries."""
         return cls(iotlab_username, iotlab_password, experiment_id)
 
+    def to_argparse_list(self):
+        """Return arguments needed to create this object with PARSER."""
+        return [
+            '--iotlab-user', '%s' % self.username,
+            '--iotlab-password', '%s' % self.password,
+            '--experiment-id', '%s' % self.expid,
+        ]
+
     def set_sniffer_channel(self, channel, archi, *nums):
         """Set sniffer on ``channel`` for nodes ``archi`` and ``*nums``."""
         return self._update_profile(channel, archi, *nums)

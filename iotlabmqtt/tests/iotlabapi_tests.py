@@ -157,6 +157,25 @@ class IoTLABAPITestInit(TestCaseImproved):
         out = ''
         self.assertEqual(self.stdout.getvalue(), out)
 
+    def test_to_argparse_list(self):
+        """Test IoTLABAPI.to_argparse_list."""
+        args = ['--experiment-id', '12345',
+                '--iotlab-user', 'us3rn4me',
+                '--iotlab-password', 'p4sswd']
+        opts = self.parser.parse_args(args)
+        api = iotlabapi.IoTLABAPI.from_opts_dict(**vars(opts))
+
+        # Create object using 'to_argparse_list'
+        new_opts = self.parser.parse_args(api.to_argparse_list())
+        new_api = iotlabapi.IoTLABAPI.from_opts_dict(**vars(new_opts))
+
+        self.assertEqual(api.expid, new_api.expid)
+        self.assertEqual(api.username, new_api.username)
+        self.assertEqual(api.password, new_api.password)
+
+        # to_argparse_list is stable
+        self.assertEqual(api.to_argparse_list(), new_api.to_argparse_list())
+
 
 class IoTLABAPITest(TestCaseImproved):
     """Test IoTLABAPI."""
