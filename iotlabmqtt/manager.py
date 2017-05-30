@@ -101,6 +101,19 @@ class MQTTManagerAgent(process.MQTTProcessAgent):
 
         self.process_args_dict = process_args_dict
 
+    # Override prockill to set a different kill timeout
+    def cb_prockill(self, _, procid):
+        """Kill given process.
+
+        Overrides Process method to increase kill timeout.
+        Agents can take more time to stop.
+        """
+        try:
+            proc = self.process[procid]
+            return proc.kill(timeout=5).encode('utf-8')
+        except KeyError:
+            return ('Name %s not found' % procid).encode('utf-8')
+
     # Disable unused 'Process' methods
 
     def cb_new(self, _):
