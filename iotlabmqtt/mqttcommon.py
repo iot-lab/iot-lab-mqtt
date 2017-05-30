@@ -162,6 +162,15 @@ class MQTTClient(mqtt.Client):
         """Create class from argparse entries."""
         return cls(broker, port=broker_port)
 
+    def to_argparse_list(self):
+        """Return arguments needed to create this object with PARSER."""
+        return [
+            '--broker-port', '%s' % self.port,
+            '--broker-username', self._username,
+            '--broker-password', self._password,
+            '%s' % self.server,
+        ]
+
 
 def _fmt_topic(topic, prefix='', static_fmt_dict=None):
     """Prepend prefix to prefix and update values from static_fmt_dict.
