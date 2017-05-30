@@ -126,7 +126,7 @@ class MQTTManagerAgent(process.MQTTProcessAgent):
 
     def stop(self):
         """Stop agent."""
-        self.process.stop()
+        self.process.stop(timeout=15)
         super().stop()
 
     def start_managed_processes(self):
