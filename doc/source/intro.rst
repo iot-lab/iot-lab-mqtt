@@ -48,5 +48,5 @@ resources, control and command them.
 The configuration application can even be different from the application using
 the resources.
 
-Because of the centralized broker, they can be run on any computer that has
+Thanks to the centralized broker, they can be run on any computer that has
 access to the MQTT broker.
