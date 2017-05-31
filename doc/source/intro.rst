@@ -13,6 +13,14 @@ A main manager script will run agents to provide these services through MQTT:
 Architecture
 ------------
 
+The IoT-LAB MQTT service is spread accross different agents and
+accessed by the client through the MQTT broker.
+
+.. graphviz:: architecture.dot
+
+MQTT
+^^^^
+
 MQTT is a bus protocol organized around a central server (broker) where all
 clients connect, publish messages, and the broker takes care of forwarding
 messages to subscribed clients.
@@ -42,5 +50,3 @@ the resources.
 
 Because of the centralized broker, they can be run on any computer that has
 access to the MQTT broker.
-
-    TODO: add schema
