@@ -8,8 +8,7 @@ A main manager script will run agents to provide these services through MQTT:
 * Nodes serial ports
 * Nodes update/reset/power on-off
 * Radio Sniffer
-* IPv6 over serial agent (tunslip6/ethos)
-
+* Process execution
 
 Architecture
 ------------
