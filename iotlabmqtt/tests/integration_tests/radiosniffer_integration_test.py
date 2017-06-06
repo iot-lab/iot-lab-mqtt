@@ -12,6 +12,7 @@ try:
 except ImportError:
     from io import StringIO
 
+import json
 import mock
 
 from iotlabmqtt import radiosniffer
@@ -323,22 +324,31 @@ class RadioSnifferIntegrationTest(IntegrationTestCase):
         with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
             self._test_radiosniffer_agent_sniffer_fail_m3_a8(client, stdout)
 
-    def _test_radiosniffer_agent_sniffer_fail_m3_a8(self, client, stdout):
+    @mock.patch('iotlabcli.node.node_command')
+    def _test_radiosniffer_agent_sniffer_fail_m3_a8(self, client, stdout,
+                                                    node_command=None):
         """Check setting sniffer but fails for connectiong m3/a8.
 
         Mock iotlabapi at low level to try the whole integration.
         I want to increase the chances for it to work
         """
-        # Low level api mock
-        self.server.iotlabapi.api = mock.Mock()
-        api = self.server.iotlabapi.api
         site = self.server.iotlabapi.site
 
         # M3-1234 channel 11
-        api.add_profile.return_value = {'create': 'iotlabmqtt_11_m3'}
-        api.node_command.return_value = {
-            '0': ['m3-1234.%s.iot-lab.info' % site],
-        }
+
+        node_host = 'm3-1234.%s.iot-lab.info' % site
+
+        # pylint:disable=attribute-defined-outside-init
+        self.cmd_opt_content = None
+
+        def node_command_mock(api, command, exp_id, nodes, cmd_opt):
+            """Mock that saves profile content."""
+            # pylint:disable=unused-argument
+            self.cmd_opt_content = open(cmd_opt).read()
+            return mock.DEFAULT
+
+        node_command.side_effect = node_command_mock
+        node_command.return_value = {'0': [node_host]}
 
         # Start sniffer but connection fails
         client.onecmd('rawstart m3 1234 11')
@@ -351,20 +361,33 @@ class RadioSnifferIntegrationTest(IntegrationTestCase):
         stdout.truncate(0)
 
         # Verify add_profile call
-        name, profile = api.add_profile.call_args[0]
-        self.assertEqual(name, 'iotlabmqtt_11_m3')
-        self.assertEqual(profile.nodearch, 'm3')
-        self.assertEqual(profile.radio['mode'], 'sniffer')
-        self.assertEqual(profile.radio['channels'], [11])
+        api, cmd, exp_id, nodes, _ = node_command.call_args[0]
+        self.assertEqual(
+            (api, cmd, exp_id, nodes),
+            (self.server.iotlabapi.api, 'profile-load', 12345, [node_host]))
 
-        # Verify node_command call
-        api.node_command.assert_called_with(
-            'profile', self.server.iotlabapi.expid,
-            ['m3-1234.%s.iot-lab.info' % site], '&name=iotlabmqtt_11_m3')
+        profile_m3_str = (
+            '{\n'
+            '    "consumption": null, \n'
+            '    "nodearch": "m3", \n'
+            '    "power": "dc", \n'
+            '    "profilename": "iotlabmqtt_11_m3", \n'
+            '    "radio": {\n'
+            '        "channels": [\n'
+            '            11\n'
+            '        ], \n'
+            '        "mode": "sniffer", \n'
+            '        "num_per_channel": null, \n'
+            '        "period": null\n'
+            '    }\n'
+            '}'
+        )
+        # Compare loaded json, as python3 changed the dumped format
+        self.assertEqual(json.loads(self.cmd_opt_content),
+                         json.loads(profile_m3_str))
 
         # Test A8
-        api.add_profile.return_value = {'create': 'iotlabmqtt_11_a8'}
-        api.node_command.return_value = {
+        node_command.return_value = {
             '0': ['a8-1234.%s.iot-lab.info' % site],
         }
         # Start sniffer on a8 but connection fails

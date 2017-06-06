@@ -53,7 +53,7 @@ The chosen format is the following:
 :reply topic:   ``{resourcetopic}/ctl/{command}/reply/{clientid}/{requestid}``
 
 
-In practice, using topic wildcard topic subscribe, only one subscribe is
+In practice, by using wildcard topic subscribtion, only one subscribe is
 necessary per agent/client/request/command: ::
 
    # Agent subscribe
@@ -108,16 +108,16 @@ An error in the general agent to the will be published to:
 Sending both UTF-8 and binary in a message
 ******************************************
 
-In the case of firmware update, the message will need to contain both a list of
-nodes and a firmware binary. It has been chosen to separate the UTF-8 string
-from the binary payload using ``0xFF`` byte.
+If in a message, both text (e.g., a json) and a binary data need to be sent,
+it has been chosen to separate the UTF-8 string from the binary payload
+using one ``0xFF`` byte.
 
 ::
 
    <UTF-8 encoded JSON string> 0xFF <Binary data>
 
 In fact, ``0xFF`` is never used in a UTF-8 encoded string `wikipedia:utf-8`_
-so the payload can safely be split of the first occurence of ``0xFF`` without
-requiring to try decoding the string.
+so the payload can safely be split on the first occurence of ``0xFF`` without
+requiring to first decode the string.
 
 .. _wikipedia\:utf-8: https://en.wikipedia.org/wiki/UTF-8#Advantages_2

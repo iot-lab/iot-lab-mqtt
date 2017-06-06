@@ -27,7 +27,6 @@ r"""IoT-LAB MQTT Serial agent
 
 
 Serial agent provides access to the nodes serial link.
-The serial redirection should first be started for each node in a mode.
 
 
 Serial agent base topic: ::
@@ -66,13 +65,7 @@ Topics Summary
 +-+----------------------------------------------------------------+----------+
 | ||linechannel|                                                   ||channel| |
 +-+----------------------------------------------------------------+----------+
-|  **Raw redirection**                                                        |
-+-+----------------------------------------------------------------+----------+
-| ||rawstart|                                                      ||request| |
-+-+----------------------------------------------------------------+----------+
-| ||rawstop|                                                       ||request| |
-+-+----------------------------------------------------------------+----------+
-| ||rawchannel|                                                    ||channel| |
+|  **Raw redirection** *(not implemented for the moment)*                     |
 +-+----------------------------------------------------------------+----------+
 
 
@@ -211,63 +204,6 @@ Raw redirection topics
 ======================
 
 .. Note:: RAW redirection not implemented for the moment
-
-Start redirection in *raw* mode
--------------------------------
-
-Start one node serial redirection in *raw* mode.
-
-+-----------------------------------------------------------------------------+
-| ``raw/start`` request:                                                      |
-+============+================================================================+
-| Topic:     |    |rawstart|                                                  |
-+------------+-----------------------------------------+----------------------+
-|**Message** | **Topic**                               | **Payload**          |
-+------------+-----------------------------------------+----------------------+
-| Request    | |request_topic|                         | *empty*              |
-+------------+-----------------------------------------+----------------------+
-| Reply      | |reply_topic|                           | *empty* or error_msg |
-+------------+-----------------------------------------+----------------------+
-
-Stop raw redirection
---------------------
-
-Equivalent to :ref:`stop_redirection` added here for completeness.
-
-+-----------------------------------------------------------------------------+
-| ``raw/stop`` request:                                                       |
-+============+================================================================+
-| Topic:     |    |rawstop|                                                   |
-+------------+-----------------------------------------+----------------------+
-|**Message** | **Topic**                               | **Payload**          |
-+------------+-----------------------------------------+----------------------+
-| Request    | |request_topic|                         | *empty*              |
-+------------+-----------------------------------------+----------------------+
-| Reply      | |reply_topic|                           | *empty* or error_msg |
-+------------+-----------------------------------------+----------------------+
-
-
-RAW redirection
----------------
-
-.. Note:: RAW redirection not implemented for the moment
-
-Serial redirection handling raw data.
-
-Group of bytes are sent when received from the node redirection.
-No handling is done when receiving/sending.
-
-+-----------------------------------------------------------------------------+
-| **RAW serial redirection**                                                  |
-+============+================================================================+
-| Topic:     |    |rawchannel|                                                |
-+------------+-----------------------------------------+----------------------+
-|**Message** | **Topic**                               | **Payload**          |
-+------------+-----------------------------------------+----------------------+
-| Output     | |out_topic|                             | RAW bytes            |
-+------------+-----------------------------------------+----------------------+
-| Input      | |in_topic|                              | RAW bytes            |
-+------------+-----------------------------------------+----------------------+
 """
 
 from __future__ import (absolute_import, division, print_function,

@@ -1,2 +1,1 @@
-include iotlabmqtt/static/*
 include iotlabmqtt/tests/integration_tests/files/*

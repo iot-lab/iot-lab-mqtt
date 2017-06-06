@@ -169,7 +169,6 @@ class NodeIntegrationTest(IntegrationTestCase):
         """Update firmware with idle."""
 
         node_host = 'm3-1.%s.iot-lab.info' % self.server.HOSTNAME
-        idle_sha1 = 'b4b38e'
 
         # Update
         node_command.return_value = {'0': [node_host]}
@@ -177,31 +176,9 @@ class NodeIntegrationTest(IntegrationTestCase):
         self.assertEqual(stdout.getvalue(), '')
         self.assertTrue(node_command.called)
 
-        # Verify firmware call
-        firmware_path = node_command.call_args[0][-1]
-        self.assertTrue(firmware_path.endswith('--sha1:%s' % idle_sha1))
-
-    def test_node_agent_update_idle_not_supported(self):
-        """Test node agent update for an archi not supported."""
-        with self.start_client_and_server(self.BROKERPORT) as (client, stdout):
-            self._test_node_agent_update_idle_not_supported(client, stdout)
-
-    @mock.patch('iotlabcli.node.node_command')
-    def _test_node_agent_update_idle_not_supported(self, client, stdout,
-                                                   node_command=None):
-        """Update firmware with idle not supported."""
-
-        # Use a 'custom' archi where idle is not implemented
-
-        # Update
-        node_command.side_effect = RuntimeError()
-        client.onecmd('update samr21 1')
-        self.assertFalse(node_command.called)
-
-        out = 'Idle firmware not handled for samr21\n'
-        self.assertEqual(stdout.getvalue(), out)
-        stdout.seek(0)
-        stdout.truncate(0)
+        # Verify call
+        node_command.assert_called_with(
+            self.server.iotlabapi.api, 'update-idle', 12345, [node_host], None)
 
     def test_node_agent_error_cb(self):
         """Test node client error_cb."""

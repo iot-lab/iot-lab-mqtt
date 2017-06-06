@@ -172,23 +172,17 @@ class IoTLABAPITest(TestCaseImproved):
                                            30001, 30002, 30003)
         self.assertEqual(ret, {'30001': '', '30002': '', '30003': ''})
 
-    @staticmethod
-    def _add_profile_mock(name, profile):  # pylint:disable=unused-argument
-        """Add_profile mock."""
-        return {'create': name}
-
     def test_set_sniffer_channel_m3_a8(self):
         """Test IoTLABAPI set_sniffer_channel for m3 and a8."""
-        self.api.api.mock_add_spec(['add_profile', 'node_command'])
-        self.api.api.add_profile.side_effect = self._add_profile_mock
+        self.api.api.mock_add_spec(['node_profile_load'])
 
-        self.api.api.node_command.return_value = {
+        self.api.api.node_profile_load.return_value = {
             '0': ['m3-42.%s.iot-lab.info' % self.api.HOSTNAME],
         }
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
         self.assertEqual(ret, {'42': ''})
 
-        self.api.api.node_command.return_value = {
+        self.api.api.node_profile_load.return_value = {
             '0': ['m3-42.%s.iot-lab.info' % self.api.HOSTNAME,
                   'm3-66.%s.iot-lab.info' % self.api.HOSTNAME],
         }
@@ -196,13 +190,13 @@ class IoTLABAPITest(TestCaseImproved):
         self.assertEqual(ret, {'42': '', '66': ''})
 
         # Command fails, message replaced
-        self.api.api.node_command.return_value = {
+        self.api.api.node_profile_load.return_value = {
             '1': ['m3-42.%s.iot-lab.info' % self.api.HOSTNAME],
         }
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
         self.assertEqual(ret, {'42': 'Execution failed on node'})
 
-        self.api.api.node_command.return_value = {
+        self.api.api.node_profile_load.return_value = {
             '0': ['a8-128.%s.iot-lab.info' % self.api.HOSTNAME],
         }
         ret = self.api.set_sniffer_channel(11, 'a8', 128)
@@ -215,31 +209,13 @@ class IoTLABAPITest(TestCaseImproved):
         err = 'Create profile failed: Archi: des not currently supported'
         self.assertEqual(ret, {'1': err})
 
-    def test_set_sniffer_channel_fail_create_profile(self):
-        """Test IoTLABAPI set_sniffer_channel add_profile fail."""
-        # pylint:disable=redefined-variable-type
-        self.api.api.mock_add_spec(['add_profile'])
-
-        self.api.api.add_profile.return_value = "ERROR HTTP"
-        ret = self.api.set_sniffer_channel(11, 'm3', 42)
-        err = ('Create profile failed: '
-               'Add profile failed: \'"ERROR HTTP"\'')
-        self.assertEqual(ret, {'42': err})
-
-        self.api.api.add_profile.return_value = {'0': 'iotlabmqtt_11_m3'}
-        ret = self.api.set_sniffer_channel(11, 'm3', 42)
-        err = ('Create profile failed: '
-               'Add profile failed: \'{"0": "iotlabmqtt_11_m3"}\'')
-        self.assertEqual(ret, {'42': err})
-
     def test_set_sniffer_channel_fail_set_profile(self):
-        """Test IoTLABAPI set_sniffer_channel fail node_command."""
-        self.api.api.mock_add_spec(['add_profile', 'node_command'])
-        self.api.api.add_profile.side_effect = self._add_profile_mock
+        """Test IoTLABAPI set_sniffer_channel fail node_profile_load."""
+        self.api.api.mock_add_spec(['node_profile_load'])
 
-        self.api.api.node_command.side_effect = RuntimeError('FAILED')
+        self.api.api.node_profile_load.side_effect = RuntimeError('FAILED')
         ret = self.api.set_sniffer_channel(11, 'm3', 42)
-        err = "IoT-LAB Request 'profile' error: 'FAILED'"
+        err = "IoT-LAB Request 'profile-load' error: 'FAILED'"
         self.assertEqual(ret, {'42': err})
 
     def test_node_commands(self):

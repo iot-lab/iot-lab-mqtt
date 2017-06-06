@@ -1,0 +1,48 @@
+digraph G {
+    label = "IoT-LAB MQTT architecture";
+    rankdir="LR";
+
+    subgraph cluster_0 {
+        client [shape=square, label="MQTT Client\nimplementation "];
+        style = invis;
+    }
+
+    subgraph cluster_1 {
+        broker [shape=octagon, label="MQTT\nBroker"];
+        style = invis;
+    }
+
+    subgraph cluster_iotlab {
+        label = "IoT-LAB frontend";
+        color=black;
+        concentrate = True;
+
+        node [shape=box];
+        edge [style=dotted, constraint=False];
+
+        manager      [label="Agents\nmanager", shape=doublecircle];
+        serial       [label="Serial redirection\nagent"];
+        radiosniffer [label="Radio Sniffer\nagent"];
+        "node"       [label="Node control\nagent"];
+        process      [label="Process execution\nagent"];
+
+        manager -> serial:e [minlen=2];
+        manager -> radiosniffer:e;
+        manager -> "node":e;
+        manager -> process:e;
+    }
+
+    edge [style=""];
+
+    client -> broker -> manager [contstraint=True, style=invis, minlen=1.5];
+
+    edge [dir=both, arrowhead=vee, arrowtail=vee];
+
+    client -> broker;
+
+    broker -> manager;
+    broker -> serial;
+    broker -> radiosniffer;
+    broker -> "node";
+    broker -> process;
+}
