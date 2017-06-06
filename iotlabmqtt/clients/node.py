@@ -48,7 +48,7 @@ class NodeShell(clientcommon.CmdShell):
         assert site is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('nodeclient')
+        clientid = clientcommon.clientid('nodeclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.generate_topics_dict(
@@ -59,13 +59,13 @@ class NodeShell(clientcommon.CmdShell):
 
         self.topics = {
             'reset': mqttcommon.RequestClient(
-                _topics['node'], 'reset', clientid=self.clientid),
+                _topics['node'], 'reset', clientid=clientid),
             'update': mqttcommon.RequestClient(
-                _topics['node'], 'update', clientid=self.clientid),
+                _topics['node'], 'update', clientid=clientid),
             'poweron': mqttcommon.RequestClient(
-                _topics['node'], 'poweron', clientid=self.clientid),
+                _topics['node'], 'poweron', clientid=clientid),
             'poweroff': mqttcommon.RequestClient(
-                _topics['node'], 'poweroff', clientid=self.clientid),
+                _topics['node'], 'poweroff', clientid=clientid),
 
             'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),

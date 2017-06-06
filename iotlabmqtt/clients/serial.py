@@ -43,7 +43,7 @@ class SerialShell(clientcommon.CmdShell):
         assert site is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('serialclient')
+        clientid = clientcommon.clientid('serialclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.generate_topics_dict(
@@ -56,15 +56,15 @@ class SerialShell(clientcommon.CmdShell):
         self.topics = {
             'line': mqttcommon.ChannelClient(_topics['line'], line_cb),
             'linestart': mqttcommon.RequestClient(
-                _topics['line'], 'start', clientid=self.clientid),
+                _topics['line'], 'start', clientid=clientid),
             'linestop': mqttcommon.RequestClient(
-                _topics['line'], 'stop', clientid=self.clientid),
+                _topics['line'], 'stop', clientid=clientid),
 
             'stop': mqttcommon.RequestClient(
-                _topics['node'], 'stop', clientid=self.clientid),
+                _topics['node'], 'stop', clientid=clientid),
 
             'stopall': mqttcommon.RequestClient(
-                _topics['agenttopic'], 'stopall', clientid=self.clientid),
+                _topics['agenttopic'], 'stopall', clientid=clientid),
 
             'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),

@@ -97,7 +97,7 @@ class RadioSnifferShell(clientcommon.CmdShell):
         assert site is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('radiosnifferclient')
+        clientid = clientcommon.clientid('radiosnifferclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.generate_topics_dict(
@@ -109,15 +109,15 @@ class RadioSnifferShell(clientcommon.CmdShell):
         self.topics = {
             'raw': mqttcommon.ChannelClient(_topics['noderaw'], raw_cb),
             'rawheader': mqttcommon.RequestClient(
-                _topics['raw'], 'rawheader', clientid=self.clientid),
+                _topics['raw'], 'rawheader', clientid=clientid),
             'rawstart': mqttcommon.RequestClient(_topics['noderaw'], 'start',
-                                                 clientid=self.clientid),
+                                                 clientid=clientid),
 
             'stop': mqttcommon.RequestClient(
-                _topics['node'], 'stop', clientid=self.clientid),
+                _topics['node'], 'stop', clientid=clientid),
 
             'stopall': mqttcommon.RequestClient(
-                _topics['agenttopic'], 'stopall', clientid=self.clientid),
+                _topics['agenttopic'], 'stopall', clientid=clientid),
 
             'error': mqttcommon.ErrorClient(_topics['agenttopic'],
                                             callback=error_cb),

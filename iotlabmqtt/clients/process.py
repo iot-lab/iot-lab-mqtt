@@ -60,7 +60,7 @@ class ProcessShell(clientcommon.CmdShell):
         assert site is not None or agenttopic is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('processclient')
+        clientid = clientcommon.clientid('processclient')
 
         _topics = self._topics_dict(prefix, site, agenttopic)
 
@@ -72,22 +72,22 @@ class ProcessShell(clientcommon.CmdShell):
 
         self.topics = {
             'new': mqttcommon.RequestClient(
-                _topics['agenttopic'], 'new', clientid=self.clientid),
+                _topics['agenttopic'], 'new', clientid=clientid),
             'list': mqttcommon.RequestClient(
-                _topics['agenttopic'], 'list', clientid=self.clientid),
+                _topics['agenttopic'], 'list', clientid=clientid),
             'free': mqttcommon.RequestClient(
-                _topics['agenttopic'], 'free', clientid=self.clientid),
+                _topics['agenttopic'], 'free', clientid=clientid),
             'freeall': mqttcommon.RequestClient(
-                _topics['agenttopic'], 'freeall', clientid=self.clientid),
+                _topics['agenttopic'], 'freeall', clientid=clientid),
 
             'procrun': mqttcommon.RequestClient(
-                _topics['process'], 'run', clientid=self.clientid),
+                _topics['process'], 'run', clientid=clientid),
             'procpoll': mqttcommon.RequestClient(
-                _topics['process'], 'poll', clientid=self.clientid),
+                _topics['process'], 'poll', clientid=clientid),
             'prockill': mqttcommon.RequestClient(
-                _topics['process'], 'kill', clientid=self.clientid),
+                _topics['process'], 'kill', clientid=clientid),
             'procrerun': mqttcommon.RequestClient(
-                _topics['process'], 'rerun', clientid=self.clientid),
+                _topics['process'], 'rerun', clientid=clientid),
 
             'procstdin': mqttcommon.InputClient(_topics['procstdin']),
             'procstdout': mqttcommon.OutputClient(_topics['procstdout'],
@@ -133,11 +133,11 @@ class ProcessShell(clientcommon.CmdShell):
         client = mqttcommon.MQTTClient.from_opts_dict(**kwargs)
         return cls(client, prefix=prefix, site=site, agenttopic=agenttopic)
 
-    def stdout_cb(self, message, procid):  # pylint:disable=no-self-use
+    def stdout_cb(self, message, procid):
         """Handle messages received from stdout."""
         self._fd_cb('stdout', procid, message)
 
-    def stderr_cb(self, message, procid):  # pylint:disable=no-self-use
+    def stderr_cb(self, message, procid):
         """Handle messages received from stderr."""
         self._fd_cb('stderr', procid, message)
 
