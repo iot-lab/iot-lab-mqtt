@@ -97,7 +97,7 @@ class RadioSnifferShell(clientcommon.CmdShell):
         assert site is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('serialclient')
+        self.clientid = clientcommon.clientid('radiosnifferclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.generate_topics_dict(

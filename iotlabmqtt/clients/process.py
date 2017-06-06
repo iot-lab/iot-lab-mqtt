@@ -60,7 +60,7 @@ class ProcessShell(clientcommon.CmdShell):
         assert site is not None or agenttopic is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('serialclient')
+        self.clientid = clientcommon.clientid('processclient')
 
         _topics = self._topics_dict(prefix, site, agenttopic)
 

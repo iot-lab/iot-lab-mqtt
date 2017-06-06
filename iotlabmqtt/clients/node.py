@@ -48,7 +48,7 @@ class NodeShell(clientcommon.CmdShell):
         assert site is not None
         super().__init__()
 
-        self.clientid = clientcommon.clientid('serialclient')
+        self.clientid = clientcommon.clientid('nodeclient')
 
         staticfmt = {'site': site}
         _topics = mqttcommon.generate_topics_dict(
