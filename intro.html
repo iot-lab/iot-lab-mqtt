@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &#8212; IoT-LAB MQTT 0.6.0 documentation</title>
+    <title>Introduction &#8212; IoT-LAB MQTT 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -51,13 +51,66 @@
 <li>Nodes serial ports</li>
 <li>Nodes update/reset/power on-off</li>
 <li>Radio Sniffer</li>
-<li>IPv6 over serial agent (tunslip6/ethos)</li>
+<li>Process execution</li>
 </ul>
 <div class="section" id="architecture">
 <h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>The IoT-LAB MQTT service is spread accross different agents and
+accessed by the client through the MQTT broker.</p>
+<img src="_images/graphviz-492b90957a65474950aa1fa1140d3764e2390810.png" alt="digraph G {
+    label = &quot;IoT-LAB MQTT architecture&quot;;
+    rankdir=&quot;LR&quot;;
+
+    subgraph cluster_0 {
+        client [shape=square, label=&quot;MQTT Client\nimplementation &quot;];
+        style = invis;
+    }
+
+    subgraph cluster_1 {
+        broker [shape=octagon, label=&quot;MQTT\nBroker&quot;];
+        style = invis;
+    }
+
+    subgraph cluster_iotlab {
+        label = &quot;IoT-LAB frontend&quot;;
+        color=black;
+        concentrate = True;
+
+        node [shape=box];
+        edge [style=dotted, constraint=False];
+
+        manager      [label=&quot;Agents\nmanager&quot;, shape=doublecircle];
+        serial       [label=&quot;Serial redirection\nagent&quot;];
+        radiosniffer [label=&quot;Radio Sniffer\nagent&quot;];
+        &quot;node&quot;       [label=&quot;Node control\nagent&quot;];
+        process      [label=&quot;Process execution\nagent&quot;];
+
+        manager -&gt; serial:e [minlen=2];
+        manager -&gt; radiosniffer:e;
+        manager -&gt; &quot;node&quot;:e;
+        manager -&gt; process:e;
+    }
+
+    edge [style=&quot;&quot;];
+
+    client -&gt; broker -&gt; manager [contstraint=True, style=invis, minlen=1.5];
+
+    edge [dir=both, arrowhead=vee, arrowtail=vee];
+
+    client -&gt; broker;
+
+    broker -&gt; manager;
+    broker -&gt; serial;
+    broker -&gt; radiosniffer;
+    broker -&gt; &quot;node&quot;;
+    broker -&gt; process;
+}" />
+<div class="section" id="mqtt">
+<h3>MQTT<a class="headerlink" href="#mqtt" title="Permalink to this headline">¶</a></h3>
 <p>MQTT is a bus protocol organized around a central server (broker) where all
 clients connect, publish messages, and the broker takes care of forwarding
 messages to subscribed clients.</p>
+</div>
 <div class="section" id="topics">
 <h3>Topics<a class="headerlink" href="#topics" title="Permalink to this headline">¶</a></h3>
 <p>Clients publish and subscribe messages to <code class="docutils literal"><span class="pre">topics</span></code>, which are defined by
@@ -77,10 +130,8 @@ will interact through MQTT topics with the testbed agents to configure the
 resources, control and command them.
 The configuration application can even be different from the application using
 the resources.</p>
-<p>Because of the centralized broker, they can be run on any computer that has
+<p>Thanks to the centralized broker, they can be run on any computer that has
 access to the MQTT broker.</p>
-<blockquote>
-<div>TODO: add schema</div></blockquote>
 </div>
 </div>
 </div>
@@ -95,6 +146,7 @@ access to the MQTT broker.</p>
   <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
 <li><a class="reference internal" href="#architecture">Architecture</a><ul>
+<li><a class="reference internal" href="#mqtt">MQTT</a></li>
 <li><a class="reference internal" href="#topics">Topics</a></li>
 <li><a class="reference internal" href="#client-side">Client side</a></li>
 </ul>
@@ -136,7 +188,7 @@ access to the MQTT broker.</p>
       &copy;2017, Gaëtan Harter.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

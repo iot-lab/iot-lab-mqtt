@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Serial Redirection Agent &#8212; IoT-LAB MQTT 0.6.0 documentation</title>
+    <title>Serial Redirection Agent &#8212; IoT-LAB MQTT 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -47,8 +47,7 @@
 <span id="serial-redirection-agent"></span><h1>Serial Redirection Agent<a class="headerlink" href="#module-iotlabmqtt.serial" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="iot-lab-mqtt-serial-agent">
 <h2>IoT-LAB MQTT Serial agent<a class="headerlink" href="#iot-lab-mqtt-serial-agent" title="Permalink to this headline">¶</a></h2>
-<p>Serial agent provides access to the nodes serial link.
-The serial redirection should first be started for each node in a mode.</p>
+<p>Serial agent provides access to the nodes serial link.</p>
 <p>Serial agent base topic:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">prefix</span><span class="p">}</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">lab</span><span class="o">/</span><span class="n">serial</span><span class="o">/</span><span class="p">{</span><span class="n">site</span><span class="p">}</span>
 </pre></div>
@@ -112,19 +111,7 @@ The serial redirection should first be started for each node in a mode.</p>
 <td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/line/data</span></code></td>
 <td><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></td>
 </tr>
-<tr class="row-even"><td colspan="3"><strong>Raw redirection</strong></td>
-</tr>
-<tr class="row-odd"><td>&#160;</td>
-<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
-<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
-</tr>
-<tr class="row-even"><td>&#160;</td>
-<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
-<td><a class="reference internal" href="../technical_details.html#requesttopic"><span class="std std-ref">Request</span></a></td>
-</tr>
-<tr class="row-odd"><td>&#160;</td>
-<td><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
-<td><a class="reference internal" href="../technical_details.html#channeltopic"><span class="std std-ref">Channel</span></a></td>
+<tr class="row-even"><td colspan="3"><strong>Raw redirection</strong> <em>(not implemented for the moment)</em></td>
 </tr>
 </tbody>
 </table>
@@ -323,108 +310,6 @@ character is automatically added.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">RAW redirection not implemented for the moment</p>
 </div>
-<div class="section" id="start-redirection-in-raw-mode">
-<h3>Start redirection in <em>raw</em> mode<a class="headerlink" href="#start-redirection-in-raw-mode" title="Permalink to this headline">¶</a></h3>
-<p>Start one node serial redirection in <em>raw</em> mode.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="16%" />
-<col width="55%" />
-<col width="29%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/start</span></code> request:</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>Topic:</td>
-<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/start</span></code></td>
-</tr>
-<tr class="row-odd"><td><strong>Message</strong></td>
-<td><strong>Topic</strong></td>
-<td><strong>Payload</strong></td>
-</tr>
-<tr class="row-even"><td>Request</td>
-<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
-<td><em>empty</em></td>
-</tr>
-<tr class="row-odd"><td>Reply</td>
-<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
-<td><em>empty</em> or error_msg</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="stop-raw-redirection">
-<h3>Stop raw redirection<a class="headerlink" href="#stop-raw-redirection" title="Permalink to this headline">¶</a></h3>
-<p>Equivalent to <a class="reference internal" href="#stop-redirection"><span class="std std-ref">Stop redirection</span></a> added here for completeness.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="16%" />
-<col width="55%" />
-<col width="29%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head" colspan="3"><code class="docutils literal"><span class="pre">raw/stop</span></code> request:</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>Topic:</td>
-<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/ctl/stop</span></code></td>
-</tr>
-<tr class="row-odd"><td><strong>Message</strong></td>
-<td><strong>Topic</strong></td>
-<td><strong>Payload</strong></td>
-</tr>
-<tr class="row-even"><td>Request</td>
-<td><em>{topic}</em>/<strong>request/{clientid}/{requestid}</strong></td>
-<td><em>empty</em></td>
-</tr>
-<tr class="row-odd"><td>Reply</td>
-<td><em>{topic}</em>/<strong>reply/{clientid}/{requestid}</strong></td>
-<td><em>empty</em> or error_msg</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="raw-redirection">
-<h3>RAW redirection<a class="headerlink" href="#raw-redirection" title="Permalink to this headline">¶</a></h3>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">RAW redirection not implemented for the moment</p>
-</div>
-<p>Serial redirection handling raw data.</p>
-<p>Group of bytes are sent when received from the node redirection.
-No handling is done when receiving/sending.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="16%" />
-<col width="55%" />
-<col width="29%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head" colspan="3"><strong>RAW serial redirection</strong></th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>Topic:</td>
-<td colspan="2"><code class="docutils literal"><span class="pre">{serialagenttopic}/{archi}/{num}</span></code><code class="docutils literal"><span class="pre">/raw/data</span></code></td>
-</tr>
-<tr class="row-odd"><td><strong>Message</strong></td>
-<td><strong>Topic</strong></td>
-<td><strong>Payload</strong></td>
-</tr>
-<tr class="row-even"><td>Output</td>
-<td><em>{topic}</em>/<strong>out</strong></td>
-<td>RAW bytes</td>
-</tr>
-<tr class="row-odd"><td>Input</td>
-<td><em>{topic}</em>/<strong>in</strong></td>
-<td>RAW bytes</td>
-</tr>
-</tbody>
-</table>
-</div>
 </div>
 </div>
 
@@ -454,12 +339,7 @@ No handling is done when receiving/sending.</p>
 <li><a class="reference internal" href="#line-redirection">Line redirection</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#raw-redirection-topics">Raw redirection topics</a><ul>
-<li><a class="reference internal" href="#start-redirection-in-raw-mode">Start redirection in <em>raw</em> mode</a></li>
-<li><a class="reference internal" href="#stop-raw-redirection">Stop raw redirection</a></li>
-<li><a class="reference internal" href="#raw-redirection">RAW redirection</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#raw-redirection-topics">Raw redirection topics</a></li>
 </ul>
 </li>
 </ul>
@@ -499,7 +379,7 @@ No handling is done when receiving/sending.</p>
       &copy;2017, Gaëtan Harter.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

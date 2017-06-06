@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Process Agent &#8212; IoT-LAB MQTT 0.6.0 documentation</title>
+    <title>Process Agent &#8212; IoT-LAB MQTT 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -316,6 +316,11 @@ If message does not match above rules, its an error message.</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Care should be taken when running an <em>infinite running</em> process with
+<strong>sudo</strong> as it cannot be killed by its original user. <a class="reference external" href="https://www.reddit.com/r/linux/comments/2av912/">Read more</a></p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="16%" />
@@ -600,7 +605,7 @@ During normal execution output messages are never empty.</p>
       &copy;2017, Gaëtan Harter.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
