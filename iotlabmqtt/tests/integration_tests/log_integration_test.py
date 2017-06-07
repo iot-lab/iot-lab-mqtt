@@ -33,6 +33,8 @@ class LogIntegrationTest(IntegrationTestCase):
         Yields client and stdout mock.
         """
         args = ['localhost', '--broker-port', '%s' % brokerport,
+                '--broker-username', self.mqttuser,
+                '--broker-password', self.mqttpassword,
                 '--prefix', self.prefix]
         opts = log_client.PARSER.parse_args(args)
 

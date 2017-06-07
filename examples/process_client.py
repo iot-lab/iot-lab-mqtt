@@ -47,6 +47,12 @@ To see how topics are used, you can use the log client:
 
    iotlab-mqtt-clients log --prefix PREFIX BROKER
 
+
+.. note::
+
+   You can also provide --broker-username and --broker-password to configure
+   broker authentication.
+
 """
 
 from __future__ import (absolute_import, division, print_function,

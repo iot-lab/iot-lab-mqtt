@@ -8,6 +8,7 @@ import os
 import time
 import subprocess
 import unittest
+import tempfile
 
 from .. import TestCaseImproved
 
@@ -18,17 +19,43 @@ class IntegrationTestCase(TestCaseImproved):
 
     @classmethod
     def setUpClass(cls):
+        cls.mosquitto_conf = cls._mosquitto_conf()
+        cls.mqttuser = 'iotlabmqtt'
+        cls.mqttpassword = 'mqttpassword'
         cls.proc = cls.mosquitto_start(port=cls.BROKERPORT)
 
-    @staticmethod
-    def mosquitto_start(port, wait=5):
+    @classmethod
+    def _mosquitto_conf(cls):
+        """Generate temporary configuration for mosquitto.
+
+        A generated configuration as I do not know if the path to
+        mosquitto.passwd can be relative.
+        """
+        conf = tempfile.NamedTemporaryFile(suffix='mosquitto_conf')
+
+        template = cls.file_path('mosquitto.conf')
+        password_file = cls.file_path('mosquitto.passwd')
+        with open(template, 'rb') as tpl:
+            config = tpl.read().decode('utf-8')
+            config = config.format(password_file=password_file)
+
+        conf.write(config.encode('utf-8'))
+        conf.flush()
+        return conf
+
+    @classmethod
+    def mosquitto_conf_path(cls):
+        """Path to mosquitto config file."""
+        return cls.mosquitto_conf.name
+
+    @classmethod
+    def mosquitto_start(cls, port, wait=5):
         """Start mosquitto on ``port``.
 
         :param port: mosquitto listening port
         :param wait: waiting time after starting process to check if running
         """
-        mosquitto_conf = os.path.join(os.path.dirname(__file__),
-                                      'mosquitto.conf')
+        mosquitto_conf = cls.mosquitto_conf.name
         cmd = ['mosquitto', '-p', '%s' % port, '-c', mosquitto_conf]
         try:
             proc = subprocess.Popen(cmd)
@@ -45,6 +72,7 @@ class IntegrationTestCase(TestCaseImproved):
     def tearDownClass(cls):
         cls.proc.terminate()
         cls.proc.wait()
+        cls.mosquitto_conf.close()
 
     def setUp(self):
         self.socat = {}

@@ -69,6 +69,8 @@ class RadioSnifferIntegrationTest(IntegrationTestCase):
         """
         # pylint:disable=attribute-defined-outside-init
         args = ['localhost', '--broker-port', '%s' % brokerport,
+                '--broker-username', self.mqttuser,
+                '--broker-password', self.mqttpassword,
                 '--prefix', 'radiosniffer/test/prefix']
         args += ['--experiment-id', '12345',
                  '--iotlab-user', 'us3rn4me',
@@ -91,6 +93,8 @@ class RadioSnifferIntegrationTest(IntegrationTestCase):
 
         try:
             args = ['localhost', '--broker-port', '%s' % brokerport,
+                    '--broker-username', self.mqttuser,
+                    '--broker-password', self.mqttpassword,
                     '--prefix', 'radiosniffer/test/prefix',
                     '--site', server.HOSTNAME]
             opts = radiosniffer_client.PARSER.parse_args(args)

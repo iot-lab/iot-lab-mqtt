@@ -119,6 +119,14 @@ Broker port, defaults to 1883 (when I wrote it)::
 
    --broker-port BROKER_PORT
 
+Broker authentication username::
+
+   --broker-username USERNAME
+
+Broker authentication password (should be used with ``--broker-username``)::
+
+   --broker-password PASSWORD
+
 Topics prefix, your topic namespace::
 
    --prefix PREFIX
