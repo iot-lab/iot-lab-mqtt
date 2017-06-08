@@ -32,6 +32,8 @@ class NodeIntegrationTest(IntegrationTestCase):
         """
         # pylint:disable=attribute-defined-outside-init
         args = ['localhost', '--broker-port', '%s' % brokerport,
+                '--broker-username', self.mqttuser,
+                '--broker-password', self.mqttpassword,
                 '--prefix', 'node/test/prefix']
         args += ['--experiment-id', '12345',
                  '--iotlab-user', 'us3rn4me',
@@ -51,6 +53,8 @@ class NodeIntegrationTest(IntegrationTestCase):
 
         try:
             args = ['localhost', '--broker-port', '%s' % brokerport,
+                    '--broker-username', self.mqttuser,
+                    '--broker-password', self.mqttpassword,
                     '--prefix', 'node/test/prefix',
                     '--site', server.HOSTNAME]
             opts = node_client.PARSER.parse_args(args)

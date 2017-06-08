@@ -32,14 +32,15 @@ class SerialIntegrationTest(IntegrationTestCase):
         for port in list(self.socat):
             self.socat_stop(port)
 
-    @staticmethod
     @contextlib.contextmanager
-    def start_client_and_server(brokerport):
+    def start_client_and_server(self, brokerport):
         """Start serial client and server context manager.
 
         Yields client and stdout mock.
         """
         args = ['localhost', '--broker-port', '%s' % brokerport,
+                '--broker-username', self.mqttuser,
+                '--broker-password', self.mqttpassword,
                 '--prefix', 'serial/test/prefix']
         opts = serial.PARSER.parse_args(args)
         server = serial.MQTTAggregator.from_opts_dict(**vars(opts))
@@ -47,6 +48,8 @@ class SerialIntegrationTest(IntegrationTestCase):
 
         try:
             args = ['localhost', '--broker-port', '%s' % brokerport,
+                    '--broker-username', self.mqttuser,
+                    '--broker-password', self.mqttpassword,
                     '--prefix', 'serial/test/prefix',
                     '--site', server.HOSTNAME]
             opts = serial_client.PARSER.parse_args(args)

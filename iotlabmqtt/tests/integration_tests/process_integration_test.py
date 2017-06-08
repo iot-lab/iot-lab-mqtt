@@ -42,6 +42,8 @@ class ProcessIntegrationTests(IntegrationTestCase):
         """
         # pylint:disable=attribute-defined-outside-init
         args = ['localhost', '--broker-port', '%s' % brokerport,
+                '--broker-username', self.mqttuser,
+                '--broker-password', self.mqttpassword,
                 '--prefix', 'process/test/prefix']
         opts = process.PARSER.parse_args(args)
         server = process.MQTTProcessAgent.from_opts_dict(**vars(opts))
@@ -49,6 +51,8 @@ class ProcessIntegrationTests(IntegrationTestCase):
         self.server = server
         try:
             args = ['localhost', '--broker-port', '%s' % brokerport,
+                    '--broker-username', self.mqttuser,
+                    '--broker-password', self.mqttpassword,
                     '--prefix', 'process/test/prefix',
                     '--site', server.HOSTNAME]
             opts = process_client.PARSER.parse_args(args)

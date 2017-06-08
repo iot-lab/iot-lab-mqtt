@@ -112,6 +112,10 @@ class MQTTAgentArgumentParser(argparse.ArgumentParser):
     def _add_common_arguments(self):
         """Add common agents arguments to parser."""
         self.add_argument('--prefix', help='Topics prefix', default='')
+        self.add_argument('--broker-username',
+                          help='Broker authentication user')
+        self.add_argument('--broker-password',
+                          help='Broker authentication password')
         self.add_argument('--broker-port', help='Broker port')
         self.add_argument('broker', help='Broker address')
 

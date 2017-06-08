@@ -20,24 +20,48 @@ from . import common
 
 PAHO_VERSION = packaging.version.parse(paho.mqtt.__version__)
 
+CONNECTION_FAILED_RESULT = {
+    mqtt.CONNACK_REFUSED_PROTOCOL_VERSION: 'incorrect protocol version',
+    mqtt.CONNACK_REFUSED_IDENTIFIER_REJECTED: 'server unavailable',
+    mqtt.CONNACK_REFUSED_SERVER_UNAVAILABLE: 'invalid client identifier',
+    mqtt.CONNACK_REFUSED_BAD_USERNAME_PASSWORD: 'bad username or password',
+    mqtt.CONNACK_REFUSED_NOT_AUTHORIZED: 'not authorized',
+}
+
 
 class MQTTClient(mqtt.Client):
     """MQTT Agent implementation."""
 
     SUBSCRIBE_TIMEOUT = 10
 
-    def __init__(self, server, port, topics=None):
+    def __init__(self,  # pylint:disable=too-many-arguments
+                 server, port, topics=None,
+                 username=None, password=None):
         super().__init__()
 
         self.server = server
         self.port = int(port or 1883)
         self.topics = topics or ()
 
+        # default to empty unicode string as paho 1.2 tries to encode them
+        self.username_pw_set(username or '', password or '')
+
         self._subscribed = threading.Event()
 
     def on_connect(self, mqttc, obj, flags, rc):  # pylint:disable=W0221,W0613
         """On connect, subscribe to all topics."""
+        self._handle_on_connect_fail(rc)
         self._subscribe_topics()
+
+    @staticmethod
+    def _handle_on_connect_fail(returncode):
+        """Handle if connection failed."""
+        if returncode == mqtt.CONNACK_ACCEPTED:
+            return
+
+        reason = CONNECTION_FAILED_RESULT.get(returncode,
+                                              'Unknown error %s' % returncode)
+        raise RuntimeError('Connection refused: "%s"' % reason)
 
     def _subscribe_topics(self):
         """Suscribe to topics."""
@@ -158,9 +182,11 @@ class MQTTClient(mqtt.Client):
         return payload
 
     @classmethod
-    def from_opts_dict(cls, broker, broker_port, **_):
+    def from_opts_dict(cls, broker, broker_port, broker_username='',
+                       broker_password='', **_):
         """Create class from argparse entries."""
-        return cls(broker, port=broker_port)
+        return cls(broker, port=broker_port,
+                   username=broker_username, password=broker_password)
 
 
 def _fmt_topic(topic, prefix='', static_fmt_dict=None):
