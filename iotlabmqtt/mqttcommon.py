@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
 import re
+import json
 import os.path
 import functools
 import contextlib
@@ -370,6 +371,66 @@ class RequestServer(Topic):
             msg.reply_publisher(result)
 
         return _wrapper
+
+
+class JsonRequestServer(Topic):
+    """Topic implementation for a Json Request server.
+
+    Requests/replies payload can be either empty or JSON structure.
+    """
+    def __init__(self, topic, command, callback=None):
+        assert callback
+        callback = self._json_wrap_callback(callback)
+        super().__init__(topic, command, callback)
+
+    @staticmethod
+    def error_dict(msg):
+        """Return an error dict for ``msg``."""
+        return {'error': msg}
+
+    @staticmethod
+    def json_loads(data='', encoding='utf-8'):
+        """Loads ``data`` as JSON. If ``data`` is empty, return None."""
+        if not data:
+            return None
+
+        try:
+            return json.loads(data, encoding=encoding)
+        except (TypeError, ValueError):
+            raise ValueError('Invalid Request JSON')
+
+    @classmethod
+    def json_dumps(cls, data='', encoding='utf-8'):
+        """Dumps ``data`` as JSON. If ``data`` is empty, return b''."""
+        if not data:
+            return b''
+
+        try:
+            return json.dumps(data, encoding=encoding)
+        except (TypeError, ValueError):
+            return cls.error_dict('Invalid reply JSON')
+
+    def _json_wrap_callback(self, callback):
+        @functools.wraps(callback)
+        def _json_wrapper(msg, **fields_values):
+
+            # Set publisher to encode JSON
+            msg.reply_publisher = self._json_publisher(msg.reply_publisher)
+
+            # Load request payload
+            try:
+                msg.json = self.json_loads(msg.payload)
+                return callback(msg, **fields_values)
+            except ValueError as err:
+                # Json loads
+                return self.error_dict(str(err))
+            except Exception:  # pylint:disable=broad-except
+                return self.error_dict(common.traceback_error())
+
+        return _json_wrapper
+
+    def _json_publisher(self, publisher):
+        return lambda x: publisher(self.json_dumps(x))
 
 
 class RequestClient(Topic):
