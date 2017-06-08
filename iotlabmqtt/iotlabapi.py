@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from builtins import *  # pylint:disable=W0401,W0614,W0622
 
+import os
 import tempfile
 
 from . import common
@@ -36,6 +37,8 @@ class IoTLABAPI(object):
         'Or register them using ``auth-cli --user USERNAME``'
     )
 
+    EXP_ID_ENV_VARIABLE = 'EXP_ID'  # variable is set by 'runscript'
+
     def __init__(self, user=None, password=None, experiment_id=None):
         import iotlabcli.rest
 
@@ -51,6 +54,16 @@ class IoTLABAPI(object):
         self.site = self.HOSTNAME
 
         assert self.expid is not None
+
+    @property
+    def username(self):
+        """Return IoT-LAB username."""
+        return self.api.auth.username
+
+    @property
+    def password(self):
+        """Return IoT-LAB password."""
+        return self.api.auth.password
 
     @staticmethod
     def _user_password(user, password):
@@ -76,10 +89,16 @@ class IoTLABAPI(object):
             print(err)
             exit(1)
 
-    @staticmethod
-    def _experiment_id(api, experiment_id):
+    @classmethod
+    def _experiment_id(cls, api, experiment_id):
         """Try getting experiment_id if not provided."""
         import iotlabcli.helpers
+
+        # Try loading experiment_id from environment variable
+        env_expid = os.environ.get(cls.EXP_ID_ENV_VARIABLE)
+        if not experiment_id and env_expid:
+            return int(env_expid)
+
         return iotlabcli.helpers.get_current_experiment(api, experiment_id)
 
     @classmethod
@@ -103,6 +122,14 @@ class IoTLABAPI(object):
                        experiment_id=None, **_):
         """Create class from argparse entries."""
         return cls(iotlab_username, iotlab_password, experiment_id)
+
+    def to_argparse_list(self):
+        """Return arguments needed to create this object with PARSER."""
+        return [
+            '--iotlab-user', '%s' % self.username,
+            '--iotlab-password', '%s' % self.password,
+            '--experiment-id', '%s' % self.expid,
+        ]
 
     def set_sniffer_channel(self, channel, archi, *nums):
         """Set sniffer on ``channel`` for nodes ``archi`` and ``*nums``."""

@@ -1,6 +1,13 @@
-Agents
-******
+Manager Agent
+*************
 
+.. toctree::
+   :maxdepth: 1
+
+   agents/manager
+
+Task Agents
+***********
 .. toctree::
    :maxdepth: 1
 

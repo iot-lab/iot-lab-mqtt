@@ -167,9 +167,17 @@ def synchronized(lockname):
     return _wrapper
 
 
+def _to_keyboardinterrupt(*_):
+    """Convert signal to SIGINT."""
+    raise KeyboardInterrupt()
+
+
 def wait_sigint():
-    """Pause until Ctrl+C."""
+    """Pause until Ctrl+C or SIGTERM."""
     try:
+        signal.signal(signal.SIGTERM, _to_keyboardinterrupt)
         signal.pause()
     except KeyboardInterrupt:
         pass
+    finally:
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)

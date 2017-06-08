@@ -10,6 +10,7 @@ import os.path
 import threading
 
 import mock
+from iotlabmqtt import common
 from iotlabmqtt import mqttcommon
 from iotlabmqtt.clients import common as clientcommon
 from . import mqttclient_mock
@@ -69,6 +70,27 @@ class MQTTClientTest(AgentTest):
         agent = mqttclient_mock.MQTTClientMock('localhost', 1883)
         agent.connect_delay = 15
         self.assertRaises(RuntimeError, agent.start)
+
+    def test_to_argparse_list(self):
+        """Test MQTTClient.to_argparse_list."""
+        args = ['--broker-port', '8883', 'localhost']
+
+        parser = common.MQTTAgentArgumentParser()
+
+        opts = parser.parse_args(args)
+        client = mqttcommon.MQTTClient.from_opts_dict(**vars(opts))
+
+        new_opts = parser.parse_args(client.to_argparse_list())
+        new_client = mqttcommon.MQTTClient.from_opts_dict(**vars(new_opts))
+
+        # Are the same
+        self.assertEqual(client.server, new_client.server)
+        self.assertEqual(client.port, new_client.port)
+        self.assertEqual(client.topics, new_client.topics)
+
+        # to_argparse_list is stable
+        self.assertEqual(client.to_argparse_list(),
+                         new_client.to_argparse_list())
 
 
 class TopicTest(AgentTest):
