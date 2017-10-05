@@ -49,6 +49,7 @@ class IoTLABAPI(object):
         self.api = api
         self.expid = experiment_id
         self.site = self.HOSTNAME
+        self.user = user
 
         assert self.expid is not None
 
@@ -118,7 +119,12 @@ class IoTLABAPI(object):
 
     def update(self, firmwarepath, archi, *nums):
         """Update nodes ``archi`` and ``*nums`` with ``firmwarepath``."""
-        return self.node_command('update', firmwarepath, archi, *nums)
+        if archi == 'm3' or archi == 'a8':
+            return self.node_command('update', firmwarepath, archi, *nums)
+        else:
+            assert nums
+            msg = "'%s' architecture not supported." % (archi)
+            return self.retval(msg, *nums)
 
     def poweron(self, archi, *nums):
         """Power ON nodes ``archi`` and ``*nums``."""
@@ -187,9 +193,18 @@ class IoTLABAPI(object):
 
     def _node_command(self, command, cmd_opt, archi, *nums):
         import iotlabcli.node
+        import iotlabsshcli.open_a8
         nodes = self._nodes_for_num(archi, *nums)
-        result = iotlabcli.node.node_command(self.api, command, self.expid,
-                                             nodes, cmd_opt)
+
+        if archi == 'm3':
+            result = iotlabcli.node.node_command(self.api, command, self.expid,
+                                                 nodes, cmd_opt)
+        elif archi =='a8':
+            # NOTE: Open-a8-node use different syntax and dictionary format
+            config_ssh = {'user':self.user, 'exp_id':self.expid}
+            result_ = iotlabsshcli.open_a8.flash_m3(config_ssh, nodes, cmd_opt)
+            result  = result_['flash-m3']
+
         return self._command_result_to_retval(result, archi)
 
     def _nodes_for_num(self, archi, *nums):
@@ -203,6 +218,11 @@ class IoTLABAPI(object):
             value = readable_value.get(value, value)
             for node in nodes_list:
                 archi_, num, site_ = infos_from_node(node)
+
+                # WARNING 'node-a8' is not 'a8'
+                if archi == 'a8':
+                    _ , archi_ = archi_.split('-',1)
+
                 numstr = str(num)
                 assert (archi_, site_) == (archi, self.site)
                 assert numstr not in result
@@ -216,7 +236,11 @@ def node_from_infos(archi, num, site):  # pylint:disable=unused-argument
     >>> print(node_from_infos('m3', 1, 'grenoble'))
     m3-1.grenoble.iot-lab.info
     """
-    fmt = '{archi}-{num}.{site}.iot-lab.info'
+    if archi == 'a8':
+        fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
+    else:
+        fmt = '{archi}-{num}.{site}.iot-lab.info'
+
     return fmt.format(**locals())
 
 
