@@ -121,10 +121,10 @@ class IoTLABAPI(object):
         """Update nodes ``archi`` and ``*nums`` with ``firmwarepath``."""
         if archi == 'm3' or archi == 'a8':
             return self.node_command('update', firmwarepath, archi, *nums)
-        else:
-            assert nums
-            msg = "'%s' architecture not supported." % (archi)
-            return self.retval(msg, *nums)
+
+        assert nums
+        msg = "'%s' architecture not supported." % (archi)
+        return self.retval(msg, *nums)
 
     def poweron(self, archi, *nums):
         """Power ON nodes ``archi`` and ``*nums``."""
@@ -199,11 +199,11 @@ class IoTLABAPI(object):
         if archi == 'm3':
             result = iotlabcli.node.node_command(self.api, command, self.expid,
                                                  nodes, cmd_opt)
-        elif archi =='a8':
+        elif archi == 'a8':
             # NOTE: Open-a8-node use different syntax and dictionary format
-            config_ssh = {'user':self.user, 'exp_id':self.expid}
+            config_ssh = {'user': self.user, 'exp_id': self.expid}
             result_ = iotlabsshcli.open_a8.flash_m3(config_ssh, nodes, cmd_opt)
-            result  = result_['flash-m3']
+            result = result_['flash-m3']
 
         return self._command_result_to_retval(result, archi)
 
@@ -221,7 +221,7 @@ class IoTLABAPI(object):
 
                 # WARNING 'node-a8' is not 'a8'
                 if archi == 'a8':
-                    _ , archi_ = archi_.split('-',1)
+                    _, archi_ = archi_.split('-', 1)
 
                 numstr = str(num)
                 assert (archi_, site_) == (archi, self.site)
