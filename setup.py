@@ -68,7 +68,7 @@ ENTRY_POINTS = {
 }
 
 EXTRAS_REQUIRE = {
-    'node': ['iotlabcli>=2.4.0'],
+    'node': ['iotlabcli>=2.4.0', 'iotlabsshcli>=0.1.0'],
     'sniffer': ['iotlabcli>=2.4.0'],
 }
 
