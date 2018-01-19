@@ -38,7 +38,6 @@ class IoTLABAPI(object):
 
     def __init__(self, user=None, password=None, experiment_id=None):
         import iotlabcli.rest
-
         # Autoset user, password and experiment if they are None
         user, password = self._user_password(user, password)
         api = iotlabcli.rest.Api(user, password)
@@ -49,7 +48,10 @@ class IoTLABAPI(object):
         self.api = api
         self.expid = experiment_id
         self.site = self.HOSTNAME
-        self.user = user
+
+        # Support for Open-A8
+        self.config_ssh = {'user': user,
+                           'exp_id': experiment_id}
 
         assert self.expid is not None
 
@@ -119,12 +121,7 @@ class IoTLABAPI(object):
 
     def update(self, firmwarepath, archi, *nums):
         """Update nodes ``archi`` and ``*nums`` with ``firmwarepath``."""
-        if archi == 'm3' or archi == 'a8':
-            return self.node_command('update', firmwarepath, archi, *nums)
-
-        assert nums
-        msg = "'%s' architecture not supported." % (archi)
-        return self.retval(msg, *nums)
+        return self.node_command('update', firmwarepath, archi, *nums)
 
     def poweron(self, archi, *nums):
         """Power ON nodes ``archi`` and ``*nums``."""
@@ -186,25 +183,43 @@ class IoTLABAPI(object):
         """Run IoT-LAB node command and handle errors."""
         assert nums
         try:
-            return self._node_command(command, cmd_opt, archi, *nums)
+            if archi == 'a8':
+                return self._opena8_command(command, cmd_opt, archi, *nums)
+            else:
+                return self._node_command(command, cmd_opt, archi, *nums)
         except (IOError, RuntimeError) as err:
             msg = "IoT-LAB Request '%s' error: '%s'" % (command, err)
             return self.retval(msg, *nums)
 
-    def _node_command(self, command, cmd_opt, archi, *nums):
-        import iotlabcli.node
-        import iotlabsshcli.open_a8
+    def _opena8_command(self, command, cmd_opt, archi, *nums):
+        """ opensshcli make use of IoTLAB API in a different approach
+        """
+        from iotlabsshcli import open_a8
         nodes = self._nodes_for_num(archi, *nums)
 
-        if archi == 'm3':
-            result = iotlabcli.node.node_command(self.api, command, self.expid,
-                                                 nodes, cmd_opt)
-        elif archi == 'a8':
-            # NOTE: Open-a8-node use different syntax and dictionary format
-            config_ssh = {'user': self.user, 'exp_id': self.expid}
-            result_ = iotlabsshcli.open_a8.flash_m3(config_ssh, nodes, cmd_opt)
-            result = result_['flash-m3']
+        if command == 'start':
+            msg = "Open-A8: Request '%s' still not supported" % ('poweron')
+            return self.retval(msg, *nums)
+        elif command == 'stop':
+            msg = "Open-A8: Request '%s' still not supported" % ('poweroff')
+            return self.retval(msg, *nums)
+        elif command == 'reset':
+            _result = open_a8.reset_m3(self.config_ssh, nodes)
+            result = _result['reset-m3']
+        elif command == 'update':
+            _result = open_a8.flash_m3(self.config_ssh, nodes, cmd_opt)
+            result = _result['flash-m3']
+        else:
+            msg = "Open-A8: Command not supported (%s)" % (command)
+            return self.retval(msg, *nums)
 
+        return self._command_result_to_retval(result, archi)
+
+    def _node_command(self, command, cmd_opt, archi, *nums):
+        import iotlabcli.node
+        nodes = self._nodes_for_num(archi, *nums)
+        result = iotlabcli.node.node_command(self.api, command, self.expid,
+                                             nodes, cmd_opt)
         return self._command_result_to_retval(result, archi)
 
     def _nodes_for_num(self, archi, *nums):
@@ -218,11 +233,6 @@ class IoTLABAPI(object):
             value = readable_value.get(value, value)
             for node in nodes_list:
                 archi_, num, site_ = infos_from_node(node)
-
-                # WARNING 'node-a8' is not 'a8'
-                if archi == 'a8':
-                    _, archi_ = archi_.split('-', 1)
-
                 numstr = str(num)
                 assert (archi_, site_) == (archi, self.site)
                 assert numstr not in result
@@ -240,7 +250,6 @@ def node_from_infos(archi, num, site):  # pylint:disable=unused-argument
         fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
     else:
         fmt = '{archi}-{num}.{site}.iot-lab.info'
-
     return fmt.format(**locals())
 
 
@@ -256,5 +265,9 @@ def infos_from_node(node):
     True
     """
     first, site = node.split('.', 2)[:2]
-    archi, numstr = first.rsplit('-', 1)
+    if first.find('a8', 5, 8) >= 0:
+        archi = 'a8'
+        _, archi, numstr = first.rsplit('-', 2)
+    else:
+        archi, numstr = first.rsplit('-', 1)
     return (archi, numstr, site)
