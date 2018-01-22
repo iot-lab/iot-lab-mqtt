@@ -36,6 +36,21 @@ class IoTLABAPI(object):
         'Or register them using ``auth-cli --user USERNAME``'
     )
 
+    A8M3_OPENOCD_TEMPLATE_CMD = """
+    /usr/local/bin/openocd
+            -f "/etc/iotlab-flash-scripts/iot-lab-a8-m3.cfg"
+            -f "target/stm32f1x.cfg"
+            -c "init"
+            -c "targets"
+            {commands}
+            -c "shutdown"
+    """.replace("\n", "").replace("\r", "").strip()
+
+    A8M3_OPENOCD_RESET_RUN_CMD = A8M3_OPENOCD_TEMPLATE_CMD.format(
+        commands=' -c "reset init" -c "reset run"')
+    A8M3_OPENOCD_RESET_HALT_CMD = A8M3_OPENOCD_TEMPLATE_CMD.format(
+        commands=' -c "reset halt"')
+
     def __init__(self, user=None, password=None, experiment_id=None):
         import iotlabcli.rest
         # Autoset user, password and experiment if they are None
@@ -198,11 +213,11 @@ class IoTLABAPI(object):
         nodes = self._nodes_for_num(archi, *nums)
 
         if command == 'start':
-            msg = "Open-A8: Request '%s' still not supported" % ('poweron')
-            return self.retval(msg, *nums)
+            _result = self._opena8_command_start(open_a8, nodes)
+            result = _result['run-cmd']
         elif command == 'stop':
-            msg = "Open-A8: Request '%s' still not supported" % ('poweroff')
-            return self.retval(msg, *nums)
+            _result = self._opena8_command_stop(open_a8, nodes)
+            result = _result['run-cmd']
         elif command == 'reset':
             _result = open_a8.reset_m3(self.config_ssh, nodes)
             result = _result['reset-m3']
@@ -214,6 +229,20 @@ class IoTLABAPI(object):
             return self.retval(msg, *nums)
 
         return self._command_result_to_retval(result, archi)
+
+    def _opena8_command_stop(self, a8api, nodes):
+        """ opensshcli does not have a native function"""
+
+        #TODO: Stop the SOCAT tunnel
+        command = self.A8M3_OPENOCD_RESET_HALT_CMD
+        return a8api.run_cmd(self.config_ssh, nodes, command, False, True)
+
+    def _opena8_command_start(self, a8api, nodes):
+        """ opensshcli does not have a native function"""
+
+        #TODO: Starts the SOCAT tunnel
+        command = self.A8M3_OPENOCD_RESET_RUN_CMD
+        return a8api.run_cmd(self.config_ssh, nodes, command, False, True)
 
     def _node_command(self, command, cmd_opt, archi, *nums):
         import iotlabcli.node
