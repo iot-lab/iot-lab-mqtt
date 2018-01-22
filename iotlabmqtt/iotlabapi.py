@@ -231,18 +231,16 @@ class IoTLABAPI(object):
         return self._command_result_to_retval(result, archi)
 
     def _opena8_command_stop(self, a8api, nodes):
-        """ opensshcli does not have a native function"""
+        """ opensshcli does not have native function for starting the node """
 
-        #TODO: Stop the SOCAT tunnel
         command = self.A8M3_OPENOCD_RESET_HALT_CMD
-        return a8api.run_cmd(self.config_ssh, nodes, command, False, True)
+        return a8api.run_cmd(self.config_ssh, nodes, command, False, False)
 
     def _opena8_command_start(self, a8api, nodes):
-        """ opensshcli does not have a native function"""
+        """ opensshcli does not have native function for stopping the node"""
 
-        #TODO: Starts the SOCAT tunnel
         command = self.A8M3_OPENOCD_RESET_RUN_CMD
-        return a8api.run_cmd(self.config_ssh, nodes, command, False, True)
+        return a8api.run_cmd(self.config_ssh, nodes, command, False, False)
 
     def _node_command(self, command, cmd_opt, archi, *nums):
         import iotlabcli.node
