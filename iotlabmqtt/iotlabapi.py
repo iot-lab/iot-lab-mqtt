@@ -212,6 +212,12 @@ class IoTLABAPI(object):
         from iotlabsshcli import open_a8
         nodes = self._nodes_for_num(archi, *nums)
 
+        # The M3 nodes have access to the socat tunnel all the time.
+        # This tries to mimic the behavior for the A8 nodes.
+        if  command != 'stop':
+            _socat = "nohup /etc/init.d/serial_redirection restart"
+            open_a8.run_cmd(self.config_ssh, nodes, _socat, False, False)
+
         if command == 'start':
             _result = self._opena8_command_start(open_a8, nodes)
             result = _result['run-cmd']
