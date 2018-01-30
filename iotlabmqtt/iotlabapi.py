@@ -210,11 +210,15 @@ class IoTLABAPI(object):
         """ opensshcli make use of IoTLAB API in a different approach
         """
         from iotlabsshcli import open_a8
-        nodes = self._nodes_for_num(archi, *nums)
+        if command != 'profile-load':
+            nodes = self._a8_nodes_for_num(archi, *nums)
+        else:
+            nodes = self._nodes_for_num(archi, *nums)
 
         # The M3 nodes have access to the socat tunnel all the time.
         # This tries to mimic the behavior for the A8 nodes.
-        if  command != 'stop':
+        # if  command != 'stop' and command != 'profile-load':
+        if command == 'start' or command == 'reset':
             _socat = "nohup /etc/init.d/serial_redirection restart"
             open_a8.run_cmd(self.config_ssh, nodes, _socat, False, False)
 
@@ -230,6 +234,10 @@ class IoTLABAPI(object):
         elif command == 'update':
             _result = open_a8.flash_m3(self.config_ssh, nodes, cmd_opt)
             result = _result['flash-m3']
+        elif command == 'profile-load':
+            import iotlabcli.node
+            result = iotlabcli.node.node_command(self.api, command, self.expid,
+                                                 nodes, cmd_opt)
         else:
             msg = "Open-A8: Command not supported (%s)" % (command)
             return self.retval(msg, *nums)
@@ -259,6 +267,10 @@ class IoTLABAPI(object):
         """Return nodes address list for `archi` and `*nums`."""
         return [node_from_infos(archi, num, self.site) for num in nums]
 
+    def _a8_nodes_for_num(self, archi, *nums):
+        """Return nodes address list for `archi` and `*nums`."""
+        return [a8_node_from_infos(archi, num, self.site) for num in nums]
+
     def _command_result_to_retval(self, ret_dict, archi):
         readable_value = {'0': '', '1': 'Execution failed on node'}
         result = {}
@@ -279,12 +291,21 @@ def node_from_infos(archi, num, site):  # pylint:disable=unused-argument
     >>> print(node_from_infos('m3', 1, 'grenoble'))
     m3-1.grenoble.iot-lab.info
     """
-    if archi == 'a8':
-        fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
-    else:
-        fmt = '{archi}-{num}.{site}.iot-lab.info'
+    # if archi == 'a8':
+    #     fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
+    # else:
+    #     fmt = '{archi}-{num}.{site}.iot-lab.info'
+    fmt = '{archi}-{num}.{site}.iot-lab.info'
     return fmt.format(**locals())
 
+def a8_node_from_infos(archi, num, site):  # pylint:disable=unused-argument
+    """Node hostname from infos.
+
+    >>> print(node_from_infos('m3', 1, 'grenoble'))
+    m3-1.grenoble.iot-lab.info
+    """
+    fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
+    return fmt.format(**locals())
 
 def infos_from_node(node):
     """Infos from node hostname.
@@ -300,7 +321,7 @@ def infos_from_node(node):
     first, site = node.split('.', 2)[:2]
     if first.find('a8', 5, 8) >= 0:
         archi = 'a8'
-        _, archi, numstr = first.rsplit('-', 2)
+        _, _, numstr = first.rsplit('-', 2)
     else:
         archi, numstr = first.rsplit('-', 1)
     return (archi, numstr, site)
