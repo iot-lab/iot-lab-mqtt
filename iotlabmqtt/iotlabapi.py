@@ -198,7 +198,8 @@ class IoTLABAPI(object):
         """Run IoT-LAB node command and handle errors."""
         assert nums
         try:
-            if archi == 'a8':
+            # NOTE: radiosniffer requires the standard IoTLAP rest API
+            if archi == 'a8' and command != 'profile-load':
                 return self._opena8_command(command, cmd_opt, archi, *nums)
             else:
                 return self._node_command(command, cmd_opt, archi, *nums)
@@ -210,10 +211,7 @@ class IoTLABAPI(object):
         """ opensshcli make use of IoTLAB API in a different approach
         """
         from iotlabsshcli import open_a8
-        if command != 'profile-load':
-            nodes = self._a8_nodes_for_num(archi, *nums)
-        else:
-            nodes = self._nodes_for_num(archi, *nums)
+        nodes = self._nodes_for_num(archi, *nums, is_nodea8=True)
 
         # The M3 nodes have access to the socat tunnel all the time.
         # This tries to mimic the behavior for the A8 nodes.
@@ -234,10 +232,6 @@ class IoTLABAPI(object):
         elif command == 'update':
             _result = open_a8.flash_m3(self.config_ssh, nodes, cmd_opt)
             result = _result['flash-m3']
-        elif command == 'profile-load':
-            import iotlabcli.node
-            result = iotlabcli.node.node_command(self.api, command, self.expid,
-                                                 nodes, cmd_opt)
         else:
             msg = "Open-A8: Command not supported (%s)" % (command)
             return self.retval(msg, *nums)
@@ -263,13 +257,10 @@ class IoTLABAPI(object):
                                              nodes, cmd_opt)
         return self._command_result_to_retval(result, archi)
 
-    def _nodes_for_num(self, archi, *nums):
+    def _nodes_for_num(self, archi, *nums, is_nodea8=False):
         """Return nodes address list for `archi` and `*nums`."""
-        return [node_from_infos(archi, num, self.site) for num in nums]
-
-    def _a8_nodes_for_num(self, archi, *nums):
-        """Return nodes address list for `archi` and `*nums`."""
-        return [a8_node_from_infos(archi, num, self.site) for num in nums]
+        return [node_from_infos(archi, num, self.site, is_nodea8)
+                for num in nums]
 
     def _command_result_to_retval(self, ret_dict, archi):
         readable_value = {'0': '', '1': 'Execution failed on node'}
@@ -285,27 +276,22 @@ class IoTLABAPI(object):
         return result
 
 
-def node_from_infos(archi, num, site):  # pylint:disable=unused-argument
+def node_from_infos(archi, num, site, is_nodea8):
+    # pylint:disable=unused-argument
     """Node hostname from infos.
+
+    NOTE: There are difference between node-a8-xx and a8-xx.
 
     >>> print(node_from_infos('m3', 1, 'grenoble'))
     m3-1.grenoble.iot-lab.info
     """
-    # if archi == 'a8':
-    #     fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
-    # else:
-    #     fmt = '{archi}-{num}.{site}.iot-lab.info'
-    fmt = '{archi}-{num}.{site}.iot-lab.info'
+    if archi == 'a8' and is_nodea8:
+        fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
+    else:
+        fmt = '{archi}-{num}.{site}.iot-lab.info'
+    # fmt = '{archi}-{num}.{site}.iot-lab.info'
     return fmt.format(**locals())
 
-def a8_node_from_infos(archi, num, site):  # pylint:disable=unused-argument
-    """Node hostname from infos.
-
-    >>> print(node_from_infos('m3', 1, 'grenoble'))
-    m3-1.grenoble.iot-lab.info
-    """
-    fmt = 'node-{archi}-{num}.{site}.iot-lab.info'
-    return fmt.format(**locals())
 
 def infos_from_node(node):
     """Infos from node hostname.
