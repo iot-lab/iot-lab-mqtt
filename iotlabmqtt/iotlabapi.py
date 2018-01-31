@@ -276,7 +276,7 @@ class IoTLABAPI(object):
         return result
 
 
-def node_from_infos(archi, num, site, is_nodea8):
+def node_from_infos(archi, num, site, is_nodea8=False):
     # pylint:disable=unused-argument
     """Node hostname from infos.
 
