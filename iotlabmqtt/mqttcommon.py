@@ -20,6 +20,20 @@ from . import common
 
 PAHO_VERSION = packaging.version.parse(paho.mqtt.__version__)
 
+class MQTTWrapMessage(object):
+    """MQTTMessage wrapper."""
+
+    def __init__(self, obj, reply_publisher):
+        """ Wrapper constructor. """
+        self._wrapped_obj = obj
+        self.reply_publisher = reply_publisher
+
+    def __getattr__(self, attr):
+        # see if this object has attr
+        if attr in self.__dict__:
+            return getattr(self, attr)
+        # proxy to the wrapped object
+        return getattr(self._wrapped_obj, attr)
 
 class MQTTClient(mqtt.Client):
     """MQTT Agent implementation."""
@@ -357,17 +371,17 @@ class RequestServer(Topic):
             fields_values = RequestTopic.clean_callback_fields(fields_values)
             reply_topic = RequestTopic.reply_topic_from_request(msg.topic)
 
-            # Add reply_publisher to message
-            msg.reply_publisher = mqttc.publisher(reply_topic)
+            # Add reply_publisher to (wrapped) message
+            _msg = MQTTWrapMessage(msg, mqttc.publisher(reply_topic))
 
-            result = callback(msg, **fields_values)
+            result = callback(_msg, **fields_values)
 
             # Asynchronous answer
             if result is None:
                 return
 
             # Publish result
-            msg.reply_publisher(result)
+            _msg.reply_publisher(result)
 
         return _wrapper
 
