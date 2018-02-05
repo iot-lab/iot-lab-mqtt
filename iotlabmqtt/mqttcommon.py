@@ -20,6 +20,7 @@ from . import common
 
 PAHO_VERSION = packaging.version.parse(paho.mqtt.__version__)
 
+
 class MQTTWrapMessage(object):
     """MQTTMessage wrapper."""
 
@@ -34,6 +35,7 @@ class MQTTWrapMessage(object):
             return getattr(self, attr)
         # proxy to the wrapped object
         return getattr(self._wrapped_obj, attr)
+
 
 class MQTTClient(mqtt.Client):
     """MQTT Agent implementation."""
