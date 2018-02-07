@@ -211,7 +211,7 @@ class IoTLABAPI(object):
         """ opensshcli make use of IoTLAB API in a different approach
         """
         from iotlabsshcli import open_a8
-        nodes = self._nodes_for_num(archi, *nums, is_nodea8=True)
+        nodes = self._nodes_for_num(archi, True, *nums)
 
         # The M3 nodes have access to the socat tunnel all the time.
         # This tries to mimic the behavior for the A8 nodes.
@@ -252,12 +252,12 @@ class IoTLABAPI(object):
 
     def _node_command(self, command, cmd_opt, archi, *nums):
         import iotlabcli.node
-        nodes = self._nodes_for_num(archi, *nums)
+        nodes = self._nodes_for_num(archi, False, *nums)
         result = iotlabcli.node.node_command(self.api, command, self.expid,
                                              nodes, cmd_opt)
         return self._command_result_to_retval(result, archi)
 
-    def _nodes_for_num(self, archi, *nums, is_nodea8=False):
+    def _nodes_for_num(self, archi, is_nodea8=False, *nums):
         """Return nodes address list for `archi` and `*nums`."""
         return [node_from_infos(archi, num, self.site, is_nodea8)
                 for num in nums]
