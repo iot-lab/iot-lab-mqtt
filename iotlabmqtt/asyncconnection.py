@@ -56,7 +56,7 @@ class NodeConnection(asyncore.dispatcher_with_send):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.connect(self.address)
-        except:  # pylint:disable=broad-except,bare-except
+        except:  # noqa: E722 pylint:disable=broad-except,bare-except
             self.handle_error()
 
     def handle_connect(self):
