@@ -21,7 +21,7 @@ from . import common
 PAHO_VERSION = packaging.version.parse(paho.mqtt.__version__)
 
 
-class MQTTWrapMessage(object): # pylint: disable=too-few-public-methods
+class MQTTWrapMessage(object):  # pylint: disable=too-few-public-methods
     """MQTTMessage wrapper."""
 
     def __init__(self, obj, reply_publisher):
